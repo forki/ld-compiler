@@ -1,7 +1,7 @@
 ﻿namespace System
 open System.Reflection
 
-[<assembly: AssemblyTitleAttribute("publish")>]
+[<assembly: AssemblyTitleAttribute("compiler")>]
 [<assembly: AssemblyProductAttribute("publish")>]
 [<assembly: AssemblyDescriptionAttribute("Project has no summmary; update build.fsx")>]
 [<assembly: AssemblyVersionAttribute("1.0")>]
