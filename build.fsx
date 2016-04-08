@@ -28,24 +28,24 @@ open SourceLink
 
 // The name of the project
 // (used by attributes in AssemblyInfo, name of a NuGet package and directory in 'src')
-let project = "publish"
+let project = "Compiler"
 
 // Short summary of the project
 // (used as description in AssemblyInfo and as a short summary for NuGet package)
-let summary = "Project has no summmary; update build.fsx"
+let summary = "A markdown to RDF compiler"
 
 // Longer description of the project
 // (used as a description for NuGet package; line breaks are automatically cleaned up)
-let description = "Project has no description; update build.fsx"
+let description = "A markdown to RDF compiler"
 
 // List of author names (for NuGet package)
-let authors = [ "Update Author in build.fsx" ]
+let authors = [ "James Kirk" ]
 
 // Tags for your project (for NuGet package)
 let tags = ""
 
 // File system information
-let solutionFile  = "publish.sln"
+let solutionFile  = "Compiler.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
 let testAssemblies = "tests/**/bin/Release/*Tests*.dll"
@@ -56,7 +56,7 @@ let gitOwner = "Update GitHome in build.fsx"
 let gitHome = "https://github.com/" + gitOwner
 
 // The name of the project on GitHub
-let gitName = "publish"
+let gitName = "Compiler"
 
 // The url for the raw files hosted
 let gitRaw = environVarOrDefault "gitRaw" "https://raw.github.com/Update GitHome in build.fsx"
@@ -377,6 +377,35 @@ Target "All" DoNothing
   ==> "Build"
   ==> "CopyBinaries"
   ==> "RunTests"
+  ==> "GenerateReferenceDocs"
+  ==> "GenerateDocs"
   ==> "All"
+  =?> ("ReleaseDocs",isLocalBuild)
+
+"All"
+#if MONO
+#else
+  =?> ("SourceLink", Pdbstr.tryFind().IsSome )
+#endif
+  ==> "NuGet"
+  ==> "BuildPackage"
+
+"CleanDocs"
+  ==> "GenerateHelp"
+  ==> "GenerateReferenceDocs"
+  ==> "GenerateDocs"
+
+"CleanDocs"
+  ==> "GenerateHelpDebug"
+
+"GenerateHelpDebug"
+  ==> "KeepRunning"
+
+"ReleaseDocs"
+  ==> "Release"
+
+"BuildPackage"
+  ==> "PublishNuget"
+  ==> "Release"
 
 RunTargetOrDefault "All"

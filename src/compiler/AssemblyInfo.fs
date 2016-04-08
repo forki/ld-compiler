@@ -2,8 +2,8 @@
 open System.Reflection
 
 [<assembly: AssemblyTitleAttribute("compiler")>]
-[<assembly: AssemblyProductAttribute("publish")>]
-[<assembly: AssemblyDescriptionAttribute("Project has no summmary; update build.fsx")>]
+[<assembly: AssemblyProductAttribute("Compiler")>]
+[<assembly: AssemblyDescriptionAttribute("A markdown to RDF compiler")>]
 [<assembly: AssemblyVersionAttribute("1.0")>]
 [<assembly: AssemblyFileVersionAttribute("1.0")>]
 do ()
