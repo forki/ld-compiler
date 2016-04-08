@@ -1,0 +1,25 @@
+type project
+title
+    ##ProjectName##
+owners
+    Author not set
+authors 
+    Author not set
+projectUrl
+    http://github.com/[github-user]/publish
+iconUrl
+    https://raw.githubusercontent.com/[github-user]/publish/master/docs/files/img/logo.png
+licenseUrl
+    http://github.com/[github-user]/publish/blob/master/LICENSE.txt
+requireLicenseAcceptance
+    false
+copyright
+    Copyright 2015
+tags
+    
+summary
+    
+description
+    Description not set
+
+

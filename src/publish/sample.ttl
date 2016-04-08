@@ -1,0 +1,91 @@
+@base <https://ld.nice.org.uk/>.
+
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix base: <https://ld.nice.org.uk/>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix compilation: <http://ld.nice.org.uk/compilation#>.
+
+<http://ld.nice.org.uk/prov/entity#cd69425:qualitystandards/qs1/st1/Statement.md> <http://ld.nice.org.uk/ns/qualitystandard#abstract> """People with dementia receive care from staff appropriately trained in
+dementia care."""^^xsd:string;
+                                                                                  <http://ld.nice.org.uk/ns/qualitystandard#age> <http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults%2065+%20years>;
+                                                                                  <http://ld.nice.org.uk/ns/qualitystandard#condition> <http://ld.nice.org.uk/ns/qualitystandard/conditionordisease#Anxiety>,
+                                                                                                                                       <http://ld.nice.org.uk/ns/qualitystandard/conditionordisease#Dementia>;
+                                                                                  <http://ld.nice.org.uk/ns/qualitystandard#qsidentifier> 1 ;
+                                                                                  <http://ld.nice.org.uk/ns/qualitystandard#serviceArea> <http://ld.nice.org.uk/ns/qualitystandard/servicearea#Community%20health%20care>,
+                                                                                                                                         <http://ld.nice.org.uk/ns/qualitystandard/servicearea#End%20of%20life%20care>,
+                                                                                                                                         <http://ld.nice.org.uk/ns/qualitystandard/servicearea#Mental%20health%20care>,
+                                                                                                                                         <http://ld.nice.org.uk/ns/qualitystandard/servicearea#Primary%20care>,
+                                                                                                                                         <http://ld.nice.org.uk/ns/qualitystandard/servicearea#Secondary%20medical%20care>,
+                                                                                                                                         <http://ld.nice.org.uk/ns/qualitystandard/servicearea#Social%20care>,
+                                                                                                                                         <http://ld.nice.org.uk/ns/qualitystandard/servicearea#Urgent%20and%20emergency%20care>;
+                                                                                  <http://ld.nice.org.uk/ns/qualitystandard#setting> <http://ld.nice.org.uk/ns/qualitystandard/setting#Care%20home>,
+                                                                                                                                     <http://ld.nice.org.uk/ns/qualitystandard/setting#Community>,
+                                                                                                                                     <http://ld.nice.org.uk/ns/qualitystandard/setting#Hospice>,
+                                                                                                                                     <http://ld.nice.org.uk/ns/qualitystandard/setting#Hospital>,
+                                                                                                                                     <http://ld.nice.org.uk/ns/qualitystandard/setting#Primary%20care%20setting>;
+                                                                                  <http://ld.nice.org.uk/ns/qualitystandard#stidentifier> 1 ;
+                                                                                  <http://ld.nice.org.uk/ns/qualitystandard#title> "Quality Statement 1 from Quality Standard 1"^^xsd:string;
+a owl:NamedIndividual;
+                                                                                  <http://www.w3.org/2011/content#chars> """```
+Setting:
+  - \"Hospital\"
+  - \"Care home\"
+  - \"Community\"
+  - \"Hospice\"
+  - \"Primary care setting\"
+Age Group:
+  - \"Adults 65+ years\"
+Condition or disease:
+  - \"Dementia\"
+  - \"Anxiety\"
+Service area:
+  - \"Community health care\"
+  - \"End of life care\"
+  - \"Mental health care\"
+  - \"Primary care\"
+  - \"Secondary medical care\"
+  - \"Social care\"
+  - \"Urgent and emergency care\"
+```
+Quality statement 1: Appropriately trained staff
+------------------------------------------------
+
+### Quality statement
+
+People with dementia receive care from staff appropriately trained in
+dementia care.
+
+### Quality measure
+
+**Structure:** Evidence of local arrangements to provide and maintain up
+to date dementia training for staff.
+
+**Service providers** ensure that all health and social care workers are
+appropriately trained in dementia care according to their roles and
+responsibilities.
+
+**Health and social care professionals** who work with people with
+dementia ensure they receive training in dementia care consistent with
+their roles and responsibilities.
+
+**Commissioners**ensure service providers have arrangements for training
+health and social care professionals in dementia care*.*
+
+**People with dementia** can expect that the health and social care
+professionals who care for them will have dementia care training.
+
+### Data source
+
+**Structure:** Local data collection. Contained within [NICE CG42 audit
+support](http://www.nice.org.uk/guidance/cg42/resources/cg42-dementia-audit-support-update),
+criterion 9. Acute Trusts can collect data on dementia awareness
+training using the [National Audit of
+Dementia](http://www.rcpsych.ac.uk/workinpsychiatry/qualityimprovement/nationalclinicalaudits/dementia/nationalauditofdementia/reportsandauditmaterials/audittoolsandstandards.aspx)
+organisational checklist, section 7.
+
+**Process:** Local data collection.
+
+
+"""^^xsd:string.
