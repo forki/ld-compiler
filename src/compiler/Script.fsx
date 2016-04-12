@@ -34,7 +34,7 @@ open VDS.RDF.Parsing
 open VDS.RDF.Query
 open System.IO
 
-//let sGraph = File.ReadAllText "sample.ttl" 
+let sGraph = File.ReadAllText "sample.ttl" 
 //let g2 = new Graph()
 //g2.LoaIGraph g = new Graph();
 
@@ -54,6 +54,6 @@ let loadGraph (g:string) =
   dog.LoadGraph(graph, "http://ld.nice.org.uk")
   1
 
-let ttl = sb.ToString()
-loadGraph ttl
+//let ttl = sb.ToString()
+loadGraph sGraph
 

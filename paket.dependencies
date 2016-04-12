@@ -1,6 +1,7 @@
 source https://nuget.org/api/v2
 nuget FSharp.Formatting 2.10.3
 nuget FSharp.RDF
+nuget FSharp.Text.RegexProvider
 nuget Unquote
 
 group Build

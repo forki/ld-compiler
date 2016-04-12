@@ -7,7 +7,11 @@
 @prefix owl: <http://www.w3.org/2002/07/owl#>.
 
 <http://ld.nice.org.uk/qualitystatement/qs1/st1> <http://ld.nice.org.uk/ns/qualitystandard#abstract> "This is the abstract."^^xsd:string;
-                                                 <http://ld.nice.org.uk/ns/qualitystandard#content> """```
+                                                 <http://ld.nice.org.uk/ns/qualitystandard#qsidentifier> 1 ;
+                                                 <http://ld.nice.org.uk/ns/qualitystandard#stidentifier> 1 ;
+                                                 <http://ld.nice.org.uk/ns/qualitystandard#title> "Quality Statement 1 from Quality Standard 1"^^xsd:string;
+                                                 a owl:NamedIndividual;
+                                                 <http://www.w3.org/2011/content#chars> """```
 Vocab:
   - \"Term\"
 ```
@@ -19,5 +23,4 @@ This is the title
 This is the abstract.
 
 This is some content.
-"""^^xsd:string;
-                                                 <http://ld.nice.org.uk/ns/qualitystandard#title> "Quality Statement 1 from Quality Standard 1"^^xsd:string.
+"""^^xsd:string.

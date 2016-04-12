@@ -51,6 +51,7 @@
     <Compile Include="RDF.fs" />
     <Compile Include="Turtle.fs" />
     <Compile Include="Program.fs" />
+    <None Include="Publish.fsx" />
     <None Include="Script.fsx" />
     <None Include="paket.references" />
     <None Include="paket.template" />
@@ -291,7 +292,23 @@
       <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
+    <Reference Include="FSharp.Text.RegexProvider">
+      <HintPath>..\..\packages\FSharp.Text.RegexProvider\lib\net40\FSharp.Text.RegexProvider.dll</HintPath>
+      <Private>True</Private>
+      <Paket>True</Paket>
+    </Reference>
   </ItemGroup>
+  <Choose>
+    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.0' Or $(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
+      <ItemGroup>
+        <Reference Include="FSharp.Text.RegexProvider">
+          <HintPath>..\..\packages\FSharp.Text.RegexProvider\lib\net40\FSharp.Text.RegexProvider.dll</HintPath>
+          <Private>True</Private>
+          <Paket>True</Paket>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
       <ItemGroup>

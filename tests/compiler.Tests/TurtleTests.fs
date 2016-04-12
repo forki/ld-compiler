@@ -13,7 +13,7 @@ let ``Should serialize resource to ttl`` () =
   let resource = resource !! "http://someuri.com"
                   [dataProperty !!"http://someuri#someproperty" ("Some property"^^xsd.string)]
 
-  let expected = """@base <http://ld.nice.org.uk/ns#>.
+  let expected = """@base <http://ld.nice.org.uk/>.
 
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
