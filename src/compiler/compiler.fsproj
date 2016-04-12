@@ -50,6 +50,8 @@
     <Compile Include="MarkdownParser.fs" />
     <Compile Include="RDF.fs" />
     <Compile Include="Turtle.fs" />
+    <Compile Include="Stardog.fs" />
+    <Compile Include="Publish.fs" />
     <Compile Include="Program.fs" />
     <None Include="Publish.fsx" />
     <None Include="Script.fsx" />
@@ -289,11 +291,6 @@
     </Reference>
     <Reference Include="pellet">
       <HintPath>..\..\packages\FSharp.RDF\lib\pellet.dll</HintPath>
-      <Private>True</Private>
-      <Paket>True</Paket>
-    </Reference>
-    <Reference Include="FSharp.Text.RegexProvider">
-      <HintPath>..\..\packages\FSharp.Text.RegexProvider\lib\net40\FSharp.Text.RegexProvider.dll</HintPath>
       <Private>True</Private>
       <Paket>True</Paket>
     </Reference>

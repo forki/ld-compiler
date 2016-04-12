@@ -5,6 +5,7 @@ open publish.File
 open publish.Markdown
 open publish.RDF
 open publish.Turtle
+open publish.Stardog
 open System.IO
 
 //let findFiles inputDir =
@@ -21,12 +22,13 @@ let main args =
   let content = File.ReadAllText inputFile
   let file = {Path = inputFile; Content = content}
 
-  let ttl =
-    file
-    |> extractStatement 
-    |> transformToRDF  
-    |> transformToTurtle
+  file
+  |> extractStatement 
+  |> transformToRDF  
+  |> transformToTurtle
+  |> Stardog.write
+  |> ignore
 
-  File.WriteAllText( outputFile, ttl)
+  
 
   0
