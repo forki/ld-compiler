@@ -45,7 +45,7 @@ let authors = [ "James Kirk" ]
 let tags = ""
 
 // File system information
-let solutionFile  = "Compiler.sln"
+let solutionFile  = "compiler.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
 let testAssemblies = "tests/**/bin/Release/*Tests*.dll"
@@ -130,13 +130,14 @@ Target "CleanDocs" (fun _ ->
 // Build library & test project
 
 Target "Build" (fun _ ->
-    !! solutionFile
+    printf "Running build task...."
+    let s = !! solutionFile
 #if MONO
-    |> MSBuildReleaseExt "" [ ("DefineConstants","MONO") ] "Rebuild"
+            |> MSBuildReleaseExt "" [ ("DefineConstants","MONO") ] "Rebuild"
 #else
-    |> MSBuildRelease "" "Rebuild"
+            |> MSBuildRelease "" "Rebuild"
 #endif
-    |> ignore
+    printf "%A" s
 )
 
 // --------------------------------------------------------------------------------------
@@ -377,32 +378,7 @@ Target "All" DoNothing
   ==> "Build"
   ==> "CopyBinaries"
   ==> "RunTests"
-  ==> "GenerateReferenceDocs"
-  ==> "GenerateDocs"
   ==> "All"
-  =?> ("ReleaseDocs",isLocalBuild)
-
-"All"
-#if MONO
-#else
-  =?> ("SourceLink", Pdbstr.tryFind().IsSome )
-#endif
-  ==> "NuGet"
-  ==> "BuildPackage"
-
-"CleanDocs"
-  ==> "GenerateHelp"
-  ==> "GenerateReferenceDocs"
-  ==> "GenerateDocs"
-
-"CleanDocs"
-  ==> "GenerateHelpDebug"
-
-"GenerateHelpDebug"
-  ==> "KeepRunning"
-
-"ReleaseDocs"
-  ==> "Release"
 
 "BuildPackage"
   ==> "PublishNuget"

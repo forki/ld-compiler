@@ -60,6 +60,7 @@
     <Compile Include="YamlParserTests.fs" />
     <Compile Include="RDFTests.fs" />
     <Compile Include="TurtleTests.fs" />
+    <Compile Include="JsonLdTests.fs" />
     <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
@@ -72,8 +73,8 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\publish\publish.fsproj">
-      <Name>publish</Name>
+    <ProjectReference Include="..\..\src\compiler\compiler.fsproj">
+      <Name>compiler</Name>
       <Project>{f2987d10-f785-4e80-a70a-111d21bd0080}</Project>
       <Private>True</Private>
     </ProjectReference>

@@ -51,6 +51,7 @@
     <Compile Include="RDF.fs" />
     <Compile Include="Turtle.fs" />
     <Compile Include="Stardog.fs" />
+    <Compile Include="JsonLd.fs" />
     <Compile Include="Publish.fs" />
     <Compile Include="Program.fs" />
     <None Include="Publish.fsx" />

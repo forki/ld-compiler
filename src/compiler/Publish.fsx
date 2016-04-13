@@ -78,8 +78,7 @@ let contexts = contextArgs |> List.map contextS
 let context = (JObject.Parse(sprintf """ {
             "@context": [
                  {"@language" : "en"},
-                 %s,
-                 {"resource" : "http://ld.nice.org.uk/resource#" }
+                 %s
               ]
            }
     """ (String.concat ",\n" contexts)) :> JToken)
@@ -131,6 +130,39 @@ opts.SetUseRdfType(false)
 opts.SetUseNativeTypes(true)
 opts.SetEmbed(System.Nullable<_>(true))
 opts.SetExplicit(System.Nullable<_>(false))
+
+//#I "../../packages/FSharp.RDF/lib"
+//#r "FSharp.RDF.dll"
+//#r "dotNetRDF.dll"
+//
+//open FSharp.RDF
+//open Assertion
+//open resource
+//open rdf
+//let transformToTtl resource =
+//  let s = ""
+//  let sb = new System.Text.StringBuilder(s)
+//  
+//  let og = Graph.empty (!!"http://sometest/ns#") [("base",!!"http://sometest/ns#")]
+//  
+//  [resource]
+//  |> Assert.graph og
+//  |> Graph.writeTtl (toString sb)
+//  |> ignore
+//  sb.ToString()
+//
+//let xr =
+//  (resources
+//   |> Seq.map subGraph 
+//   |> Seq.map
+//        (Resource.fromType
+//           (Uri.from "http://www.w3.org/2002/07/owl#NamedIndividual"))
+//  |> Seq.filter (List.isEmpty >> not))
+//
+//let rs = xr |> Seq.head |> Seq.head |> transformToTtl
+
+/////////////////////////////////////////////////
+
 
 let toPublish = 
   let xr =
