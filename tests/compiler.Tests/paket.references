@@ -1,5 +1,6 @@
 FSharp.RDF
 Unquote
+FSharp.Data
 group Test
 NUnit
 NUnit.Runners
