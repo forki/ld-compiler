@@ -17,7 +17,7 @@ open Newtonsoft.Json
 ///Append _id and _type, kill context for now as elastic doesn't like the remotes
 ///Would whine about type implicit from structure but this would be a bit hypocritical
 let private elasiticerise (x : JObject) =
-  x.["_id"] <- x.["prov:specializationOf"]
+  x.["_id"] <- x.GetValue("@id")
   x.Add("_type",JValue("qualitystatement"))
   x.Remove("@context") |> ignore
   x
