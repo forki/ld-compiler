@@ -7,15 +7,17 @@ open publish.RDF
 open publish.Turtle
 open publish.Stardog
 open publish.JsonLd
+open publish.Elastic
 open System.IO
 
-//let findFiles inputDir =
-//  let dir = System.IO.DirectoryInfo(inputDir)
-//  let files = dir.GetFiles("Statement.md", System.IO.SearchOption.AllDirectories)
-//  files |> Array.map(fun fs -> {FilePath = fs.FullName}) |> Array.toList
 let private writeToDisk outputDir (resources:string seq) =
-  let outputFile = sprintf "%s/output.json" outputDir
+  let outputFile = sprintf "%s/output.jsonld" outputDir
   File.WriteAllText(outputFile, resources |> Seq.head)
+
+let private findFiles inputDir filePattern =
+  let dir = System.IO.DirectoryInfo(inputDir)
+  let files = dir.GetFiles(filePattern, System.IO.SearchOption.AllDirectories)
+  files |> Array.map(fun fs -> fs.FullName) |> Array.toList
 
 [<EntryPoint>]
 let main args =
@@ -49,10 +51,13 @@ let main args =
     "http://ld.nice.org.uk/ns/qualitystandard/servicearea.jsonld "
   ]
 
+  let indexName = "kb"
+  let typeName = "qualitystatement"
+
   let content = File.ReadAllText inputFile
   let file = {Path = inputFile; Content = content}
 
-  Stardog.createDb
+  Stardog.createDb ()
 
   file
   |> extractStatement 
@@ -65,7 +70,10 @@ let main args =
   resources
   |> transformToJsonLD contexts
   |> writeToDisk outputDir
-  |> ignore
-  // |> uploadToElastic
+
+  let jsonldFiles = findFiles outputDir "*.jsonld"
+  jsonldFiles
+  |> Seq.map (fun f -> {Path = f; Content = File.ReadAllText f})
+  |> bulkUpload indexName typeName
 
   0
