@@ -47,7 +47,7 @@ let private jsonLdContext contexts =
      ]
    } """ (String.concat ",\n" contexts)) :> JToken)
 
-let transformToJsonLD resources contexts =
+let transformToJsonLD contexts resources =
 
   let context = jsonLdContext contexts
   let opts = jsonLdOptions () 

@@ -25,7 +25,7 @@ let ``Should add a _id field with resource uri``() =
           [dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#title" ("title goes here"^^xsd.string)]
   let contexts = ["http://ld.nice.org.uk/ns/qualitystandard.jsonld"]
 
-  let json = transformToJsonLD [[simpleResource]] contexts |> Seq.head
+  let json = transformToJsonLD contexts [[simpleResource]] |> Seq.head
   let jsonld = JsonLdSchema.Parse(json)
 
   test <@ jsonld.Id.JsonValue.AsString() = uri @>
@@ -35,7 +35,7 @@ let ``Should add a _type field``() =
   let simpleResource = resource !! "http://ld.nice.org.uk/qualitystatement/id_goes_here"  []
 
   let contexts = []
-  let json = transformToJsonLD [[simpleResource]] contexts |> Seq.head
+  let json = transformToJsonLD contexts [[simpleResource]] |> Seq.head
   let jsonld = JsonLdSchema.Parse(json)
 
   test <@ jsonld.Type.JsonValue.AsString() = "qualitystatement" @>
@@ -48,7 +48,7 @@ let ``Should use context to compress related context fields``() =
       [dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#title" ("title goes here"^^xsd.string)]
   let contexts = ["http://ld.nice.org.uk/ns/qualitystandard.jsonld"]
 
-  let json = transformToJsonLD [[simpleResource]] contexts |> Seq.head
+  let json = transformToJsonLD contexts [[simpleResource]] |> Seq.head
   let jsonld = JsonLdSchema.Parse(json)
 
   test <@ jsonld.HttpLdNiceOrgUkNsQualitystandardTitle.JsonValue.AsString() = "title goes here" @>

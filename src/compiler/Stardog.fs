@@ -11,22 +11,29 @@ open FSharp.RDF.Store
 open FSharp.Text.RegexProvider
 type PathRegex = Regex< ".*<(?<firstPartOfPropertyPath>.*)>.*">
 
-let write ttl =
+let createDb () =
+  // TODO: rewrite this script as a http request!
+  let proc = Process.Start("createdb")
+  let timeout = 10000
+
+  proc.WaitForExit(timeout) |> ignore
+
+let addGraph outputDir ttl =
   // TODO: figure out how to do use dotNetRDF/FSharp.RDF to do this.
-  let filePath = "$ARTIFACTS_DIR/output.ttl"
+  let filePath = sprintf "%s/output.ttl" outputDir
   File.WriteAllText(filePath, ttl) 
-  let cmd = sprintf "addgraph --named-graph http://ld.nice.org.uk/ %s" filePath
-  let proc = Process.Start(cmd)
+  let args = sprintf "--named-graph http://ld.nice.org.uk/ %s" filePath
+  let proc = Process.Start("addgraph", args)
   let timeout = 10000
 
   proc.WaitForExit(timeout) |> ignore
   File.Delete filePath
   
 
-let queryResources propertyPaths () =
+let queryResources propertyPaths =
 
   let stardog =
-    Store.Store.stardog "http://localhost:5820" "nice" "admin" "admin" false
+    Store.Store.stardog "http://stardog:5820" "nice" "admin" "admin" false
 
   let urinode =
       function

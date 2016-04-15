@@ -6,18 +6,23 @@ open publish.Markdown
 open publish.RDF
 open publish.Turtle
 open publish.Stardog
+open publish.JsonLd
 open System.IO
 
 //let findFiles inputDir =
 //  let dir = System.IO.DirectoryInfo(inputDir)
 //  let files = dir.GetFiles("Statement.md", System.IO.SearchOption.AllDirectories)
 //  files |> Array.map(fun fs -> {FilePath = fs.FullName}) |> Array.toList
+let private writeToDisk outputDir (resources:string seq) =
+  let outputFile = sprintf "%s/output.json" outputDir
+  File.WriteAllText(outputFile, resources |> Seq.head)
 
 [<EntryPoint>]
 let main args =
   let inputFile = args.[0]
-  printf "Input file: %s arse" inputFile 
-  printf "Input file: %s arse" inputFile 
+  let outputDir = args.[1]
+  printf "Input file: %s" inputFile 
+  printf "Output file: %s" outputDir 
 
   let propertyPaths = [ 
     "<http://ld.nice.org.uk/ns/qualitystandard#age>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#age>/rdfs:subClassOf*" 
@@ -47,16 +52,20 @@ let main args =
   let content = File.ReadAllText inputFile
   let file = {Path = inputFile; Content = content}
 
+  Stardog.createDb
+
   file
   |> extractStatement 
   |> transformToRDF  
   |> transformToTurtle
-  |> Stardog.write
+  |> Stardog.addGraph outputDir
   |> ignore
 
-  Stardog.queryResources propertyPaths |> ignore
-  // |> transformToJsonLD contexts
-  // |> writeToDisk
+  let resources = Stardog.queryResources propertyPaths
+  resources
+  |> transformToJsonLD contexts
+  |> writeToDisk outputDir
+  |> ignore
   // |> uploadToElastic
 
   0

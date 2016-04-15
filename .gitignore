@@ -187,3 +187,6 @@ docs/tools/FSharp.Formatting.svclog
 
 #emacs
 *.#*
+
+# integration test artifacts
+/artifacts

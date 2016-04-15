@@ -1,0 +1,22 @@
+mimir:
+  image: nice/mimir
+  links:
+    - stardog
+    - elastic
+  volumes_from:
+    - stardog
+  volumes:
+    - bin/compiler:/compiler
+    - samples:/samples
+    - artifacts:/artifacts
+  command: bash -c "sleep 10 && mono /compiler/publish.exe samples/qs1/st1/Statement.md /artifacts && cat /artifacts/output.json"
+stardog:
+  image: nice/ld-docker-stardog
+  ports:
+    - "5820:5820"
+  volumes:
+    - /dev/urandom:/dev/random
+elastic:
+  image: nice/ld-docker-elasticsearch
+  ports:
+    - "9200:9200"
