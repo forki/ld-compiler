@@ -48,7 +48,7 @@ let tags = ""
 let solutionFile  = "compiler.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
-let testAssemblies = "tests/**/bin/Release/*Tests*.dll"
+let unitTestAssemblies = "tests/**/bin/Release/*.Tests*.dll"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
@@ -133,9 +133,9 @@ Target "Build" (fun _ ->
     printf "Running build task...."
     let s = !! solutionFile
 #if MONO
-            |> MSBuildReleaseExt "" [ ("DefineConstants","MONO") ] "Rebuild"
+            |> MSBuildReleaseExt "" [ ("DefineConstants","MONO") ] "Build"
 #else
-            |> MSBuildRelease "" "Rebuild"
+            |> MSBuildRelease "" "Build"
 #endif
     printf "%A" s
 )
@@ -144,12 +144,28 @@ Target "Build" (fun _ ->
 // Run the unit tests using test runner
 
 Target "RunTests" (fun _ ->
-    !! testAssemblies
+    !! unitTestAssemblies
     |> NUnit (fun p ->
         { p with
             DisableShadowCopy = true
             TimeOut = TimeSpan.FromMinutes 20.
             OutputFile = "TestResults.xml" })
+)
+
+Target "RunIntegrationTests" (fun _ ->
+  ExecProcess (fun info -> info.FileName <- "docker-compose"
+                           info.Arguments <- "up -d") (TimeSpan.FromMinutes 5.0) |> ignore
+  let result =
+    ExecProcess (fun info -> info.FileName <- "docker-compose"
+                             info.Arguments <- "run mimir bash /tests/run.sh") (TimeSpan.FromMinutes 5.0)
+
+  // Now stop and remove the containers
+  ExecProcess (fun info -> info.FileName <- "docker-compose"
+                           info.Arguments <- "stop") (TimeSpan.FromMinutes 5.0) |> ignore
+  ExecProcess (fun info -> info.FileName <- "docker-compose"
+                           info.Arguments <- "rm -f") (TimeSpan.FromMinutes 5.0) |> ignore
+  printf "Docker-compose exited with code %d" result
+  if result <> 0 then failwithf "docker-compose returned with a non-zero exit code"
 )
 
 #if MONO
@@ -383,5 +399,11 @@ Target "All" DoNothing
 "BuildPackage"
   ==> "PublishNuget"
   ==> "Release"
+
+"Clean"
+  ==> "Build"
+  ==> "CopyBinaries"
+  ==> "RunIntegrationTests"
+
 
 RunTargetOrDefault "All"

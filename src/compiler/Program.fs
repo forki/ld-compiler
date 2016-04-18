@@ -12,9 +12,14 @@ open System.IO
 
 let private writeToDisk outputDir (resources:string seq) =
   let outputFile = sprintf "%s/output.jsonld" outputDir
-  File.WriteAllText(outputFile, resources |> Seq.head)
+  printf "writing %s to disk\n" outputFile
+  try 
+    File.WriteAllText(outputFile, resources |> Seq.head)
+    printf "finsihed writing %s to disk\n" outputFile
+  with ex -> printf "problem writing %s to disk!\n" outputFile
 
 let private findFiles inputDir filePattern =
+  printf "finding %s files in %s\n" filePattern inputDir
   let dir = System.IO.DirectoryInfo(inputDir)
   let files = dir.GetFiles(filePattern, System.IO.SearchOption.AllDirectories)
   files |> Array.map(fun fs -> fs.FullName) |> Array.toList
@@ -23,8 +28,8 @@ let private findFiles inputDir filePattern =
 let main args =
   let inputFile = args.[0]
   let outputDir = args.[1]
-  printf "Input file: %s" inputFile 
-  printf "Output file: %s" outputDir 
+  printf "Input file: %s\n" inputFile 
+  printf "Output file: %s\n" outputDir 
 
   let propertyPaths = [ 
     "<http://ld.nice.org.uk/ns/qualitystandard#age>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#age>/rdfs:subClassOf*" 
@@ -66,12 +71,15 @@ let main args =
   |> Stardog.addGraph outputDir
   |> ignore
 
+  printf "Extracting resources\n"
   let resources = Stardog.queryResources propertyPaths
+  printf "Found %d resources\n" (Seq.length resources)
   resources
   |> transformToJsonLD contexts
   |> writeToDisk outputDir
 
   let jsonldFiles = findFiles outputDir "*.jsonld"
+  printf "Found jsonld files: %A" jsonldFiles
   jsonldFiles
   |> Seq.map (fun f -> {Path = f; Content = File.ReadAllText f})
   |> bulkUpload indexName typeName

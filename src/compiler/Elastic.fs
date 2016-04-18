@@ -4,9 +4,12 @@ open FSharp.Data
 open System.IO
 open publish.File
 
+type IdSchema = JsonProvider<""" {"_id":"" }""">
+
 let buildBulkData indexName typeName jsonldResources =
   let buildCreateCommand acc jsonldResource = 
-    let cmd = sprintf "{ \"create\" : { \"_id\" : \"id1\", \"_type\" : \"%s\",\"_index\" : \"%s\" }}\n%s\n " typeName indexName jsonldResource.Content
+    let id = IdSchema.Parse(jsonldResource.Content).Id.JsonValue.AsString()
+    let cmd = sprintf "{ \"create\" : { \"_id\" : \"%s\", \"_type\" : \"%s\",\"_index\" : \"%s\" }}\n%s\n " id typeName indexName jsonldResource.Content
     acc + cmd
 
   jsonldResources
@@ -15,7 +18,9 @@ let buildBulkData indexName typeName jsonldResources =
 let bulkUpload indexName typeName jsonldResources =
   let esUrl = sprintf "http://elastic:9200/%s" indexName
 
-  Http.Request(esUrl, httpMethod="DELETE") |> ignore
+  try
+    Http.Request(esUrl, httpMethod="DELETE") |> ignore
+  with ex -> printf "Index not created yet, skipping delete " ex
   Http.Request(esUrl, httpMethod="POST", body = TextRequest """
 {
   "settings" : {
@@ -88,4 +93,7 @@ let bulkUpload indexName typeName jsonldResources =
 """) |> ignore
 
   let bulkData = buildBulkData indexName typeName jsonldResources
+  printf "uploading bulk data: %s" bulkData
   Http.Request(esUrl + "/qualitystatement/_bulk", httpMethod="POST", body=TextRequest bulkData ) |> ignore
+
+  Http.Request(esUrl + "/_refresh", httpMethod="POST") |> ignore
