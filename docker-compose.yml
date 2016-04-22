@@ -7,8 +7,6 @@ mimir:
     - stardog
   volumes:
     - bin/compiler:/compiler
-    - samples:/samples
-    - artifacts:/artifacts
     - .:/nunit
     - tests/compiler.IntegrationTests:/tests
   command: sleep 1000000

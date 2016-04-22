@@ -15,12 +15,12 @@ let buildBulkData indexName typeName jsonldResources =
   jsonldResources
   |> Seq.fold buildCreateCommand ""
 
-let bulkUpload indexName typeName jsonldResources =
-  let esUrl = sprintf "http://elastic:9200/%s" indexName
-
+let private deleteIndex esUrl = 
   try
     Http.Request(esUrl, httpMethod="DELETE") |> ignore
-  with ex -> printf "Index not created yet, skipping delete " ex
+  with ex -> printf "Index not created yet, skipping delete\n" 
+
+let private postMappings esUrl = 
   Http.Request(esUrl, httpMethod="POST", body = TextRequest """
 {
   "settings" : {
@@ -61,10 +61,6 @@ let bulkUpload indexName typeName jsonldResources =
             "type" : "integer",
             "index" : "not_analyzed"
           },
-          "prov:specializationOf" : {
-            "type" : "string",
-            "index" : "not_analyzed"
-          },
           "qualitystandard:serviceArea" : {
             "type" : "string",
             "index" : "not_analyzed"
@@ -92,8 +88,18 @@ let bulkUpload indexName typeName jsonldResources =
 }'
 """) |> ignore
 
-  let bulkData = buildBulkData indexName typeName jsonldResources
+let private refreshIndex esUrl = Http.Request(esUrl + "/_refresh", httpMethod="POST") |> ignore
+let private uploadBulkData esUrl typeName bulkData = 
   printf "uploading bulk data: %s" bulkData
-  Http.Request(esUrl + "/qualitystatement/_bulk", httpMethod="POST", body=TextRequest bulkData ) |> ignore
+  let url = sprintf "%s/%s/_bulk" esUrl typeName
+  Http.Request(url, httpMethod="POST", body=TextRequest bulkData ) |> ignore
 
-  Http.Request(esUrl + "/_refresh", httpMethod="POST") |> ignore
+let bulkUpload indexName typeName jsonldResources =
+  let esUrl = sprintf "http://elastic:9200/%s" indexName
+
+  deleteIndex esUrl
+  postMappings esUrl
+
+  let bulkData = buildBulkData indexName typeName jsonldResources
+  uploadBulkData esUrl typeName bulkData
+  refreshIndex esUrl

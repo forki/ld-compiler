@@ -6,8 +6,8 @@ open Assertion
 open resource
 open rdf
 
-let transformToRDF statement =
-  let uri = sprintf "http://ld.nice.org.uk/qualitystatement/%s" statement.Id
+let transformToRDF baseUrl statement =
+  let uri = sprintf "%s/%s" baseUrl statement.Id
 
   resource !! uri
     [a !! "owl:NamedIndividual"

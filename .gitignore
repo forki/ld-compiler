@@ -191,3 +191,5 @@ docs/tools/FSharp.Formatting.svclog
 
 # integration test artifacts
 /artifacts
+samples/qs1/st1/Statement.md
+samples/qs1/st2/Statement.md

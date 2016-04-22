@@ -45,12 +45,25 @@ let private jsonLdContext contexts =
        {"@language" : "en"},
        %s
      ]
-   } """ (String.concat ",\n" contexts)) :> JToken)
+   } """ (String.concat ",\n" contexts)))
 
-let transformToJsonLD contexts resources =
+let private toCompactedJsonLD opts context resource =
+  Resource.compatctedJsonLD opts (Context(context, opts)) resource
+
+type IdSchema = JsonProvider<""" {"_id":"" }""">
+
+let private createIdJsonTuple baseUrl jsonLd =
+  let uri = ( IdSchema.Parse jsonLd ).Id.JsonValue.AsString()
+  let id = uri.Replace(baseUrl+"/", "").Replace("/","_")
+  (id, jsonLd)
+
+let transformToJsonLD baseUrl contexts resources =
 
   let context = jsonLdContext contexts
   let opts = jsonLdOptions () 
 
   resources
-  |> Seq.map ((Resource.compatctedJsonLD opts (Context(context, opts))) >> elasiticerise >> toJson)
+  |> Seq.map (toCompactedJsonLD opts context
+              >> elasiticerise
+              >> toJson
+              >> createIdJsonTuple baseUrl)
