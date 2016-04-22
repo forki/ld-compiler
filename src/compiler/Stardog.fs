@@ -18,17 +18,13 @@ let createDb () =
 
   proc.WaitForExit(timeout) |> ignore
 
-let addGraph outputDir ttl =
+let addGraph files =
   // TODO: figure out how to do use dotNetRDF/FSharp.RDF to do this.
-  let filePath = sprintf "%s/output.ttl" outputDir
-  File.WriteAllText(filePath, ttl) 
-  let args = sprintf "--named-graph http://ld.nice.org.uk/ %s" filePath
+  let args = sprintf "--named-graph http://ld.nice.org.uk/ %s" files
   let proc = Process.Start("addgraph", args)
-  let timeout = 10000
+  let timeout = 100000
 
   proc.WaitForExit(timeout) |> ignore
-  File.Delete filePath
-  
 
 let queryResources propertyPaths =
 

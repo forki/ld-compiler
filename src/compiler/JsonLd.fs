@@ -52,12 +52,11 @@ let private toCompactedJsonLD opts context resource =
 
 type IdSchema = JsonProvider<""" {"_id":"" }""">
 
-let private createIdJsonTuple baseUrl jsonLd =
-  let uri = ( IdSchema.Parse jsonLd ).Id.JsonValue.AsString()
-  let id = uri.Replace(baseUrl+"/", "").Replace("/","_")
+let private createIdJsonTuple jsonLd =
+  let id = ( IdSchema.Parse jsonLd ).Id.JsonValue.AsString()
   (id, jsonLd)
 
-let transformToJsonLD baseUrl contexts resources =
+let transformToJsonLD contexts resources =
 
   let context = jsonLdContext contexts
   let opts = jsonLdOptions () 
@@ -66,4 +65,4 @@ let transformToJsonLD baseUrl contexts resources =
   |> Seq.map (toCompactedJsonLD opts context
               >> elasiticerise
               >> toJson
-              >> createIdJsonTuple baseUrl)
+              >> createIdJsonTuple)

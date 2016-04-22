@@ -67,3 +67,4 @@ let ``Should extract the annotations from code block`` () =
   let statement = extractStatement sampleMarkdownFile
 
   test <@ statement.Annotations = [{Vocab = "Vocab"; Terms = ["Term"]}] @>
+

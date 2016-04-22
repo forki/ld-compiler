@@ -13,6 +13,6 @@ let transformToTurtle resource =
   |> Assert.graph graph
   |> Graph.writeTtl (toString sb)
   |> ignore
-  
-  sb.ToString()
+  let id = Resource.id resource 
+  (id.ToString(), sb.ToString())
   

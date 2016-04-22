@@ -57,3 +57,14 @@ let loadGraph (g:string) =
 //let ttl = sb.ToString()
 loadGraph sGraph
 
+type Testing = {
+  One : int
+  Two : int
+    }
+
+let x = {One= 1; Two = 2}
+
+let f {One=one; Two=two} =
+  one
+
+f x

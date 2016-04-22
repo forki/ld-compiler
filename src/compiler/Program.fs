@@ -42,13 +42,6 @@ let private indexName = "kb"
 let private typeName = "qualitystatement"
 /////////////////////////////////////////////////////////////////
 
-let private writeToDisk outputDir (id,content) =
-  let outputFile = sprintf "%s/%s.jsonld" outputDir id
-  try 
-    File.WriteAllText(outputFile, content)
-    printf "Written %s\n" outputFile
-  with ex -> printf "Couldnt write %s to disk!\n" outputFile
-
 let private findFiles inputDir filePattern =
   let dir = System.IO.DirectoryInfo(inputDir)
   let files = dir.GetFiles(filePattern, System.IO.SearchOption.AllDirectories)
@@ -57,6 +50,16 @@ let private findFiles inputDir filePattern =
 let private readFile file =
   {Path = file; Content = File.ReadAllText file}
 
+let private writeFile file =
+  try 
+    File.WriteAllText(file.Path, file.Content)
+    printf "Written %s\n" file.Path
+  with ex -> printf "Couldnt write %s to disk!\n" file.Path
+
+let private prepareAsFile baseUrl outputDir ext (id:string, jsonld) =
+  let id = id.Replace(baseUrl+"/", "").Replace("/","_")
+  {Path = sprintf "%s/%s%s" outputDir id ext; Content = jsonld}
+
 let private compileToRDF files baseUrl outputDir = 
   printf "Compiling files: %A\n" files
   let compile =
@@ -64,16 +67,25 @@ let private compileToRDF files baseUrl outputDir =
     >> extractStatement
     >> transformToRDF baseUrl
     >> transformToTurtle
-    >> (Stardog.addGraph outputDir)
+    >> prepareAsFile baseUrl outputDir ".ttl"
+    >> writeFile 
+  files |> Seq.iter (fun file -> try compile file with ex -> printf "[ERROR] problem processing file %s with: %s\n" file ( ex.ToString() ))
 
-  files |> Seq.iter compile
+let private addGraphs outputDir = 
+  let concatToArgs turtles = List.fold (fun acc file -> file + " " + acc) "" turtles
+
+  let turtles = findFiles outputDir "*.ttl"
+  turtles 
+  |> concatToArgs 
+  |> Stardog.addGraph
 
 let private extractResources propertyPaths baseUrl outputDir =
   printf "Extracting resources\n"
   let resources = Stardog.queryResources propertyPaths
   resources
-  |> transformToJsonLD baseUrl contexts
-  |> Seq.iter (writeToDisk outputDir)
+  |> transformToJsonLD contexts
+  |> Seq.map (fun f -> prepareAsFile baseUrl outputDir ".jsonld" f)
+  |> Seq.iter writeFile
 
 let private publishResources outputDir indexName typeName = 
   printf "Publishing resources:\n"
@@ -94,7 +106,7 @@ let main args =
   Stardog.createDb ()
 
   compileToRDF files baseUrl outputDir
-
+  addGraphs outputDir
   extractResources propertyPaths baseUrl outputDir
 
   publishResources outputDir indexName typeName

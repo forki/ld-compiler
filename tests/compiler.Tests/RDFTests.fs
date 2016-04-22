@@ -30,9 +30,7 @@ let ``Should create resource with subject uri as id``() =
 
   let resource = transformToRDF baseUrl statement
 
-  test <@ match resource with
-          | Is (Uri.from "http://ld.nice.org.uk/qualitystatement/id_goes_here") -> true
-          | _ -> false @>
+  test <@ Resource.id resource = Uri.from "http://ld.nice.org.uk/qualitystatement/id_goes_here" @>
 
 [<Test>]
 let ``Should create title dataproperty for resource``() =
