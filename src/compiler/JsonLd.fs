@@ -27,7 +27,7 @@ let private toJson (jObj : JObject) =
   let sw = new StringWriter(sb)
   use w = new JsonTextWriter(sw)
   jObj.WriteTo w
-  sb.ToString()
+  (jObj.["_id"].ToString(), sb.ToString())
 
 let private jsonLdOptions () = 
   let opts = JsonLdOptions()
@@ -47,22 +47,12 @@ let private jsonLdContext contexts =
      ]
    } """ (String.concat ",\n" contexts)))
 
-let private toCompactedJsonLD opts context resource =
-  Resource.compatctedJsonLD opts (Context(context, opts)) resource
-
-type IdSchema = JsonProvider<""" {"_id":"" }""">
-
-let private createIdJsonTuple jsonLd =
-  let id = ( IdSchema.Parse jsonLd ).Id.JsonValue.AsString()
-  (id, jsonLd)
-
 let transformToJsonLD contexts resources =
 
-  let context = jsonLdContext contexts
   let opts = jsonLdOptions () 
+  let context = Context(jsonLdContext contexts, opts)
 
   resources
-  |> Seq.map (toCompactedJsonLD opts context
+  |> Seq.map (Resource.compatctedJsonLD opts context
               >> elasiticerise
-              >> toJson
-              >> createIdJsonTuple)
+              >> toJson)

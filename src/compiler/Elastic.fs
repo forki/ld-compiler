@@ -7,9 +7,9 @@ open publish.File
 type IdSchema = JsonProvider<""" {"_id":"" }""">
 
 let buildBulkData indexName typeName jsonldResources =
-  let buildCreateCommand acc jsonldResource = 
-    let id = IdSchema.Parse(jsonldResource.Content).Id.JsonValue.AsString()
-    let cmd = sprintf "{ \"create\" : { \"_id\" : \"%s\", \"_type\" : \"%s\",\"_index\" : \"%s\" }}\n%s\n " id typeName indexName jsonldResource.Content
+  let buildCreateCommand acc (id,json) = 
+    printf "building bulk data cmd for: %A \n" id
+    let cmd = sprintf "{ \"create\" : { \"_id\" : \"%s\", \"_type\" : \"%s\",\"_index\" : \"%s\" }}\n%s\n " id typeName indexName json
     acc + cmd
 
   jsonldResources
@@ -100,6 +100,10 @@ let bulkUpload indexName typeName jsonldResources =
   deleteIndex esUrl
   postMappings esUrl
 
+  printf "Building bulk upload data...\n"
   let bulkData = buildBulkData indexName typeName jsonldResources
+  printf "Finsihed!\n"
+  printf "Uploading to elastic...\n"
   uploadBulkData esUrl typeName bulkData
   refreshIndex esUrl
+  printf "Finished!\n"

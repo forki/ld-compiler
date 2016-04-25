@@ -26,8 +26,8 @@ let addGraph files =
 
   proc.WaitForExit(timeout) |> ignore
 
-let queryResources propertyPaths =
-
+let extractResources propertyPaths =
+  printf "extractin resources from stardog...\n"
   let stardog =
     Store.Store.stardog "http://stardog:5820" "nice" "admin" "admin" false
 
@@ -45,6 +45,14 @@ let queryResources propertyPaths =
     List.mapi (fun i v -> sprintf "optional { @entity %s ?o_%d . } " v i)
     >> String.concat "\n"
 
+  let rec retry f x =
+    try
+      f x
+    with
+      | e ->
+        printf "Failure: %s" e.Message
+        retry f x
+
   let firstPathOPath (s:System.String) =
     PathRegex().Match(s).firstPartOfPropertyPath.Value
 
@@ -53,7 +61,12 @@ let queryResources propertyPaths =
     >> String.concat "\n"
 
   let queryResources () =
-    stardog.queryResultSet [] "select distinct ?s from <http://ld.nice.org.uk/> where { ?s ?o ?p }" [] |> ResultSet.singles |> asUri
+    stardog.queryResultSet [] """
+      select distinct ?s
+      from <http://ld.nice.org.uk/>
+      where {
+       ?s a owl:NamedIndividual
+      }""" [] |> ResultSet.singles |> asUri
 
   let querySubGraph entity =
     let clause = clause propertyPaths
@@ -75,10 +88,14 @@ let queryResources propertyPaths =
     Graph.defaultPrefixes (Uri.from "http://ld.nice.org.uk/") [] (stardog.queryGraph [] query [ ("entity", Param.Uri entity) ])
 
   let resources = queryResources ()
-  resources
-  |> Seq.map querySubGraph 
-  |> Seq.map
-       (Resource.fromType
-          (Uri.from "http://www.w3.org/2002/07/owl#NamedIndividual"))
-  |> Seq.filter (List.isEmpty >> not)
+  printf "extracted %d resources from stardog\n" ( Seq.length resources )
+  let xr =
+    resources
+    |> Seq.map ( querySubGraph |> retry) 
+    |> Seq.map
+         (Resource.fromType
+            (Uri.from "http://www.w3.org/2002/07/owl#NamedIndividual"))
+    |> Seq.filter (List.isEmpty >> not)
+  printf "extracted %d subgraphs\n" (Seq.length xr)
+  xr
 

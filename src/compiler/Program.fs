@@ -79,20 +79,11 @@ let private addGraphs outputDir =
   |> concatToArgs 
   |> Stardog.addGraph
 
-let private extractResources propertyPaths baseUrl outputDir =
-  printf "Extracting resources\n"
-  let resources = Stardog.queryResources propertyPaths
+let private publishResources propertyPaths indexName typeName =
+  printf "Publishing resources\n"
+  let resources = Stardog.extractResources propertyPaths
   resources
   |> transformToJsonLD contexts
-  |> Seq.map (fun f -> prepareAsFile baseUrl outputDir ".jsonld" f)
-  |> Seq.iter writeFile
-
-let private publishResources outputDir indexName typeName = 
-  printf "Publishing resources:\n"
-  let jsonldFiles = findFiles outputDir "*.jsonld"
-  printf "Found jsonld files: %A\n" jsonldFiles
-  jsonldFiles
-  |> Seq.map readFile
   |> bulkUpload indexName typeName
 
 [<EntryPoint>]
@@ -107,8 +98,7 @@ let main args =
 
   compileToRDF files baseUrl outputDir
   addGraphs outputDir
-  extractResources propertyPaths baseUrl outputDir
+  publishResources propertyPaths indexName typeName
 
-  publishResources outputDir indexName typeName
-
+  printf "Knowledge base creation complete!\n"
   0
