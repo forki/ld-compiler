@@ -3,6 +3,7 @@ mimir:
   links:
     - stardog
     - elastic
+    - schema
   volumes_from:
     - stardog
   volumes:
@@ -10,6 +11,12 @@ mimir:
     - .:/nunit
     - tests/compiler.IntegrationTests:/tests
   command: sleep 1000000
+schema:
+  image: nice/ontologies
+  expose:
+    - 80
+  ports:
+    - "20002:80"
 stardog:
   image: nice/ld-docker-stardog
   ports:

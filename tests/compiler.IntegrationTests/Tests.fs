@@ -3,6 +3,8 @@ module publish.IntegrationTests.Tests
 open NUnit.Framework
 open Swensen.Unquote
 open FSharp.Data
+open FSharp.Data.JsonExtensions
+open FSharp.Data.HttpRequestHeaders
 open System.Diagnostics
 open System.IO
 
@@ -30,7 +32,9 @@ type ElasticResponse = JsonProvider<"""
           "http://ld.nice.org.uk/ns/qualitystandard#qsidentifier":"",
           "http://ld.nice.org.uk/ns/qualitystandard#stidentifier":"",
           "_id":"",
-          "_type":""
+          "_type":"",
+          "qualitystandard:setting":[""],
+          "qualitystandard:age":[""]
         }
       }
     ],
@@ -46,6 +50,25 @@ let private queryElastic indexName typeName =
   let url = sprintf "http://elastic:9200/%s/%s/_search" indexName typeName
   let json = Http.RequestString(url, httpMethod="GET")
   ElasticResponse.Parse(json)
+
+let private inputDir = "/samples"
+let private outputDir = "/artifacts"
+
+let private createStatement qsId stId content =
+  Directory.CreateDirectory (inputDir) |> ignore
+  Directory.CreateDirectory (inputDir + "/" + qsId) |> ignore
+  Directory.CreateDirectory (inputDir + "/" + qsId + "/" + stId) |> ignore
+  Directory.CreateDirectory (outputDir) |> ignore
+  File.WriteAllText(inputDir + "/" + qsId + "/" + stId + "/Statement.md", content)
+
+[<TearDown>]
+let Teardown () =
+  Directory.Delete(inputDir, true)
+  Directory.Delete(outputDir, true)
+  let res = Http.RequestString("http://elastic:9200/kb", httpMethod="DELETE")
+  try
+    Http.RequestString ( "http://stardog:5820/admin/databases/nice", httpMethod = "DELETE", headers = [ BasicAuth "admin" "admin"] ) |> ignore
+  with _ -> ()
 
 [<Test>]
 let ``When publishing a statement it should have added a statement to elastic search index`` () =
@@ -64,14 +87,7 @@ This is the abstract.
 
 This is some content.
   """
-
-  let inputDir = "/samples"
-  let outputDir = "/artifacts"
-  Directory.CreateDirectory (inputDir) |> ignore
-  Directory.CreateDirectory (inputDir + "/qs1") |> ignore
-  Directory.CreateDirectory (inputDir + "/qs1/st1") |> ignore
-  Directory.CreateDirectory (outputDir) |> ignore
-  File.WriteAllText(inputDir + "/qs1/st1/Statement.md", markdown)
+  createStatement "qs1" "st1" markdown
 
   runProgramWith inputDir outputDir
 
@@ -90,3 +106,73 @@ This is some content.
   test <@ doc.HttpLdNiceOrgUkNsQualitystandardStidentifier.JsonValue.AsInteger() = 1 @>
   
 
+[<Test>]
+let ``When publishing a statement it should apply annotations`` () =
+
+  let markdown = """
+```
+Setting:
+    - "Hospital"
+```
+This is the title 
+----------------------------------------------
+
+### Abstract 
+
+This is the abstract.
+
+This is some content.
+  """
+  createStatement "qs1" "st1" markdown
+
+  runProgramWith inputDir outputDir
+
+  let indexName = "kb"
+  let typeName = "qualitystatement"
+  let response = queryElastic indexName typeName
+
+  test <@ response.Hits.Total = 1 @>
+
+  let doc = (Seq.head response.Hits.Hits).Source
+
+  let settings = doc.QualitystandardSetting |> Array.map (fun s -> s.JsonValue.ToString() )
+  test <@ settings = [|"http://ld.nice.org.uk/ns/qualitystandard/setting#Hospital"|] @>
+
+
+[<Test>]
+let ``When publishing a statement it should apply inferred annotations`` () =
+  let markdown = """
+```
+Age Group:
+    - "Adults"
+```
+This is the title 
+----------------------------------------------
+
+### Abstract 
+
+This is the abstract.
+
+This is some content.
+  """
+  createStatement "qs1" "st1" markdown
+
+  runProgramWith inputDir outputDir
+
+  let indexName = "kb"
+  let typeName = "qualitystatement"
+  let response = queryElastic indexName typeName
+
+  test <@ response.Hits.Total = 1 @>
+
+  let doc = (Seq.head response.Hits.Hits).Source
+  let settings = doc.QualitystandardSetting |> Array.map (fun s -> s.JsonValue.ToString() )
+  test <@ settings = 
+            [|"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults";
+              "http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 18-24 years";
+              "http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 25-64 years";
+              "http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 65+ years";
+              "http://ld.nice.org.uk/ns/qualitystandard/agegroup#All age groups";
+              "http://ld.nice.org.uk/ns/qualitystandard/agegroup#AgeGroup";
+              "http://ld.nice.org.uk/ns/qualitystandard#PopulationSpecifier"|]
+       @>

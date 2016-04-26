@@ -8,9 +8,27 @@ open publish.Turtle
 open publish.Stardog
 open publish.JsonLd
 open publish.Elastic
+open FSharp.RDF
 open System.IO
 
 //// These should be passed in as arguments ////////
+let private baseUrl = "http://ld.nice.org.uk/qualitystatement" 
+
+let private rdfArgs = {
+  BaseUrl = baseUrl    
+  VocabMap = 
+    ([ "setting", Uri.from "http://ld.nice.org.uk/ns/qualitystandard#setting"
+       "agegroup", Uri.from "http://ld.nice.org.uk/ns/qualitystandard#age"
+       "conditionordisease", Uri.from "http://ld.nice.org.uk/ns/qualitystandard#condition"
+       "servicearea", Uri.from "http://ld.nice.org.uk/ns/qualitystandard#serviceArea"
+       "lifestylecondition", Uri.from "http://ld.nice.org.uk/ns/qualitystandard#lifestyleCondition" ] |> Map.ofList)
+  TermMap = 
+    ([ "setting", vocabLookup "http://ld.nice.org.uk/ns/qualitystandard/setting.ttl"
+       "agegroup", vocabLookup "http://ld.nice.org.uk/ns/qualitystandard/agegroup.ttl"
+       "lifestylecondition", vocabLookup "http://ld.nice.org.uk/ns/qualitystandard/lifestylecondition.ttl"
+       "conditionordisease", vocabLookup "http://ld.nice.org.uk/ns/qualitystandard/conditionordisease.ttl"
+       "servicearea", vocabLookup "http://ld.nice.org.uk/ns/qualitystandard/servicearea.ttl" ] |> Map.ofList)
+}
 let private propertyPaths = [ 
   "<http://ld.nice.org.uk/ns/qualitystandard#age>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#age>/rdfs:subClassOf*" 
   "<http://ld.nice.org.uk/ns/qualitystandard#condition>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#condition>/rdfs:subClassOf*" 
@@ -36,7 +54,6 @@ let private contexts = [
   "http://ld.nice.org.uk/ns/qualitystandard/servicearea.jsonld "
 ]
 
-let private baseUrl = "http://ld.nice.org.uk/qualitystatement" 
 
 let private indexName = "kb"
 let private typeName = "qualitystatement"
@@ -60,12 +77,12 @@ let private prepareAsFile baseUrl outputDir ext (id:string, jsonld) =
   let id = id.Replace(baseUrl+"/", "").Replace("/","_")
   {Path = sprintf "%s/%s%s" outputDir id ext; Content = jsonld}
 
-let private compileToRDF files baseUrl outputDir = 
+let private compileToRDF files rdfArgs baseUrl outputDir = 
   printf "Compiling files: %A\n" files
   let compile =
     readFile
     >> extractStatement
-    >> transformToRDF baseUrl
+    >> transformToRDF rdfArgs
     >> transformToTurtle
     >> prepareAsFile baseUrl outputDir ".ttl"
     >> writeFile 
@@ -96,7 +113,7 @@ let main args =
 
   Stardog.createDb ()
 
-  compileToRDF files baseUrl outputDir
+  compileToRDF files rdfArgs baseUrl outputDir
   addGraphs outputDir
   publishResources propertyPaths indexName typeName
 
