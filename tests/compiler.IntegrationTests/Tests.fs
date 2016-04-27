@@ -139,7 +139,7 @@ This is some content.
 
 
 [<Test>]
-let ``When publishing a statement it should apply inferred annotations`` () =
+let ``When publishing a statement it should apply supertype and subtype inferred annotations`` () =
   let markdown = """
 ```
 Age Group:
@@ -167,11 +167,11 @@ This is some content.
   let doc = (Seq.head response.Hits.Hits).Source
   let settings = doc.QualitystandardAge |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
   test <@ settings = 
-            ( ["http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults"
-               "http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 18-24 years"
-               "http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 25-64 years"
-               "http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 65+ years"
-               "http://ld.nice.org.uk/ns/qualitystandard/agegroup#All age groups"
-               "http://ld.nice.org.uk/ns/qualitystandard/agegroup#AgeGroup"
-               "http://ld.nice.org.uk/ns/qualitystandard#PopulationSpecifier"] |> Set.ofList )
+            ( ["\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults\""
+               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 18-24 years\""
+               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 25-64 years\""
+               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 65+ years\""
+               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#All age groups\""
+               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#AgeGroup\""
+               "\"http://ld.nice.org.uk/ns/qualitystandard#PopulationSpecifier\""] |> Set.ofList )
        @>
