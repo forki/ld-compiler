@@ -9,6 +9,7 @@ open publish.Stardog
 open publish.JsonLd
 open publish.Elastic
 open FSharp.RDF
+open FSharp.Data
 open System.IO
 
 //// These should be passed in as arguments ////////
@@ -42,10 +43,6 @@ let private propertyPaths = [
 ]
 
 let private contexts = [
-  "http://ld.nice.org.uk/ns/prov.jsonld"
-  "http://ld.nice.org.uk/ns/owl.jsonld "
-  "http://ld.nice.org.uk/ns/dcterms.jsonld"
-  "http://ld.nice.org.uk/ns/content.jsonld "
   "http://ld.nice.org.uk/ns/qualitystandard.jsonld "
   "http://ld.nice.org.uk/ns/qualitystandard/conditionordisease.jsonld "
   "http://ld.nice.org.uk/ns/qualitystandard/agegroup.jsonld "
@@ -54,6 +51,14 @@ let private contexts = [
   "http://ld.nice.org.uk/ns/qualitystandard/servicearea.jsonld "
 ]
 
+let private schemas = [
+  "http://schema/ns/qualitystandard.ttl"
+  "http://schema/ns/qualitystandard/agegroup.ttl"
+  "http://schema/ns/qualitystandard/conditionordisease.ttl"
+  "http://schema/ns/qualitystandard/lifestylecondition.ttl"
+  "http://schema/ns/qualitystandard/setting.ttl"
+  "http://schema/ns/qualitystandard/servicearea.ttl"
+]
 
 let private indexName = "kb"
 let private typeName = "qualitystatement"
@@ -88,6 +93,13 @@ let private compileToRDF files rdfArgs baseUrl outputDir =
     >> writeFile 
   files |> Seq.iter (fun file -> try compile file with ex -> printf "[ERROR] problem processing file %s with: %s\n" file ( ex.ToString() ))
 
+let private downloadSchema schemas outputDir =
+  let download (schema:string) =
+    {Path = sprintf "%s/%s" outputDir (schema.Remove(0,schema.LastIndexOf('/')+1))
+     Content = Http.RequestString(schema)}
+  
+  List.iter (download >> writeFile) schemas
+
 let private addGraphs outputDir = 
   let concatToArgs turtles = List.fold (fun acc file -> file + " " + acc) "" turtles
 
@@ -109,10 +121,11 @@ let main args =
   let outputDir = args.[1]
   printf "Input directory : %s\n" inputDir 
   printf "Output directory : %s\n" outputDir 
-  let files = findFiles inputDir "Statement.md"
 
   Stardog.createDb ()
+  downloadSchema schemas outputDir
 
+  let files = findFiles inputDir "Statement.md"
   compileToRDF files rdfArgs baseUrl outputDir
   addGraphs outputDir
   publishResources propertyPaths indexName typeName

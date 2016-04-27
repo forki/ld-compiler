@@ -12,7 +12,7 @@ let execSynchronousProcess cmd args =
   let procInfo = new ProcessStartInfo(cmd, Arguments=args, RedirectStandardOutput=true, RedirectStandardError=true, UseShellExecute=false)
   let proc = new Process(StartInfo=procInfo)
   proc.Start() |> ignore
-  let timeout = 100000
+  let timeout = 10000
 
   proc.WaitForExit(timeout) |> ignore
   let stdErr = proc.StandardError.ReadToEnd()
@@ -33,7 +33,7 @@ type ElasticResponse = JsonProvider<"""
           "http://ld.nice.org.uk/ns/qualitystandard#stidentifier":"",
           "_id":"",
           "_type":"",
-          "qualitystandard:setting":[""],
+          "qualitystandard:setting":"",
           "qualitystandard:age":[""]
         }
       }
@@ -135,8 +135,7 @@ This is some content.
 
   let doc = (Seq.head response.Hits.Hits).Source
 
-  let settings = doc.QualitystandardSetting |> Array.map (fun s -> s.JsonValue.ToString() )
-  test <@ settings = [|"http://ld.nice.org.uk/ns/qualitystandard/setting#Hospital"|] @>
+  test <@ doc.QualitystandardSetting.JsonValue.ToString() = "\"http://ld.nice.org.uk/ns/qualitystandard/setting#Hospital\"" @>
 
 
 [<Test>]
@@ -166,13 +165,13 @@ This is some content.
   test <@ response.Hits.Total = 1 @>
 
   let doc = (Seq.head response.Hits.Hits).Source
-  let settings = doc.QualitystandardSetting |> Array.map (fun s -> s.JsonValue.ToString() )
+  let settings = doc.QualitystandardAge |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
   test <@ settings = 
-            [|"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults";
-              "http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 18-24 years";
-              "http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 25-64 years";
-              "http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 65+ years";
-              "http://ld.nice.org.uk/ns/qualitystandard/agegroup#All age groups";
-              "http://ld.nice.org.uk/ns/qualitystandard/agegroup#AgeGroup";
-              "http://ld.nice.org.uk/ns/qualitystandard#PopulationSpecifier"|]
+            ( ["http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults"
+               "http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 18-24 years"
+               "http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 25-64 years"
+               "http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 65+ years"
+               "http://ld.nice.org.uk/ns/qualitystandard/agegroup#All age groups"
+               "http://ld.nice.org.uk/ns/qualitystandard/agegroup#AgeGroup"
+               "http://ld.nice.org.uk/ns/qualitystandard#PopulationSpecifier"] |> Set.ofList )
        @>

@@ -64,7 +64,7 @@ let transformToRDF args statement =
   let uri = sprintf "%s/%s" args.BaseUrl statement.Id
   let annotations = lookupAnnotations args.VocabMap args.TermMap statement.Annotations
   resource !! uri
-    ( [a !! "owl:NamedIndividual"
+    ( [a !! "http://ld.nice.org.uk/ns/qualitystandard#QualityStatement"
        dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#title" (statement.Title^^xsd.string)
        dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#abstract" (statement.Abstract^^xsd.string)
        dataProperty !!"http://www.w3.org/2011/content#chars" (statement.Content^^xsd.string)

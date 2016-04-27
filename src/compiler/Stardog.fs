@@ -65,7 +65,7 @@ let extractResources propertyPaths =
       select distinct ?s
       from <http://ld.nice.org.uk/>
       where {
-       ?s a owl:NamedIndividual
+       ?s a <http://ld.nice.org.uk/ns/qualitystandard#QualityStatement>
       }""" [] |> ResultSet.singles |> asUri
 
   let querySubGraph entity =
@@ -74,13 +74,13 @@ let extractResources propertyPaths =
     let query = (sprintf """
                        prefix nice: <http://ld.nice.org.uk/>
                        construct {
-                         @entity a owl:NamedIndividual .
+                         @entity a <http://ld.nice.org.uk/ns/qualitystandard#QualityStatement> .
                          %s
                        }
                        from <http://ld.nice.org.uk/ns>
                        from <http://ld.nice.org.uk/>
                        where {
-                         @entity a owl:NamedIndividual .
+                         @entity a <http://ld.nice.org.uk/ns/qualitystandard#QualityStatement> .
                          %s
                        }
                """ construct clause) 
@@ -94,7 +94,7 @@ let extractResources propertyPaths =
     |> Seq.map ( querySubGraph |> retry) 
     |> Seq.map
          (Resource.fromType
-            (Uri.from "http://www.w3.org/2002/07/owl#NamedIndividual"))
+            (Uri.from "http://ld.nice.org.uk/ns/qualitystandard#QualityStatement"))
     |> Seq.filter (List.isEmpty >> not)
   printf "extracted %d subgraphs\n" (Seq.length xr)
   xr

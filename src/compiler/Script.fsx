@@ -199,3 +199,14 @@ target "QualityStandard" (file "Standard.md"
       ===> ["QualityStandard"
             "QualityStatementDir"
                   ===> ["QualityStatement"]]]
+
+gg
+
+#r "../../packages/FSharp.Data/lib/net40/FSharp.Data.dll"
+open FSharp.Data
+
+let res = Http.RequestString("http://ld.nice.org.uk/ns/compilation.ttl")
+
+
+let s = [|1;2;3|]
+let s1 = s |> Set.ofArray

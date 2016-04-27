@@ -157,7 +157,7 @@ Target "RunIntegrationTests" (fun _ ->
                            info.Arguments <- "up -d") (TimeSpan.FromMinutes 5.0) |> ignore
   let result =
     ExecProcess (fun info -> info.FileName <- "docker-compose"
-                             info.Arguments <- "run --rm mimir bash /tests/run.sh") (TimeSpan.FromMinutes 5.0)
+                             info.Arguments <- "run --rm mimir bash /tests/run.sh") (TimeSpan.FromMinutes 2.0)
 
   // Now stop and remove the containers
   ExecProcess (fun info -> info.FileName <- "docker-compose"

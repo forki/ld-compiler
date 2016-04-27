@@ -34,6 +34,17 @@ let private FindObjectProperty (uri:string) resource =
    | _ -> []
 
 let private baseUrl = "http://ld.nice.org.uk/qualitystatement" 
+
+[<Test>]
+let ``Should create resource with type of qualitystatement``() =
+  let args = {defaultArgs with BaseUrl = "http://ld.nice.org.uk/qualitystatement"}
+
+  let properties = 
+    defaultStatement
+    |> transformToRDF args
+    |> FindObjectProperty "rdf:type" 
+
+  test <@ properties = [Uri.from "http://ld.nice.org.uk/ns/qualitystandard#QualityStatement"] @>
   
 [<Test>]
 let ``Should create resource with subject uri as id``() =
