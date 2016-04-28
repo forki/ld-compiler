@@ -36,16 +36,17 @@ let compile milliseconds message: WebPart =
 let checkStatus () : WebPart =
   fun (x : HttpContext) ->
     async {
-      let running = 
-        match isRunning() with
-        | true -> "Running"
-        | false -> "Finished"
-      printf "checkStatus: %s\n" running
-      return! Successful.OK running x
+      setRunning true
+      printf "starting sleeping with running %b\n" ( isRunning() )
+      do! Async.Sleep milliseconds
+      setRunning false
+      printf "finished sleeping with running %b\n" ( isRunning() )
+      return! Successful.OK message x
     }
-
 let createApp compileFn =
   choose
     [GET >=> path "/compile" >=> compile 10000 "Done"
-     GET >=> path "/status" >=> checkStatus ()
+     GET >=> path "/status" >=> match isRunning() with
+                                | true -> Successful.OK "Running"
+                                | false -> Successful.OK "Not running"
      RequestErrors.NOT_FOUND "Found no handlers"]

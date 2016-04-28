@@ -1,4 +1,4 @@
-module Program 
+module compiler.Compile 
 
 open publish
 open publish.File
@@ -115,12 +115,17 @@ let private publishResources propertyPaths indexName typeName =
   |> transformToJsonLD contexts
   |> bulkUpload indexName typeName
 
-[<EntryPoint>]
-let main args =
-  let inputDir = args.[0]
-  let outputDir = args.[1]
+let compile () =
+  let inputDir = "/git"
+  let outputDir = "/artifacts"
   printf "Input directory : %s\n" inputDir 
   printf "Output directory : %s\n" outputDir 
+  try 
+    Directory.Delete(inputDir, true)
+    Directory.Delete(outputDir, true)
+  with ex -> ()
+  Directory.CreateDirectory inputDir |> ignore
+  Directory.CreateDirectory outputDir |> ignore
 
   Stardog.createDb ()
   downloadSchema schemas outputDir
@@ -131,4 +136,3 @@ let main args =
   publishResources propertyPaths indexName typeName
 
   printf "Knowledge base creation complete!\n"
-  0

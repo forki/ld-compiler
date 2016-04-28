@@ -1,4 +1,5 @@
 Unquote
+Suave.Testing
 group Test
 NUnit
 NUnit.Runners
