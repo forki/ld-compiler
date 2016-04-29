@@ -1,5 +1,5 @@
-mimir:
-  image: nice/mimir
+compiler:
+  image: nice/ld-compiler
   links:
     - stardog
     - elastic
@@ -7,9 +7,7 @@ mimir:
   volumes_from:
     - stardog
   volumes:
-    - bin/compiler:/compiler
-    - .:/nunit
-    - tests/compiler.IntegrationTests:/tests
+    - .:/compiler-src
   command: sleep 1000000
 schema:
   image: nice/ontologies

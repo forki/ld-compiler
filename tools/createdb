@@ -1,0 +1,12 @@
+#!/bin/bash
+set -xef
+
+dbname=$1
+echo "creating database: $dbname"
+
+curl 'http://stardog:5820/admin/databases' -vs -H 'Content-Type: multipart/form-data; boundary=----WebKitFormBoundary5PhaX1uckvZ90ZQ5' -H 'Connection: keep-alive' -H 'Authorization: Basic YWRtaW46YWRtaW4=' --data-binary $'------WebKitFormBoundary5PhaX1uckvZ90ZQ5
+Content-Disposition: form-data; name="root"
+
+{"dbname":"'"$dbname"'","options":{"database.namespaces":["rdf=http://www.w3.org/1999/02/22-rdf-syntax-ns#","rdfs=http://www.w3.org/2000/01/rdf-schema#","xsd=http://www.w3.org/2001/XMLSchema#","owl=http://www.w3.org/2002/07/owl#","stardog=tag:stardog:api:"],"database.online":true,"database.connection.timeout":"60s","index.differential.enable.limit":1000000,"index.differential.merge.limit":10000,"index.literals.canonical":true,"index.named.graphs":true,"index.persist":true,"index.persist.sync":false,"index.statistics.update.automatic":true,"index.type":"Disk","icv.active.graphs":["tag:stardog:api:context:default"],"icv.consistency.automatic":false,"icv.enabled":false,"icv.reasoning.enabled":false,"reasoning.type":"SL","reasoning.approximate":false,"reasoning.sameas":"FULL","reasoning.schema.graphs":["tag:stardog:api:context:all"],"reasoning.punning.enabled":true,"reasoning.consistency.automatic":false,"reasoning.schema.timeout":"60s","search.enabled":false,"search.reindex.mode":"sync","database.name":"'"$dbname"'","database.archetypes":["prov"]},"files":[]}
+------WebKitFormBoundary5PhaX1uckvZ90ZQ5--' 
+

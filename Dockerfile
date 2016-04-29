@@ -1,10 +1,20 @@
-FROM nice/alpine-fsharp:2f00052c29ce34a5ce8e765b287b6e5072c1b22e	
+FROM nice/ld-publisher-base
 
 MAINTAINER James Kirk <james.kirk@nice.org.uk>
 
-ADD . /usr/share/ld-compiler/
+ENV STARDOG_VERSION=4.0.1
 
-ARG PUBLISH_NUGET=no
-ENV PUBLISH_NUGET ${PUBLISH_NUGET}
+ADD . /compiler
 
-RUN /usr/share/ld-viewer/build.sh
+RUN /compiler/build.sh &&\
+    cd /compiler &&\
+    find . -maxdepth 1 -not -name "bin" -not -name "." | xargs -i rm -rf {}
+
+#make the contents of /tools available globally
+ADD tools/ /tools/
+RUN cd /bin && \
+    ln -s /tools/* .
+
+CMD mono /compiler/bin/compiler.api.exe
+
+EXPOSE 8083

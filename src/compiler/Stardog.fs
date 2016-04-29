@@ -6,21 +6,27 @@ open VDS.RDF
 open VDS.RDF.Writing
 open VDS.RDF.Query
 open FSharp.Data
+open FSharp.Data.HttpRequestHeaders
 open FSharp.RDF
 open FSharp.RDF.Store
 open FSharp.Text.RegexProvider
 type PathRegex = Regex< ".*<(?<firstPartOfPropertyPath>.*)>.*">
 
-let createDb () =
+let createDb dbName =
   // TODO: rewrite this script as a http request!
-  let proc = Process.Start("createdb")
+  let proc = Process.Start("createdb", dbName)
   let timeout = 10000
 
   proc.WaitForExit(timeout) |> ignore
 
-let addGraph files =
+let deleteDb dbName dbUser dbPass =
+  try
+    Http.RequestString ( "http://stardog:5820/admin/databases/"+dbName, httpMethod = "DELETE", headers = [ BasicAuth dbUser dbPass] ) |> ignore
+  with _ -> printf "Database does not exist yet"
+
+let addGraph dbName files =
   // TODO: figure out how to do use dotNetRDF/FSharp.RDF to do this.
-  let args = sprintf "--named-graph http://ld.nice.org.uk/ %s" files
+  let args = sprintf "%s --named-graph http://ld.nice.org.uk/ %s" dbName files
   let proc = Process.Start("addgraph", args)
   let timeout = 100000
 
