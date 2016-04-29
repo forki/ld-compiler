@@ -1,4 +1,4 @@
-module Program 
+module compiler.Compile 
 
 open publish
 open publish.File
@@ -13,6 +13,13 @@ open FSharp.Data
 open System.IO
 
 //// These should be passed in as arguments ////////
+let private gitRepoUrl = "https://github.com/nhsevidence/ld-dummy-content"
+let private inputDir = "/git"
+let private outputDir = "/artifacts"
+let private dbName = "nice"
+let private dbUser = "admin"
+let private dbPass = "admin"
+
 let private baseUrl = "http://ld.nice.org.uk/qualitystatement" 
 
 let private rdfArgs = {
@@ -100,13 +107,13 @@ let private downloadSchema schemas outputDir =
   
   List.iter (download >> writeFile) schemas
 
-let private addGraphs outputDir = 
+let private addGraphs outputDir dbName = 
   let concatToArgs turtles = List.fold (fun acc file -> file + " " + acc) "" turtles
 
   let turtles = findFiles outputDir "*.ttl"
   turtles 
   |> concatToArgs 
-  |> Stardog.addGraph
+  |> Stardog.addGraph dbName
 
 let private publishResources propertyPaths indexName typeName =
   printf "Publishing resources\n"
@@ -115,20 +122,24 @@ let private publishResources propertyPaths indexName typeName =
   |> transformToJsonLD contexts
   |> bulkUpload indexName typeName
 
-[<EntryPoint>]
-let main args =
-  let inputDir = args.[0]
-  let outputDir = args.[1]
+let compile () =
   printf "Input directory : %s\n" inputDir 
   printf "Output directory : %s\n" outputDir 
+  try 
+    Directory.Delete(inputDir, true)
+    Directory.Delete(outputDir, true)
+  with ex -> ()
+  Directory.CreateDirectory inputDir |> ignore
+  Directory.CreateDirectory outputDir |> ignore
 
-  Stardog.createDb ()
+  Git.clone gitRepoUrl inputDir
+  Stardog.deleteDb dbName dbUser dbPass
+  Stardog.createDb dbName
   downloadSchema schemas outputDir
 
   let files = findFiles inputDir "Statement.md"
   compileToRDF files rdfArgs baseUrl outputDir
-  addGraphs outputDir
+  addGraphs outputDir dbName
   publishResources propertyPaths indexName typeName
 
   printf "Knowledge base creation complete!\n"
-  0

@@ -48,7 +48,7 @@ let tags = ""
 let solutionFile  = "compiler.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
-let unitTestAssemblies = "tests/**/bin/Release/*.Tests*.dll"
+let unitTestAssemblies = "tests/**/bin/Debug/*.Tests*.dll"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
@@ -109,8 +109,7 @@ Target "AssemblyInfo" (fun _ ->
 // But keeps a subdirectory structure for each project in the
 // src folder to support multiple project outputs
 Target "CopyBinaries" (fun _ ->
-    !! "src/**/*.??proj"
-    -- "src/**/*.shproj"
+    !! "src/compiler.api/compiler.api.fsproj"
     |>  Seq.map (fun f -> ((System.IO.Path.GetDirectoryName f) </> "bin/Release", "bin" </> (System.IO.Path.GetFileNameWithoutExtension f)))
     |>  Seq.iter (fun (fromDir, toDir) -> CopyDir toDir fromDir (fun _ -> true))
 )
@@ -129,7 +128,17 @@ Target "CleanDocs" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Build library & test project
 
-Target "Build" (fun _ ->
+Target "BuildDebug" (fun _ ->
+    printf "Running build task...."
+    let s = !! solutionFile
+#if MONO
+            |> MSBuild "" "Build" [ ("DefineConstants","MONO") ] 
+#else
+            |> MSBuildDebug "" "Build"
+#endif
+    printf "%A" s
+)
+Target "BuildRelease" (fun _ ->
     printf "Running build task...."
     let s = !! solutionFile
 #if MONO
@@ -140,6 +149,27 @@ Target "Build" (fun _ ->
     printf "%A" s
 )
 
+Target "RebuildDebug" (fun _ ->
+    printf "Running rebuild task...."
+    let s = !! solutionFile
+#if MONO
+            |> MSBuild "" "Rebuild" [ ("DefineConstants","MONO") ] 
+#else
+            |> MSBuildDebug "" "Rebuild"
+#endif
+    printf "%A" s
+)
+
+Target "RebuildRelease" (fun _ ->
+    printf "Running rebuild task...."
+    let s = !! solutionFile
+#if MONO
+            |> MSBuildReleaseExt "" [ ("DefineConstants","MONO") ] "Rebuild"
+#else
+            |> MSBuildRelease "" "Rebuild"
+#endif
+    printf "%A" s
+)
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
 
@@ -391,7 +421,8 @@ Target "All" DoNothing
 
 "Clean"
   ==> "AssemblyInfo"
-  ==> "Build"
+  ==> "BuildDebug"
+  ==> "BuildRelease"
   ==> "CopyBinaries"
   ==> "RunTests"
   ==> "All"
@@ -401,7 +432,7 @@ Target "All" DoNothing
   ==> "Release"
 
 "Clean"
-  ==> "Build"
+  ==> "BuildRelease"
   ==> "CopyBinaries"
   ==> "RunIntegrationTests"
 

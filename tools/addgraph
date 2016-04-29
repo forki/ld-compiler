@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -xef
+
+/stardog-$STARDOG_VERSION/bin/stardog data add snarl://stardog/$1 "${@:2}"

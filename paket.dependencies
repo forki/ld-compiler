@@ -5,6 +5,7 @@ nuget FSharp.RDF
 nuget FSharp.Text.RegexProvider
 nuget NUnit
 nuget NUnit.Runners
+nuget Suave.Testing
 nuget Unquote
 
 group Build

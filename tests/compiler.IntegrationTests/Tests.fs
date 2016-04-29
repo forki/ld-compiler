@@ -4,21 +4,13 @@ open NUnit.Framework
 open Swensen.Unquote
 open FSharp.Data
 open FSharp.Data.JsonExtensions
-open FSharp.Data.HttpRequestHeaders
-open System.Diagnostics
-open System.IO
 
-let execSynchronousProcess cmd args =
-  let procInfo = new ProcessStartInfo(cmd, Arguments=args, RedirectStandardOutput=true, RedirectStandardError=true, UseShellExecute=false)
-  let proc = new Process(StartInfo=procInfo)
-  proc.Start() |> ignore
-  let timeout = 10000
-
-  proc.WaitForExit(timeout) |> ignore
-  let stdErr = proc.StandardError.ReadToEnd()
-  let stdOut = proc.StandardOutput.ReadToEnd()
-  printf "stdErr %s\n" stdErr
-  printf "stdOut %s\n" stdOut
+let runCompileAndWaitTillFinished () =
+  let res = Http.RequestString("http://localhost:8083/compile", httpMethod="POST")
+  test <@ res = "Started" @>
+  let mutable finished = false
+  while finished = false do
+    if Http.RequestString("http://localhost:8083/status") = "Not running" then finished <- true
 
 type ElasticResponse = JsonProvider<"""
 {
@@ -33,7 +25,6 @@ type ElasticResponse = JsonProvider<"""
           "http://ld.nice.org.uk/ns/qualitystandard#stidentifier":"",
           "_id":"",
           "_type":"",
-          "qualitystandard:setting":"",
           "qualitystandard:age":[""]
         }
       }
@@ -42,54 +33,19 @@ type ElasticResponse = JsonProvider<"""
   }
 } """>
 
-let private runProgramWith inputFile outputDir =
-  let args = sprintf "/compiler/publish.exe %s %s" inputFile outputDir
-  execSynchronousProcess "mono" args
-
 let private queryElastic indexName typeName =
   let url = sprintf "http://elastic:9200/%s/%s/_search" indexName typeName
   let json = Http.RequestString(url, httpMethod="GET")
   ElasticResponse.Parse(json)
 
-let private inputDir = "/samples"
-let private outputDir = "/artifacts"
-
-let private createStatement qsId stId content =
-  Directory.CreateDirectory (inputDir) |> ignore
-  Directory.CreateDirectory (inputDir + "/" + qsId) |> ignore
-  Directory.CreateDirectory (inputDir + "/" + qsId + "/" + stId) |> ignore
-  Directory.CreateDirectory (outputDir) |> ignore
-  File.WriteAllText(inputDir + "/" + qsId + "/" + stId + "/Statement.md", content)
-
 [<TearDown>]
 let Teardown () =
-  Directory.Delete(inputDir, true)
-  Directory.Delete(outputDir, true)
-  let res = Http.RequestString("http://elastic:9200/kb", httpMethod="DELETE")
-  try
-    Http.RequestString ( "http://stardog:5820/admin/databases/nice", httpMethod = "DELETE", headers = [ BasicAuth "admin" "admin"] ) |> ignore
-  with _ -> ()
+  try Http.RequestString("http://elastic:9200/kb", httpMethod="DELETE") |> ignore with _ -> ()
 
 [<Test>]
 let ``When publishing a statement it should have added a statement to elastic search index`` () =
 
-  let markdown = """
-```
-Vocab:
-    - "Term"
-```
-This is the title 
-----------------------------------------------
-
-### Abstract 
-
-This is the abstract.
-
-This is some content.
-  """
-  createStatement "qs1" "st1" markdown
-
-  runProgramWith inputDir outputDir
+  runCompileAndWaitTillFinished ()
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -109,23 +65,7 @@ This is some content.
 [<Test>]
 let ``When publishing a statement it should apply annotations`` () =
 
-  let markdown = """
-```
-Setting:
-    - "Hospital"
-```
-This is the title 
-----------------------------------------------
-
-### Abstract 
-
-This is the abstract.
-
-This is some content.
-  """
-  createStatement "qs1" "st1" markdown
-
-  runProgramWith inputDir outputDir
+  runCompileAndWaitTillFinished ()
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -135,28 +75,13 @@ This is some content.
 
   let doc = (Seq.head response.Hits.Hits).Source
 
-  test <@ doc.QualitystandardSetting.JsonValue.ToString() = "\"http://ld.nice.org.uk/ns/qualitystandard/setting#Hospital\"" @>
+  let agegroups = doc.QualitystandardAge |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
+  test <@ agegroups.Contains("\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults\"") @>
 
 
 [<Test>]
 let ``When publishing a statement it should apply supertype and subtype inferred annotations`` () =
-  let markdown = """
-```
-Age Group:
-    - "Adults"
-```
-This is the title 
-----------------------------------------------
-
-### Abstract 
-
-This is the abstract.
-
-This is some content.
-  """
-  createStatement "qs1" "st1" markdown
-
-  runProgramWith inputDir outputDir
+  runCompileAndWaitTillFinished ()
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -165,8 +90,8 @@ This is some content.
   test <@ response.Hits.Total = 1 @>
 
   let doc = (Seq.head response.Hits.Hits).Source
-  let settings = doc.QualitystandardAge |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
-  test <@ settings = 
+  let agegroups = doc.QualitystandardAge |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
+  test <@ agegroups = 
             ( ["\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults\""
                "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 18-24 years\""
                "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 25-64 years\""

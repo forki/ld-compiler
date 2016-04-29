@@ -2,6 +2,7 @@ NUGET
   remote: https://www.nuget.org/api/v2
   specs:
     FSharp.Compiler.Service (0.0.90)
+    FSharp.Core (4.0.0.1)
     FSharp.Data (2.2.5)
       Zlib.Portable (>= 1.10) - framework: portable-net40+sl50+wp80+win80
     FSharp.Formatting (2.10.3)
@@ -11,6 +12,8 @@ NUGET
     FSharp.Text.RegexProvider (0.0.7)
     FSharpVSPowerTools.Core (1.9)
       FSharp.Compiler.Service (>= 0.0.90)
+    Fuchu (1.0.3)
+      FSharp.Core (>= 3.1.2.1)
     NUnit (3.2)
     NUnit.ConsoleRunner (3.2)
     NUnit.Extension.NUnitProjectLoader (3.2)
@@ -23,6 +26,12 @@ NUGET
       NUnit.Extension.NUnitV2Driver (3.2)
       NUnit.Extension.NUnitV2ResultWriter (3.2)
       NUnit.Extension.VSProjectLoader (3.2)
+    Suave (1.1.2)
+      FSharp.Core (>= 3.1.2.5)
+    Suave.Testing (1.1.2)
+      FSharp.Core (>= 3.1.2.5)
+      Fuchu (>= 1.0.2)
+      Suave (>= 1.1.2)
     Unquote (3.1.1)
     Zlib.Portable (1.11) - framework: portable-net40+sl50+wp80+win80
 
@@ -44,7 +53,7 @@ NUGET
       Microsoft.Bcl (>= 1.1.10)
       Microsoft.Bcl.Build (>= 1.0.14)
     Octokit (0.19)
-      Microsoft.Net.Http  - framework: net10, net11, net20, net30, net35, net40, net40-full
+      Microsoft.Net.Http
     SourceLink.Fake (1.1)
 GITHUB
   remote: fsharp/FAKE
