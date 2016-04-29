@@ -48,7 +48,7 @@ let tags = ""
 let solutionFile  = "compiler.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
-let unitTestAssemblies = "tests/**/bin/Release/*.Tests*.dll"
+let unitTestAssemblies = "tests/**/bin/Debug/*.Tests*.dll"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
@@ -129,7 +129,17 @@ Target "CleanDocs" (fun _ ->
 // --------------------------------------------------------------------------------------
 // Build library & test project
 
-Target "Build" (fun _ ->
+Target "BuildDebug" (fun _ ->
+    printf "Running build task...."
+    let s = !! solutionFile
+#if MONO
+            |> MSBuild "" "Build" [ ("DefineConstants","MONO") ] 
+#else
+            |> MSBuildDebug "" "Build"
+#endif
+    printf "%A" s
+)
+Target "BuildRelease" (fun _ ->
     printf "Running build task...."
     let s = !! solutionFile
 #if MONO
@@ -391,9 +401,10 @@ Target "All" DoNothing
 
 "Clean"
   ==> "AssemblyInfo"
-  ==> "Build"
-  ==> "CopyBinaries"
+  ==> "BuildDebug"
+  ==> "BuildRelease"
   ==> "RunTests"
+  ==> "CopyBinaries"
   ==> "All"
 
 "BuildPackage"
@@ -401,7 +412,7 @@ Target "All" DoNothing
   ==> "Release"
 
 "Clean"
-  ==> "Build"
+  ==> "BuildRelease"
   ==> "CopyBinaries"
   ==> "RunIntegrationTests"
 

@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>2bd3d0f8-2c96-46bf-87cf-9a889470c741</ProjectGuid>
+    <ProjectGuid>{2BD3D0F8-2C96-46BF-87CF-9A889470C741}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>publish.Tests</RootNamespace>
-    <AssemblyName>publish.Tests</AssemblyName>
+    <RootNamespace>compiler.Tests</RootNamespace>
+    <AssemblyName>compiler.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
-    <Name>publish.Tests</Name>
+    <Name>compiler.Tests</Name>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
   </PropertyGroup>
@@ -65,18 +64,17 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
-    <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
+    <Reference Include="FSharp.Core">
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\compiler\compiler.fsproj">
       <Name>compiler</Name>
-      <Project>{f2987d10-f785-4e80-a70a-111d21bd0080}</Project>
-      <Private>True</Private>
+      <Project>{F2987D10-F785-4E80-A70A-111D21BD0080}</Project>
     </ProjectReference>
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -113,147 +111,118 @@
   <ItemGroup>
     <Reference Include="Cognitum.OwlApi.Net.Pellet">
       <HintPath>..\..\packages\FSharp.RDF\lib\Cognitum.OwlApi.Net.Pellet.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="Cognitum.OwlApi.Net.ReasonerInterface">
       <HintPath>..\..\packages\FSharp.RDF\lib\Cognitum.OwlApi.Net.ReasonerInterface.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="FSharp.RDF">
       <HintPath>..\..\packages\FSharp.RDF\lib\FSharp.RDF.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="FSharpx.Core">
       <HintPath>..\..\packages\FSharp.RDF\lib\FSharpx.Core.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="HtmlAgilityPack">
       <HintPath>..\..\packages\FSharp.RDF\lib\HtmlAgilityPack.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.AWT.WinForms">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.AWT.WinForms.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Beans">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.OpenJDK.Beans.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Charsets">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.OpenJDK.Charsets.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Corba">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.OpenJDK.Corba.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Core">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.OpenJDK.Core.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Management">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.OpenJDK.Management.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Media">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.OpenJDK.Media.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Misc">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.OpenJDK.Misc.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Naming">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.OpenJDK.Naming.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Remoting">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.OpenJDK.Remoting.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Security">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.OpenJDK.Security.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.OpenJDK.SwingAWT">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.OpenJDK.SwingAWT.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Text">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.OpenJDK.Text.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.OpenJDK.Util">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.OpenJDK.Util.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.OpenJDK.XML.API">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.OpenJDK.XML.API.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.OpenJDK.XML.Parse">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.OpenJDK.XML.Parse.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.Runtime.JNI">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.Runtime.JNI.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="IKVM.Runtime">
       <HintPath>..\..\packages\FSharp.RDF\lib\IKVM.Runtime.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="JsonLD">
       <HintPath>..\..\packages\FSharp.RDF\lib\JsonLD.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\packages\FSharp.RDF\lib\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="VDS.Common">
       <HintPath>..\..\packages\FSharp.RDF\lib\VDS.Common.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="dotNetRDF">
       <HintPath>..\..\packages\FSharp.RDF\lib\dotNetRDF.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="owlapi">
       <HintPath>..\..\packages\FSharp.RDF\lib\owlapi.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
     <Reference Include="pellet">
       <HintPath>..\..\packages\FSharp.RDF\lib\pellet.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
   </ItemGroup>
@@ -300,7 +269,6 @@
   <ItemGroup>
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\test\NUnit\lib\nunit.framework.dll</HintPath>
-      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
   </ItemGroup>

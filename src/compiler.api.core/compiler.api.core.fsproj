@@ -4,13 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E2987D10-F785-4E80-A70A-111D21BD0080}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>compiler.api</RootNamespace>
-    <AssemblyName>compiler.api</AssemblyName>
+    <ProjectGuid>{C2987D10-F785-4E80-A70A-111D21BD0080}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>compiler.api.core</RootNamespace>
+    <AssemblyName>compiler.api.core</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
-    <Name>compiler.api</Name>
+    <Name>compiler.api.core</Name>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -30,7 +30,7 @@
     <OutputPath>bin\Release</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>.\bin\Release\compiler.api.xml</DocumentationFile>
+    <DocumentationFile>.\bin\Release\compiler.api.core.xml</DocumentationFile>
     <OtherFlags>--warnon:1182</OtherFlags>
   </PropertyGroup>
   <ItemGroup>
@@ -40,7 +40,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RunServer.fs" />
+    <Compile Include="App.fs" />
     <None Include="paket.references" />
     <None Include="paket.template" />
   </ItemGroup>
@@ -145,10 +145,6 @@
     </When>
   </Choose>
   <ItemGroup>
-    <ProjectReference Include="..\compiler.api.core\compiler.api.core.fsproj">
-      <Project>{C2987D10-F785-4E80-A70A-111D21BD0080}</Project>
-      <Name>compiler.api.core</Name>
-    </ProjectReference>
     <ProjectReference Include="..\compiler\compiler.fsproj">
       <Project>{F2987D10-F785-4E80-A70A-111D21BD0080}</Project>
       <Name>compiler</Name>

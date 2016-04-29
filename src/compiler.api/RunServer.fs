@@ -1,9 +1,14 @@
 module compiler.api.RunServer
 open Suave
-open compiler.api.App
+open compiler.api.core.App
 open compiler.Compile
 
+let compileAsync () =
+  async {
+    return compile ()
+  }
+
 [<EntryPoint>]
-let main argv =
-  startWebServer defaultConfig ( createApp compile )
+let main _ =
+  startWebServer defaultConfig ( createApp compileAsync )
   0
