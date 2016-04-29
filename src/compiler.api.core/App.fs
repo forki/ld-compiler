@@ -8,22 +8,31 @@ open System.Threading
 
 let r = ref false
 
-let isRunning () = !r
+let private isRunning () = !r
 
+// Public as used in AppTests.fs
 let setRunning running = r := running
 
-let runCompile compileFn: WebPart =
- fun (x : HttpContext) ->
-   async {
-       setRunning true
-       printf "starting compiling...\n" 
-       do! compileFn ()
-       setRunning false
-       printf "finished\n"
-       return! Successful.ACCEPTED "OK" x
-   }
+let private asyncCompile compileFn =
+  Async.Start(
+    async {
+      setRunning true
+      printf "Started compiling...\n"
+      compileFn ()
+      setRunning false
+      printf "Finished compiling!\n"
+  })
 
-let checkStatus () : WebPart =
+let private runCompile compileFn: WebPart =
+ fun (x : HttpContext) ->
+   match isRunning() with
+   | true ->
+     Successful.ACCEPTED "Already running" x
+   | false ->
+     asyncCompile compileFn
+     Successful.ACCEPTED "Started" x
+
+let private checkStatus () : WebPart =
   fun (x : HttpContext) ->
     async {
       let running = 

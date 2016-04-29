@@ -150,6 +150,27 @@ Target "BuildRelease" (fun _ ->
     printf "%A" s
 )
 
+Target "RebuildDebug" (fun _ ->
+    printf "Running rebuild task...."
+    let s = !! solutionFile
+#if MONO
+            |> MSBuild "" "Rebuild" [ ("DefineConstants","MONO") ] 
+#else
+            |> MSBuildDebug "" "Rebuild"
+#endif
+    printf "%A" s
+)
+
+Target "RebuildRelease" (fun _ ->
+    printf "Running rebuild task...."
+    let s = !! solutionFile
+#if MONO
+            |> MSBuildReleaseExt "" [ ("DefineConstants","MONO") ] "Rebuild"
+#else
+            |> MSBuildRelease "" "Rebuild"
+#endif
+    printf "%A" s
+)
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
 
@@ -403,8 +424,8 @@ Target "All" DoNothing
   ==> "AssemblyInfo"
   ==> "BuildDebug"
   ==> "BuildRelease"
-  ==> "RunTests"
   ==> "CopyBinaries"
+  ==> "RunTests"
   ==> "All"
 
 "BuildPackage"
