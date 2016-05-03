@@ -7,8 +7,9 @@ compiler:
   volumes_from:
     - stardog
   volumes:
-    - .:/compiler-src
-  command: sleep 1000000
+    - /artifacts:/artifacts
+  ports:
+    - "8083:8083"
 schema:
   image: nice/ontologies
   expose:
@@ -25,3 +26,12 @@ elastic:
   image: nice/ld-docker-elasticsearch
   ports:
     - "9200:9200"
+integrationtests:
+  image: nice/ld-publisher-base
+  links:
+    - compiler
+    - elastic
+  volumes:
+    - .:/compiler-src
+    - /artifacts:/artifacts
+  command: sleep 10000000

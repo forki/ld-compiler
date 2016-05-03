@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-GITUSER=$1
-GITPASS=$2
+GIT_REPO_URL=$1
 
 docker-compose stop
 docker-compose rm -f
 docker-compose up -d
 sleep 10
-docker exec -it ldcompiler_mimir_1 bash -c "git clone https://$GITUSER:$GITPASS@github.com/nhsevidence/ld-content-test /git && mkdir /artifacts && cd /compiler && mono publish.exe /git/qualitystandards /artifacts"
-#docker-compose stop
-#docker-compose rm -f
+echo "Started building the knowledge base from $GIT_REPO_URL"
+curl -XPOST "http://localhost:8083/compile?repoUrl=$GIT_REPO_URL"
+echo "Finished"

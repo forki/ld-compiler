@@ -15,6 +15,6 @@ ADD tools/ /tools/
 RUN cd /bin && \
     ln -s /tools/* .
 
-CMD mono /compiler/bin/compiler.api.exe
-
 EXPOSE 8083
+
+CMD mono /compiler/bin/compiler.api.exe

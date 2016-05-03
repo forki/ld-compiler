@@ -5,13 +5,16 @@ open Swensen.Unquote
 open FSharp.Data
 open FSharp.Data.JsonExtensions
 open System.IO
+open System.Web
 
-let runCompileAndWaitTillFinished () =
-  let res = Http.RequestString("http://localhost:8083/compile", httpMethod="POST")
+let runCompileAndWaitTillFinished gitRepoUrl =
+  let res = Http.RequestString("http://compiler:8083/compile",
+                               query=["repoUrl", gitRepoUrl],
+                               httpMethod="POST")
   test <@ res = "Started" @>
   let mutable finished = false
   while finished = false do
-    if Http.RequestString("http://localhost:8083/status") = "Not running" then finished <- true
+    if Http.RequestString("http://compiler:8083/status") = "Not running" then finished <- true
 
 type ElasticResponse = JsonProvider<"""
 {
@@ -46,7 +49,7 @@ let Teardown () =
 [<Test>]
 let ``When publishing a statement it should have added a statement to elastic search index`` () =
 
-  runCompileAndWaitTillFinished ()
+  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -66,7 +69,7 @@ let ``When publishing a statement it should have added a statement to elastic se
 [<Test>]
 let ``When publishing a statement it should apply annotations`` () =
 
-  runCompileAndWaitTillFinished ()
+  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -82,7 +85,7 @@ let ``When publishing a statement it should apply annotations`` () =
 
 [<Test>]
 let ``When publishing a statement it should apply supertype and subtype inferred annotations`` () =
-  runCompileAndWaitTillFinished ()
+  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -105,7 +108,7 @@ let ``When publishing a statement it should apply supertype and subtype inferred
 [<Test>]
 let ``When publishing a statement it should generate static html file to artifacts directory`` () =
 
-  runCompileAndWaitTillFinished ()
+  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
 
   let html = File.ReadAllText "/artifacts/published/qualitystandards/qs1/st1/Statement.html"
 

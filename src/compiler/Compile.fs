@@ -14,7 +14,6 @@ open FSharp.Data
 open System.IO
 
 //// These should be passed in as arguments ////////
-let private gitRepoUrl = "https://github.com/nhsevidence/ld-dummy-content"
 let private inputDir = "/git"
 let private outputDir = "/artifacts"
 let private dbName = "nice"
@@ -124,7 +123,7 @@ let private publishResources propertyPaths indexName typeName =
   |> transformToJsonLD contexts
   |> bulkUpload indexName typeName
 
-let compile () =
+let compile gitRepoUrl () =
   printf "Input directory : %s\n" inputDir 
   printf "Output directory : %s\n" outputDir 
   try 

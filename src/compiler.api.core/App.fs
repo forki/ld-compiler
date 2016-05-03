@@ -44,6 +44,10 @@ let private checkStatus () : WebPart =
 
 let createApp compileFn =
   choose
-    [POST >=> path "/compile" >=> runCompile compileFn
+    [POST >=> path "/compile" >=>
+       request (fun req ->
+                match req.queryParam "repoUrl" with
+                | Choice1Of2 repoUrl when repoUrl <> "" -> runCompile (compileFn repoUrl)
+                | _ -> RequestErrors.BAD_REQUEST "Please provide git repo url as a querystring parameter called 'repoUrl'")
      GET >=> path "/status" >=> checkStatus ()
      RequestErrors.NOT_FOUND "Found no handlers"]
