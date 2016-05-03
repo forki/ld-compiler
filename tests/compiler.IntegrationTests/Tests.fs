@@ -4,6 +4,7 @@ open NUnit.Framework
 open Swensen.Unquote
 open FSharp.Data
 open FSharp.Data.JsonExtensions
+open System.IO
 
 let runCompileAndWaitTillFinished () =
   let res = Http.RequestString("http://localhost:8083/compile", httpMethod="POST")
@@ -100,3 +101,23 @@ let ``When publishing a statement it should apply supertype and subtype inferred
                "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#AgeGroup\""
                "\"http://ld.nice.org.uk/ns/qualitystandard#PopulationSpecifier\""] |> Set.ofList )
        @>
+
+[<Test>]
+let ``When publishing a statement it should generate static html file to artifacts directory`` () =
+
+  runCompileAndWaitTillFinished ()
+
+  let html = File.ReadAllText "/artifacts/published/qualitystandards/qs1/st1/Statement.html"
+
+  let expectedHtml = """<pre><code>Age Group:
+    - &quot;Adults&quot;</code></pre>
+<h2 id="this-is-the-title">This is the title</h2>
+<h3 id="abstract">Abstract</h3>
+<p>This is the abstract.</p>
+<p>This is some content.</p>
+"""
+
+  test <@ html = expectedHtml @>
+
+
+

@@ -8,6 +8,7 @@ open publish.Turtle
 open publish.Stardog
 open publish.JsonLd
 open publish.Elastic
+open compiler.Pandoc
 open FSharp.RDF
 open FSharp.Data
 open System.IO
@@ -94,6 +95,7 @@ let private compileToRDF files rdfArgs baseUrl outputDir =
   let compile =
     readFile
     >> extractStatement
+    >> convertMarkdownToHtml ( outputDir + "/published/qualitystandards/" )
     >> transformToRDF rdfArgs
     >> transformToTurtle
     >> prepareAsFile baseUrl outputDir ".ttl"

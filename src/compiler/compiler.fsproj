@@ -53,6 +53,7 @@
     <Compile Include="Stardog.fs" />
     <Compile Include="JsonLd.fs" />
     <Compile Include="Elastic.fs" />
+    <Compile Include="Pandoc.fs" />
     <Compile Include="Compile.fs" />
     <None Include="Publish.fsx" />
     <None Include="Script.fsx" />
