@@ -1,7 +1,7 @@
 module publish.Markdown
 
 open publish.Domain
-open publish.File
+open compiler.ContentHandle
 open publish.YamlParser
 open System.Text.RegularExpressions
 open FSharp.Markdown
@@ -24,11 +24,11 @@ let private extractAnnotations (markdown:MarkdownDocument) =
 
 let private convertToVocab {Name = name; Fields = fields} = {Vocab = name; Terms = fields}
 
-let extractStatement file =
-  let markdown = Markdown.Parse(file.Content)
+let extractStatement contentHandle =
+  let markdown = Markdown.Parse(contentHandle.Content)
 
-  let standardId = extract "qs(\d+)" file.Path |> System.Int32.Parse
-  let statementId = extract "st(\d+)" file.Path |> System.Int32.Parse
+  let standardId = extract "qs(\d+)" contentHandle.Path |> System.Int32.Parse
+  let statementId = extract "st(\d+)" contentHandle.Path |> System.Int32.Parse
   let id = sprintf "qs%d/st%d" standardId statementId
   let title = sprintf "Quality Statement %d from Quality Standard %d" statementId standardId
   let abs = extractAbstract markdown
@@ -43,4 +43,4 @@ let extractStatement file =
    StandardId = standardId
    StatementId = statementId
    Annotations = annotations
-   Content = file.Content}
+   Content = contentHandle.Content}

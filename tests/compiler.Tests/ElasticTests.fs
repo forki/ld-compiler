@@ -3,7 +3,7 @@ module publish.Tests.ElasticTests
 open NUnit.Framework
 open Swensen.Unquote
 open FSharp.Data
-open publish.File
+open compiler.ContentHandle
 open publish.Elastic
 
 type CreateSchema = JsonProvider<"""

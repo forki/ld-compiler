@@ -1,7 +1,8 @@
 module compiler.Compile 
 
 open publish
-open publish.File
+open compiler.ContentHandle
+open compiler.Utils
 open publish.Markdown
 open publish.RDF
 open publish.Turtle
@@ -71,13 +72,10 @@ let private indexName = "kb"
 let private typeName = "qualitystatement"
 /////////////////////////////////////////////////////////////////
 
-let private findFiles inputDir filePattern =
-  let dir = System.IO.DirectoryInfo(inputDir)
-  let files = dir.GetFiles(filePattern, System.IO.SearchOption.AllDirectories)
-  files |> Array.map(fun fs -> fs.FullName) |> Array.toList
-
-let private readFile file =
-  {Path = file; Content = File.ReadAllText file}
+type ContentExtractor = {
+  readAllContentItems : Uri -> ContentHandle seq
+  readContentForItem : ContentHandle -> ContentHandle
+}
 
 let private writeFile file =
   try 
@@ -89,17 +87,19 @@ let private prepareAsFile baseUrl outputDir ext (id:string, jsonld) =
   let id = id.Replace(baseUrl+"/", "").Replace("/","_")
   {Path = sprintf "%s/%s%s" outputDir id ext; Content = jsonld}
 
-let private compileToRDF files rdfArgs baseUrl outputDir = 
-  printf "Compiling files: %A\n" files
+let private compileToRDF extractor fetchUrl rdfArgs baseUrl outputDir = 
+  let items = extractor.readAllContentItems fetchUrl
+
   let compile =
-    readFile
+    extractor.readContentForItem
     >> extractStatement
     >> convertMarkdownToHtml ( outputDir + "/published/qualitystandards/" )
     >> transformToRDF rdfArgs
     >> transformToTurtle
     >> prepareAsFile baseUrl outputDir ".ttl"
     >> writeFile 
-  files |> Seq.iter (fun file -> try compile file with ex -> printf "[ERROR] problem processing file %s with: %s\n" file ( ex.ToString() ))
+
+  items |> Seq.iter (fun item -> try compile item with ex -> printf "[ERROR] problem processing item %s with: %s\n" item.Path ( ex.ToString() ))
 
 let private downloadSchema schemas outputDir =
   let download (schema:string) =
@@ -123,23 +123,31 @@ let private publishResources propertyPaths indexName typeName =
   |> transformToJsonLD contexts
   |> bulkUpload indexName typeName
 
-let compile gitRepoUrl () =
+let private clean () = 
   printf "Input directory : %s\n" inputDir 
   printf "Output directory : %s\n" outputDir 
   try 
-    Directory.Delete(inputDir, true)
-    Directory.Delete(outputDir, true)
+      Directory.Delete(inputDir, true)
+      Directory.Delete(outputDir, true)
   with ex -> ()
   Directory.CreateDirectory inputDir |> ignore
   Directory.CreateDirectory outputDir |> ignore
-
-  Git.clone gitRepoUrl inputDir
   Stardog.deleteDb dbName dbUser dbPass
+
+let private prepare () = 
   Stardog.createDb dbName
   downloadSchema schemas outputDir
 
-  let files = findFiles inputDir "Statement.md"
-  compileToRDF files rdfArgs baseUrl outputDir
+let compile ( fetchUrl:string ) () =
+
+  let extractor =
+    {readAllContentItems = Git.readAll
+     readContentForItem = Git.readOne}
+
+  clean ()
+  prepare ()
+
+  compileToRDF extractor ( Uri.from fetchUrl ) rdfArgs baseUrl outputDir
   addGraphs outputDir dbName
   publishResources propertyPaths indexName typeName
 

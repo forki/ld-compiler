@@ -2,7 +2,7 @@ module publish.Elastic
 
 open FSharp.Data
 open System.IO
-open publish.File
+open compiler.ContentHandle
 
 type IdSchema = JsonProvider<""" {"_id":"" }""">
 

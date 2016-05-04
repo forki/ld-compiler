@@ -44,7 +44,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain.fs" />
-    <Compile Include="File.fs" />
+    <Compile Include="ContentHandle.fs" />
+    <Compile Include="Utils.fs" />
     <Compile Include="Git.fs" />
     <Compile Include="YamlParser.fs" />
     <Compile Include="MarkdownParser.fs" />
