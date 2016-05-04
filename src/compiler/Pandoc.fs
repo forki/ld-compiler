@@ -1,6 +1,7 @@
 module compiler.Pandoc
 
 open compiler.Domain
+open compiler.Utils
 open System.Diagnostics
 open System.IO
 
@@ -27,20 +28,14 @@ let private runProcess cmd ( stdInContent:string ) args =
   printf "stdOut %s\n" stdOut
   printf "stdErr %s\n" stdErr
 
-let private createDirectory outputDir statement =
-  let outputDir = outputDir + "/" + statement.Id
-  Directory.CreateDirectory(outputDir) |> ignore
-  outputDir
-
-let private buildPandocArgs outputDir = 
-  let outputFile = outputDir + "/Statement.html"
-  sprintf "-f markdown -t html5 -o %s" outputFile
+let private buildPandocArgs outputDir statement =
+  let outputFile = prepareAsFile "notused" outputDir ".html" (statement.Id, "")
+  sprintf "-f markdown -t html5 -o %s" outputFile.Path
 
 let convertMarkdownToHtml outputDir statement =
   printf "Converting statement %s to Html" statement.Id
   statement
-  |> createDirectory outputDir
-  |> buildPandocArgs 
+  |> buildPandocArgs outputDir
   |> runProcess "pandoc" statement.Content
 
   statement

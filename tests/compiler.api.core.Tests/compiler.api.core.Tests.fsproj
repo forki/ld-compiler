@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -75,8 +75,15 @@
   -->
   <Import Project="..\..\.paket\paket.targets" />
   <ItemGroup>
+    <ProjectReference Include="..\..\src\compiler.api.core\compiler.api.core.fsproj">
+      <Project>{C2987D10-F785-4E80-A70A-111D21BD0080}</Project>
+      <Name>compiler.api.core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="Fuchu">
       <HintPath>..\..\packages\Fuchu\lib\Fuchu.dll</HintPath>
+      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
   </ItemGroup>
@@ -134,15 +141,8 @@
   <ItemGroup>
     <Reference Include="nunit.framework">
       <HintPath>..\..\packages\test\NUnit\lib\nunit.framework.dll</HintPath>
+      <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\compiler.api.core\compiler.api.core.fsproj">
-      <Project>{C2987D10-F785-4E80-A70A-111D21BD0080}</Project>
-      <Name>compiler.api.core</Name>
-    </ProjectReference>
   </ItemGroup>
 </Project>

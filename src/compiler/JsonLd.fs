@@ -9,7 +9,6 @@ open FSharp.Data
 open FSharp.RDF
 open FSharp.RDF.Store
 open FSharp.RDF.JsonLD
-open FSharp.Text.RegexProvider
 open JsonLD.Core
 open Newtonsoft.Json.Linq
 open Newtonsoft.Json

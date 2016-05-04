@@ -26,7 +26,7 @@ let compile extractor rdfArgs baseUrl outputDir dbName =
   let compileItem =
     extractor.readContentForItem
     >> extractStatement
-    >> convertMarkdownToHtml ( outputDir + "/published/qualitystandards/" )
+    >> convertMarkdownToHtml outputDir
     >> transformToRDF rdfArgs
     >> transformToTurtle
     >> prepareAsFile baseUrl outputDir ".ttl"

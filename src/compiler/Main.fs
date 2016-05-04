@@ -81,6 +81,6 @@ let compileAndPublish ( fetchUrl:string ) () =
   prepare inputDir outputDir dbName dbUser dbPass schemas
 
   compile extractor rdfArgs baseUrl outputDir dbName
-  publish propertyPaths jsonldContexts indexName typeName 
+  publish propertyPaths jsonldContexts outputDir indexName typeName 
 
   printf "Knowledge base creation complete!\n"

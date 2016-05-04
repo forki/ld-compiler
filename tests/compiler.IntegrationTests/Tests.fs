@@ -1,4 +1,4 @@
-module publish.IntegrationTests.Tests
+module compiler.IntegrationTests.Tests
 
 open NUnit.Framework
 open Swensen.Unquote
@@ -44,7 +44,10 @@ let private queryElastic indexName typeName =
 
 [<TearDown>]
 let Teardown () =
+  printf "Deleting elastic index\n"
   try Http.RequestString("http://elastic:9200/kb", httpMethod="DELETE") |> ignore with _ -> ()
+  printf "Deleting all static html resources\n"
+  try Http.RequestString("http://resourceapi:8082/resource/qs1/st1", httpMethod="DELETE") |> ignore with _ -> ()
 
 [<Test>]
 let ``When publishing a statement it should have added a statement to elastic search index`` () =
@@ -106,11 +109,11 @@ let ``When publishing a statement it should apply supertype and subtype inferred
        @>
 
 [<Test>]
-let ``When publishing a statement it should generate static html file to artifacts directory`` () =
+let ``When publishing a statement it should generate static html and post to resource api`` () =
 
   runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
 
-  let html = File.ReadAllText "/artifacts/published/qualitystandards/qs1/st1/Statement.html"
+  let html = Http.RequestString("http://resourceapi:8082/resource/qs1/st1")
 
   let expectedHtml = """<pre><code>Age Group:
     - &quot;Adults&quot;</code></pre>

@@ -4,10 +4,9 @@ compiler:
     - stardog
     - elastic
     - schema
+    - resourceapi
   volumes_from:
     - stardog
-  volumes:
-    - /artifacts:/artifacts
   ports:
     - "8083:8083"
 schema:
@@ -26,11 +25,22 @@ elastic:
   image: nice/ld-docker-elasticsearch
   ports:
     - "9200:9200"
+resourceapi:
+  image: nice/ld-resource-api
+  ports:
+    - "8082:8082"
+  volumes_from:
+    - resourceapidata
+resourceapidata:
+  image: nice/ld-resource-api
+  volumes:
+    - /data
 integrationtests:
   image: nice/ld-publisher-base
   links:
     - compiler
     - elastic
+    - resourceapi
   volumes:
     - .:/compiler-src
     - /artifacts:/artifacts

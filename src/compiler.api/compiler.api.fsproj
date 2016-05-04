@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -68,6 +68,16 @@
   </Target>
   -->
   <Import Project="..\..\.paket\paket.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\compiler.api.core\compiler.api.core.fsproj">
+      <Project>{C2987D10-F785-4E80-A70A-111D21BD0080}</Project>
+      <Name>compiler.api.core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\compiler\compiler.fsproj">
+      <Project>{F2987D10-F785-4E80-A70A-111D21BD0080}</Project>
+      <Name>compiler</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v2.0' Or $(TargetFrameworkVersion) == 'v3.0' Or $(TargetFrameworkVersion) == 'v3.5')">
       <ItemGroup>
@@ -144,14 +154,4 @@
       </ItemGroup>
     </When>
   </Choose>
-  <ItemGroup>
-    <ProjectReference Include="..\compiler.api.core\compiler.api.core.fsproj">
-      <Project>{C2987D10-F785-4E80-A70A-111D21BD0080}</Project>
-      <Name>compiler.api.core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\compiler\compiler.fsproj">
-      <Project>{F2987D10-F785-4E80-A70A-111D21BD0080}</Project>
-      <Name>compiler</Name>
-    </ProjectReference>
-  </ItemGroup>
 </Project>
