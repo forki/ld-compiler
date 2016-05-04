@@ -1,4 +1,4 @@
-module publish.YamlParser
+module compiler.YamlParser
 
 open System.Text.RegularExpressions
 

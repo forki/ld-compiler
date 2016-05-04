@@ -1,6 +1,6 @@
 module compiler.Pandoc
 
-open publish.Domain
+open compiler.Domain
 open System.Diagnostics
 open System.IO
 

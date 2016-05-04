@@ -11,7 +11,7 @@ let private clone destDir repoUrl =
 
   proc.WaitForExit(timeout) |> ignore
 
-let readAll repoUrl =
+let readAll repoUrl () =
   let destDir = "/git"
   clone destDir repoUrl
   findFiles destDir "Statement.md"

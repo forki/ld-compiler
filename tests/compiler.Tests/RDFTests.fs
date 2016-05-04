@@ -1,7 +1,7 @@
-module publish.Tests.RDFTests
+module compiler.Tests.RDFTests
 
-open publish.Domain
-open publish.RDF
+open compiler.Domain
+open compiler.RDF
 open FSharp.RDF
 open resource
 open NUnit.Framework

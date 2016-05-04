@@ -1,4 +1,4 @@
-module publish.Domain
+module compiler.Domain
 
 type Annotation = {
   Vocab : string

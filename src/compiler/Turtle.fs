@@ -1,4 +1,4 @@
-module publish.Turtle
+module compiler.Turtle
 
 open FSharp.RDF
 open Assertion

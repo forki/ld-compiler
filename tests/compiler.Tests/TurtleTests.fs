@@ -1,4 +1,4 @@
-module publish.Tests.TurtleTests
+module compiler.Tests.TurtleTests
 
 open NUnit.Framework
 open Swensen.Unquote
@@ -6,7 +6,7 @@ open FSharp.RDF
 open Assertion
 open resource
 open rdf
-open publish.Turtle
+open compiler.Turtle
 
 [<Test>]
 let ``Should serialize resource to ttl`` () =

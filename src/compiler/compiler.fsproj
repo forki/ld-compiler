@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Domain.fs" />
     <Compile Include="ContentHandle.fs" />
+    <Compile Include="ContentExtractor.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Git.fs" />
     <Compile Include="YamlParser.fs" />
@@ -55,7 +56,10 @@
     <Compile Include="JsonLd.fs" />
     <Compile Include="Elastic.fs" />
     <Compile Include="Pandoc.fs" />
+    <Compile Include="Preamble.fs" />
+    <Compile Include="Publish.fs" />
     <Compile Include="Compile.fs" />
+    <Compile Include="Main.fs" />
     <None Include="Publish.fsx" />
     <None Include="Script.fsx" />
     <None Include="paket.references" />

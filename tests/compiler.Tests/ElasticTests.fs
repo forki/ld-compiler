@@ -1,10 +1,10 @@
-module publish.Tests.ElasticTests
+module compiler.Tests.ElasticTests
 
 open NUnit.Framework
 open Swensen.Unquote
 open FSharp.Data
 open compiler.ContentHandle
-open publish.Elastic
+open compiler.Elastic
 
 type CreateSchema = JsonProvider<"""
 {

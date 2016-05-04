@@ -1,8 +1,8 @@
-module publish.Markdown
+module compiler.Markdown
 
-open publish.Domain
+open compiler.Domain
 open compiler.ContentHandle
-open publish.YamlParser
+open compiler.YamlParser
 open System.Text.RegularExpressions
 open FSharp.Markdown
 

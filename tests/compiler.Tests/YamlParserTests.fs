@@ -1,8 +1,8 @@
-module publish.Test.YamlParserTests
+module compiler.Test.YamlParserTests
 
 open NUnit.Framework
 open Swensen.Unquote
-open publish.YamlParser
+open compiler.YamlParser
 
 [<Test>]
 let ``Should handle no empty string`` () =

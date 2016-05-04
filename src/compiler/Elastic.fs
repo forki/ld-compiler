@@ -1,4 +1,4 @@
-module publish.Elastic
+module compiler.Elastic
 
 open FSharp.Data
 open System.IO

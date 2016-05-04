@@ -1,6 +1,6 @@
-module publish.RDF
+module compiler.RDF
 
-open publish.Domain
+open compiler.Domain
 open FSharp.RDF
 open Assertion
 open resource

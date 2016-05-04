@@ -1,8 +1,8 @@
-module publish.Test.JsonLdTests
+module compiler.Test.JsonLdTests
 
 open NUnit.Framework
 open Swensen.Unquote
-open publish.JsonLd
+open compiler.JsonLd
 open FSharp.Data
 open FSharp.RDF
 open Assertion

@@ -1,4 +1,4 @@
-module publish.Stardog
+module compiler.Stardog
 
 open System.Diagnostics
 open System.IO

@@ -1,4 +1,4 @@
-module publish.JsonLd
+module compiler.JsonLd
 
 open VDS.RDF
 open VDS.RDF.Writing

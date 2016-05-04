@@ -1,12 +1,12 @@
-module publish.Test.MarkdownTests
+module compiler.Test.MarkdownTests
 
 open NUnit.Framework
 open Swensen.Unquote
 
-open publish
+open compiler
 open compiler.ContentHandle
-open publish.Domain
-open publish.Markdown
+open compiler.Domain
+open compiler.Markdown
 
 let sampleMarkdownContent = {
   Path = "qualitystandards/qs1/st2/Statement.md"

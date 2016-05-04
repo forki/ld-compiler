@@ -1,96 +1,29 @@
-module compiler.Compile 
+module compiler.Compile
 
-open publish
-open compiler.ContentHandle
-open compiler.Utils
-open publish.Markdown
-open publish.RDF
-open publish.Turtle
-open publish.Stardog
-open publish.JsonLd
-open publish.Elastic
-open compiler.Pandoc
 open FSharp.RDF
 open FSharp.Data
 open System.IO
+open compiler.ContentHandle
+open compiler.ContentExtractor
+open compiler.Utils
+open compiler.Markdown
+open compiler.RDF
+open compiler.Turtle
+open compiler.Pandoc
+open compiler.Publish
+open compiler
 
-//// These should be passed in as arguments ////////
-let private inputDir = "/git"
-let private outputDir = "/artifacts"
-let private dbName = "nice"
-let private dbUser = "admin"
-let private dbPass = "admin"
+let private addGraphs outputDir dbName = 
+  let concatToArgs turtles = List.fold (fun acc file -> file + " " + acc) "" turtles
 
-let private baseUrl = "http://ld.nice.org.uk/qualitystatement" 
+  findFiles outputDir "*.ttl"
+  |> concatToArgs 
+  |> Stardog.addGraph dbName
 
-let private rdfArgs = {
-  BaseUrl = baseUrl    
-  VocabMap = 
-    ([ "setting", Uri.from "http://ld.nice.org.uk/ns/qualitystandard#setting"
-       "agegroup", Uri.from "http://ld.nice.org.uk/ns/qualitystandard#age"
-       "conditionordisease", Uri.from "http://ld.nice.org.uk/ns/qualitystandard#condition"
-       "servicearea", Uri.from "http://ld.nice.org.uk/ns/qualitystandard#serviceArea"
-       "lifestylecondition", Uri.from "http://ld.nice.org.uk/ns/qualitystandard#lifestyleCondition" ] |> Map.ofList)
-  TermMap = 
-    ([ "setting", vocabLookup "http://ld.nice.org.uk/ns/qualitystandard/setting.ttl"
-       "agegroup", vocabLookup "http://ld.nice.org.uk/ns/qualitystandard/agegroup.ttl"
-       "lifestylecondition", vocabLookup "http://ld.nice.org.uk/ns/qualitystandard/lifestylecondition.ttl"
-       "conditionordisease", vocabLookup "http://ld.nice.org.uk/ns/qualitystandard/conditionordisease.ttl"
-       "servicearea", vocabLookup "http://ld.nice.org.uk/ns/qualitystandard/servicearea.ttl" ] |> Map.ofList)
-}
-let private propertyPaths = [ 
-  "<http://ld.nice.org.uk/ns/qualitystandard#age>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#age>/rdfs:subClassOf*" 
-  "<http://ld.nice.org.uk/ns/qualitystandard#condition>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#condition>/rdfs:subClassOf*" 
-  "<http://ld.nice.org.uk/ns/qualitystandard#setting>/^rdfs:subClassOf*" 
-  "<http://ld.nice.org.uk/ns/qualitystandard#serviceArea>/^rdfs:subClassOf*" 
-  "<http://ld.nice.org.uk/ns/qualitystandard#lifestyleCondition>/^rdfs:subClassOf*" 
-  "<http://ld.nice.org.uk/ns/qualitystandard#title>" 
-  "<http://ld.nice.org.uk/ns/qualitystandard#abstract>" 
-  "<http://ld.nice.org.uk/ns/qualitystandard#qsidentifier>" 
-  "<http://ld.nice.org.uk/ns/qualitystandard#stidentifier>"
-]
+let compile extractor rdfArgs baseUrl outputDir dbName = 
+  let items = extractor.readAllContentItems ()
 
-let private contexts = [
-  "http://ld.nice.org.uk/ns/qualitystandard.jsonld "
-  "http://ld.nice.org.uk/ns/qualitystandard/conditionordisease.jsonld "
-  "http://ld.nice.org.uk/ns/qualitystandard/agegroup.jsonld "
-  "http://ld.nice.org.uk/ns/qualitystandard/lifestylecondition.jsonld "
-  "http://ld.nice.org.uk/ns/qualitystandard/setting.jsonld "
-  "http://ld.nice.org.uk/ns/qualitystandard/servicearea.jsonld "
-]
-
-let private schemas = [
-  "http://schema/ns/qualitystandard.ttl"
-  "http://schema/ns/qualitystandard/agegroup.ttl"
-  "http://schema/ns/qualitystandard/conditionordisease.ttl"
-  "http://schema/ns/qualitystandard/lifestylecondition.ttl"
-  "http://schema/ns/qualitystandard/setting.ttl"
-  "http://schema/ns/qualitystandard/servicearea.ttl"
-]
-
-let private indexName = "kb"
-let private typeName = "qualitystatement"
-/////////////////////////////////////////////////////////////////
-
-type ContentExtractor = {
-  readAllContentItems : Uri -> ContentHandle seq
-  readContentForItem : ContentHandle -> ContentHandle
-}
-
-let private writeFile file =
-  try 
-    File.WriteAllText(file.Path, file.Content)
-    printf "Written %s\n" file.Path
-  with ex -> printf "Couldnt write %s to disk!\n" file.Path
-
-let private prepareAsFile baseUrl outputDir ext (id:string, jsonld) =
-  let id = id.Replace(baseUrl+"/", "").Replace("/","_")
-  {Path = sprintf "%s/%s%s" outputDir id ext; Content = jsonld}
-
-let private compileToRDF extractor fetchUrl rdfArgs baseUrl outputDir = 
-  let items = extractor.readAllContentItems fetchUrl
-
-  let compile =
+  let compileItem =
     extractor.readContentForItem
     >> extractStatement
     >> convertMarkdownToHtml ( outputDir + "/published/qualitystandards/" )
@@ -99,56 +32,7 @@ let private compileToRDF extractor fetchUrl rdfArgs baseUrl outputDir =
     >> prepareAsFile baseUrl outputDir ".ttl"
     >> writeFile 
 
-  items |> Seq.iter (fun item -> try compile item with ex -> printf "[ERROR] problem processing item %s with: %s\n" item.Path ( ex.ToString() ))
+  items |> Seq.iter (fun item -> try compileItem item with ex -> printf "[ERROR] problem processing item %s with: %s\n" item.Path ( ex.ToString() ))
 
-let private downloadSchema schemas outputDir =
-  let download (schema:string) =
-    {Path = sprintf "%s/%s" outputDir (schema.Remove(0,schema.LastIndexOf('/')+1))
-     Content = Http.RequestString(schema)}
-  
-  List.iter (download >> writeFile) schemas
-
-let private addGraphs outputDir dbName = 
-  let concatToArgs turtles = List.fold (fun acc file -> file + " " + acc) "" turtles
-
-  let turtles = findFiles outputDir "*.ttl"
-  turtles 
-  |> concatToArgs 
-  |> Stardog.addGraph dbName
-
-let private publishResources propertyPaths indexName typeName =
-  printf "Publishing resources\n"
-  let resources = Stardog.extractResources propertyPaths
-  resources
-  |> transformToJsonLD contexts
-  |> bulkUpload indexName typeName
-
-let private clean () = 
-  printf "Input directory : %s\n" inputDir 
-  printf "Output directory : %s\n" outputDir 
-  try 
-      Directory.Delete(inputDir, true)
-      Directory.Delete(outputDir, true)
-  with ex -> ()
-  Directory.CreateDirectory inputDir |> ignore
-  Directory.CreateDirectory outputDir |> ignore
-  Stardog.deleteDb dbName dbUser dbPass
-
-let private prepare () = 
-  Stardog.createDb dbName
-  downloadSchema schemas outputDir
-
-let compile ( fetchUrl:string ) () =
-
-  let extractor =
-    {readAllContentItems = Git.readAll
-     readContentForItem = Git.readOne}
-
-  clean ()
-  prepare ()
-
-  compileToRDF extractor ( Uri.from fetchUrl ) rdfArgs baseUrl outputDir
   addGraphs outputDir dbName
-  publishResources propertyPaths indexName typeName
 
-  printf "Knowledge base creation complete!\n"
