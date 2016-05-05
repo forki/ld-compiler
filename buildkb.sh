@@ -9,7 +9,7 @@ echo "Started building the knowledge base from $GIT_REPO_URL"
 
 curl -XPOST "http://localhost:8083/compile?repoUrl=$GIT_REPO_URL"
 sleep 2
-until [$(curl -v --silent "http://localhost:8083/status" 2>&1) = "Not running"]; do
+until $(curl --silent "http://localhost:8083/status" 2>&1 | grep --silent "Not running"); do
   echo "Still Running"
   sleep 2
   echo "Checking status..."
