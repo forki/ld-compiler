@@ -12,7 +12,7 @@ An integration test environment in created using docker-compose.  The integratio
 
 First you must build the docker image:
 ```
-docker build -t nice/ld-compiler-dev .
+docker build -t nice/ld-compiler .
 ```
 Now run the following script:
 ```
