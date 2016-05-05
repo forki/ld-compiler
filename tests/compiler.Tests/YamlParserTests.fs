@@ -1,12 +1,12 @@
 module compiler.Test.YamlParserTests
 
 open NUnit.Framework
-open Swensen.Unquote
+open FsUnit
 open compiler.YamlParser
 
 [<Test>]
 let ``Should handle no empty string`` () =
-  test <@ parseYaml "" = [] @>
+  parseYaml "" |> should equal []
 
 [<Test>]
 let ``Should extract single section with single field`` () =
@@ -17,7 +17,7 @@ Section:
 
   let expected = [{Name = "Section"; Fields = ["Field"]}]
   let actual = parseYaml yaml
-  test <@ expected = actual @>
+  expected |> should equal actual
 
 [<Test>]
 let ``Should extract single section with multiple fields`` () =
@@ -29,7 +29,7 @@ Section:
 
   let expected = [{Name = "Section"; Fields = ["Field1"; "Field2"]}]
   let actual = parseYaml yaml
-  test <@ expected = actual @>
+  expected |> should equal actual
 
 [<Test>]
 let ``Should extract multiple sections`` () =
@@ -43,4 +43,4 @@ Section2:
   let expected = [{Name = "Section1"; Fields = ["Field"]}
                   {Name = "Section2"; Fields = ["Field"]}]
   let actual = parseYaml yaml
-  test <@ expected = actual @>
+  expected |> should equal actual

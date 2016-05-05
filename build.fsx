@@ -172,12 +172,13 @@ Target "RebuildRelease" (fun _ ->
 // Run the unit tests using test runner
 
 Target "RunTests" (fun _ ->
-    !! unitTestAssemblies
-    |> NUnit (fun p ->
-        { p with
-            DisableShadowCopy = true
-            TimeOut = TimeSpan.FromMinutes 20.
-            OutputFile = "TestResults.xml" })
+
+  let assemblies = !! unitTestAssemblies |> Seq.fold (fun acc a -> acc + " " + a) ""
+  let result = 
+    ExecProcess (fun info -> info.FileName <- "mono"
+                             info.Arguments <- "packages/NUnit.ConsoleRunner/tools/nunit3-console.exe --labels=All" + assemblies) (TimeSpan.FromMinutes 2.0)
+  if result <> 0 then failwithf "NUnit failed"
+    
 )
 
 Target "RunIntegrationTests" (fun _ ->

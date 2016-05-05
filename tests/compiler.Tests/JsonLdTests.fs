@@ -1,7 +1,7 @@
 module compiler.Test.JsonLdTests
 
 open NUnit.Framework
-open Swensen.Unquote
+open FsUnit
 open compiler.JsonLd
 open FSharp.Data
 open FSharp.RDF
@@ -27,7 +27,7 @@ let ``Should return a tuple with id as first and jsonld as second``() =
   let resource = createResource "http://ld.nice.org.uk/qualitystatement/id_goes_here"
 
   let id,_ = transformToJsonLD qsContexts [[resource]] |> Seq.head
-  test <@ id = "http://ld.nice.org.uk/qualitystatement/id_goes_here" @>
+  id |> should equal "http://ld.nice.org.uk/qualitystatement/id_goes_here"
 
 [<Test>]
 let ``Should add a _id field with resource uri``() =
@@ -39,7 +39,7 @@ let ``Should add a _id field with resource uri``() =
 
   let jsonld = JsonLdSchema.Parse(json)
 
-  test <@ jsonld.Id.JsonValue.AsString() = uri @>
+  jsonld.Id.JsonValue.AsString() |> should equal uri
 
 [<Test>]
 let ``Should add a _type field``() =
@@ -49,7 +49,7 @@ let ``Should add a _type field``() =
   let _,json = transformToJsonLD contexts [[simpleResource]] |> Seq.head
   let jsonld = JsonLdSchema.Parse(json)
 
-  test <@ jsonld.Type.JsonValue.AsString() = "qualitystatement" @>
+  jsonld.Type.JsonValue.AsString() |> should equal "qualitystatement"
 
 [<Test>]
 let ``Should use context to compress related context fields``() =
@@ -61,4 +61,4 @@ let ``Should use context to compress related context fields``() =
   let _,json = transformToJsonLD qsContexts [[simpleResource]] |> Seq.head
   let jsonld = JsonLdSchema.Parse(json)
 
-  test <@ jsonld.HttpLdNiceOrgUkNsQualitystandardTitle.JsonValue.AsString() = "title goes here" @>
+  jsonld.HttpLdNiceOrgUkNsQualitystandardTitle.JsonValue.AsString() |> should equal "title goes here"

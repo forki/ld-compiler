@@ -1,7 +1,7 @@
 module compiler.Test.MarkdownTests
 
 open NUnit.Framework
-open Swensen.Unquote
+open FsUnit
 
 open compiler
 open compiler.ContentHandle
@@ -30,41 +30,41 @@ This is some content
 let ``Should extract the id from the markdown filepath`` () =
   let statement = extractStatement sampleMarkdownContent
 
-  test <@ statement.Id = "qs1/st2" @>
+  statement.Id |> should equal "qs1/st2"
 
 [<Test>]
 let ``Should extract the title from the markdown filepath`` () =
   let statement = extractStatement sampleMarkdownContent
   
-  test <@ statement.Title = "Quality Statement 2 from Quality Standard 1" @>
+  statement.Title |> should equal "Quality Statement 2 from Quality Standard 1"
 
 [<Test>]
 let ``Should extract the abstract from the markdown first paragraph`` () =
   let statement = extractStatement sampleMarkdownContent
 
-  test <@ statement.Abstract = "This is the abstract" @>
+  statement.Abstract |> should equal "This is the abstract"
 
 [<Test>]
 let ``Should extract the content from whole markdown file`` () =
   let statement = extractStatement sampleMarkdownContent
 
-  test <@ statement.Content = sampleMarkdownContent.Content @>
+  statement.Content |> should equal sampleMarkdownContent.Content
 
 [<Test>]
 let ``Should extract the standard number from file path`` () =
   let statement = extractStatement sampleMarkdownContent
 
-  test <@ statement.StandardId = 1 @>
+  statement.StandardId |> should equal 1
 
 [<Test>]
 let ``Should extract the statement number from file path`` () =
   let statement = extractStatement sampleMarkdownContent
 
-  test <@ statement.StatementId = 2 @>
+  statement.StatementId |> should equal 2
 
 [<Test>]
 let ``Should extract the annotations from code block`` () =
   let statement = extractStatement sampleMarkdownContent
 
-  test <@ statement.Annotations = [{Vocab = "Vocab"; Terms = ["Term"]}] @>
+  statement.Annotations |> should equal [{Vocab = "Vocab"; Terms = ["Term"]}]
 

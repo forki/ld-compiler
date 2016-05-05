@@ -21,7 +21,7 @@ let private dbName = "nice"
 let private dbUser = "admin"
 let private dbPass = "admin"
 
-let private baseUrl = "http://ld.nice.org.uk/qualitystatement" 
+let private baseUrl = "http://ld.nice.org.uk/resource" 
 
 let private rdfArgs = {
   BaseUrl = baseUrl    

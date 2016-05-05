@@ -1,7 +1,7 @@
 module compiler.Tests.TurtleTests
 
 open NUnit.Framework
-open Swensen.Unquote
+open FsUnit
 open FSharp.RDF
 open Assertion
 open resource
@@ -26,5 +26,5 @@ let ``Should serialize resource to ttl`` () =
 
   let (id,ttl) = transformToTurtle resource
 
-  test <@ ttl = expectedTtl @>
-  test <@ id = "http://someuri.com/" @>
+  ttl |> should equal expectedTtl
+  id |> should equal "http://someuri.com/"
