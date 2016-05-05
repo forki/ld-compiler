@@ -32,7 +32,7 @@ resourceapi:
   volumes_from:
     - resourceapidata
 resourceapidata:
-  image: nice/ld-resource-api
+  image: busybox:1.24.1
   volumes:
     - /data
 integrationtests:
