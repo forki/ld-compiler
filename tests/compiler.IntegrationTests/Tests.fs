@@ -8,13 +8,13 @@ open System.IO
 open System.Web
 
 let runCompileAndWaitTillFinished gitRepoUrl =
-  let res = Http.RequestString("http://compiler:8083/compile",
+  let res = Http.RequestString("http://compiler:8081/compile",
                                query=["repoUrl", gitRepoUrl],
                                httpMethod="POST")
   res |> should equal "Started"
   let mutable finished = false
   while finished = false do
-    if Http.RequestString("http://compiler:8083/status") = "Not running" then finished <- true
+    if Http.RequestString("http://compiler:8081/status") = "Not running" then finished <- true
 
 type ElasticResponse = JsonProvider<"""
 {

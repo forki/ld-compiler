@@ -96,6 +96,7 @@ let private uploadBulkData esUrl typeName bulkData =
 let bulkUpload indexName typeName jsonldResources =
   let esUrl = sprintf "http://elastic:9200/%s" indexName
 
+  printf "building bulk data for upload to elastic"
   let bulkData = buildBulkData indexName typeName jsonldResources
 
   deleteIndex esUrl

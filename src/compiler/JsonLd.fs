@@ -48,10 +48,30 @@ let private jsonLdContext contexts =
 
 let transformToJsonLD contexts resources =
 
+  let parseSingle json = 
+    let res = JsonProvider<"""{"@id":""}""">.Parse(json)
+    (res.Id.JsonValue.AsString(), json.Replace(System.Environment.NewLine, ""))
+
+  let parseMultiple json =
+    let graph = JsonProvider<""" {"@graph":[] }""">.Parse(json)
+    graph.Graph 
+    |> Seq.map (fun graph -> parseSingle ( graph.ToString() ))
+    |> Seq.toList
+
   let opts = jsonLdOptions () 
   let context = Context(jsonLdContext contexts, opts)
 
-  resources
-  |> Seq.map (Resource.compatctedJsonLD opts context
-              >> elasiticerise
-              >> toJson)
+  let json =
+    resources
+    |> Seq.map Seq.head
+    |> Resource.compatctedJsonLD opts context
+    |> elasiticerise
+    |> toJson
+    |> snd
+
+  match json.Contains("@graph") with
+  | false ->
+     [parseSingle json]
+  | true -> 
+     parseMultiple json
+   

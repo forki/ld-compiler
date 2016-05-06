@@ -29,7 +29,7 @@ let vocabLookup uri =
   |> onlySome
   |> Map.ofList
 
-let private warn msg x = printf "%s\n" msg; x
+let private warn msg x = printf "[WARNING] %s\n" msg; x
 let private info msg x = printf "%s\n" msg; x
 
 let private lookupAnnotations vocabMap termMap annotations = 

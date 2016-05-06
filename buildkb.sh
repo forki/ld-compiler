@@ -7,11 +7,12 @@ docker-compose up -d
 sleep 10
 echo "Started building the knowledge base from $GIT_REPO_URL"
 
-curl -XPOST "http://localhost:8083/compile?repoUrl=$GIT_REPO_URL"
+curl -XPOST "http://localhost:8081/compile?repoUrl=$GIT_REPO_URL"
 sleep 2
-until $(curl --silent "http://localhost:8083/status" 2>&1 | grep --silent "Not running"); do
+while
   echo "Still Running"
   sleep 2
   echo "Checking status..."
-done
+  $(curl --silent "http://localhost:8081/status" 2>&1 | grep --silent "Running")
+do :; done
 echo "Finished"

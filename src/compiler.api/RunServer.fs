@@ -7,6 +7,6 @@ open compiler.Main
 let main _ =
   let defaultConfig =
     { defaultConfig with
-                    bindings = [ HttpBinding.mkSimple HTTP "0.0.0.0" 8083 ]}
+                    bindings = [ HttpBinding.mkSimple HTTP "0.0.0.0" 8081 ]}
   startWebServer defaultConfig ( createApp compileAndPublish )
   0

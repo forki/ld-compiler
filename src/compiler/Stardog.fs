@@ -11,6 +11,7 @@ open FSharp.RDF
 open FSharp.RDF.Store
 open FSharp.Text.RegexProvider
 type PathRegex = Regex< ".*<(?<firstPartOfPropertyPath>.*)>.*">
+open System.Threading
 
 let createDb dbName =
   // TODO: rewrite this script as a http request!
@@ -48,7 +49,7 @@ let extractResources propertyPaths =
       >> Seq.map Option.get
   
   let clause =
-    List.mapi (fun i v -> sprintf "optional { @entity %s ?o_%d . } " v i)
+    List.mapi (fun i v -> sprintf "UNION { @entity %s ?o_%d . } " v i)
     >> String.concat "\n"
 
   let rec retry f x =
@@ -57,6 +58,7 @@ let extractResources propertyPaths =
     with
       | e ->
         printf "Failure: %s" e.Message
+        Thread.Sleep(2)
         retry f x
 
   let firstPathOPath (s:System.String) =
@@ -86,7 +88,7 @@ let extractResources propertyPaths =
                        from <http://ld.nice.org.uk/ns>
                        from <http://ld.nice.org.uk/>
                        where {
-                         @entity a <http://ld.nice.org.uk/ns/qualitystandard#QualityStatement> .
+                         { @entity a <http://ld.nice.org.uk/ns/qualitystandard#QualityStatement> . }
                          %s
                        }
                """ construct clause) 

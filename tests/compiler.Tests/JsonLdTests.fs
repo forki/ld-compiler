@@ -62,3 +62,14 @@ let ``Should use context to compress related context fields``() =
   let jsonld = JsonLdSchema.Parse(json)
 
   jsonld.HttpLdNiceOrgUkNsQualitystandardTitle.JsonValue.AsString() |> should equal "title goes here"
+
+[<Test>]
+let ``Should process multiple resources``() =
+  // This test requires internet access to load the remote json-ld context (possibly a way to stub this part out using JsonLD.Core / FSharp.RDF)
+  let resource1 = createResource "http://ld.nice.org.uk/qualitystatement/1"
+  let resource2 = createResource "http://ld.nice.org.uk/qualitystatement/2"
+
+  let jsonlds = transformToJsonLD qsContexts [[resource1];[resource2]]
+
+  jsonlds |> Seq.item 0 |> fst |> should equal "http://ld.nice.org.uk/qualitystatement/1"
+  jsonlds |> Seq.item 1 |> fst |> should equal "http://ld.nice.org.uk/qualitystatement/2"

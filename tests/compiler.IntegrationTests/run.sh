@@ -1,7 +1,7 @@
 #!/bin/bash
 # script to Run the integration tests from docker-compose 
 cd /compiler-src
-./build.sh "BuildDebug"
+./build.sh "BuildDebugIntegrationTestOnly"
 # Run the server up in the background
 mono /compiler-src/src/compiler.api/bin/Debug/compiler.api.exe &
 sleep 5

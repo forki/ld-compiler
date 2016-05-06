@@ -8,7 +8,7 @@ compiler:
   volumes_from:
     - stardog
   ports:
-    - "8083:8083"
+    - "8081:8081"
 schema:
   image: nice/ontologies
   expose:

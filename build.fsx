@@ -168,6 +168,17 @@ Target "RebuildRelease" (fun _ ->
 #endif
     printf "%A" s
 )
+
+Target "BuildDebugIntegrationTestOnly" (fun _ ->
+    printf "Running build task...."
+    let s = !!"tests/compiler.IntegrationTests/compiler.IntegrationTests.fsproj"
+#if MONO
+            |> MSBuild "" "Build" [ ("DefineConstants","MONO") ] 
+#else
+            |> MSBuildDebug "" "Build"
+#endif
+    printf "%A" s
+)
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
 
@@ -176,7 +187,7 @@ Target "RunTests" (fun _ ->
   let assemblies = !! unitTestAssemblies |> Seq.fold (fun acc a -> acc + " " + a) ""
   let result = 
     ExecProcess (fun info -> info.FileName <- "mono"
-                             info.Arguments <- "packages/NUnit.ConsoleRunner/tools/nunit3-console.exe --labels=All" + assemblies) (TimeSpan.FromMinutes 2.0)
+                             info.Arguments <- "packages/NUnit.ConsoleRunner/tools/nunit3-console.exe --labels=All --workers=1" + assemblies) (TimeSpan.FromMinutes 2.0)
   if result <> 0 then failwithf "NUnit failed"
     
 )
