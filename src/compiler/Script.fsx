@@ -6,6 +6,7 @@
 #r "../../packages/FSharp.RDF/lib/JsonLD.dll"
 #r "../../packages/FSharp.Data/lib/net40/FSharp.Data.dll"
 #r "../../packages/FSharp.Data/lib/net40/FSharp.Data.DesignTime.dll"
+#r "../../packages/FSharp.Formatting/lib/net40/FSharp.Markdown.dll"
 
 open VDS.RDF
 open VDS.RDF.Writing
@@ -25,6 +26,20 @@ open resource
 open rdf
 open FSharp.RDF
 
+open FSharp.Markdown
 
-let json = "{}"
-let graph = JsonProvider<""" {"@graph":[{"@id":""}] }""">.Parse(json)
+let openM path =
+  let s = File.ReadAllText path;
+  Markdown.Parse s
+
+let extractAbstract (markdown:MarkdownDocument) = 
+  let paras =
+    markdown.Paragraphs
+    |> Seq.filter (function
+                   | Paragraph _ -> true
+                   | _ -> false )
+
+  let found =  paras |> Seq.head
+  match found with
+    | Paragraph [Literal text] -> text
+    | _ -> ""

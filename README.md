@@ -20,3 +20,19 @@ Now run the following script:
 ```
 
 
+# Building a knowledge base for debugging
+There is a buildkb script that takes a git repo url and builds a knowledge base and leaves it up for inspecting/debugging. for example
+
+```
+./buildkb.sh https://github.com/nhsevidence/ld-dummy-content
+```
+
+Now you should be able to inspect the search index via:
+```
+curl localhost:9200/_search?pretty
+```
+
+and the resourceapi like so:
+```
+curl localhost:8082/resource/qs1/st1
+```

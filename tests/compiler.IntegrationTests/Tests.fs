@@ -113,17 +113,17 @@ let ``When publishing a statement it should generate static html and post to res
 
   runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
 
-  let html = Http.RequestString("http://resourceapi:8082/resource/qs1/st1")
+  let html = Http.RequestString("http://resourceapi:8082/resource/qs1/st1",
+                     headers = [ "Content-Type", "text/plain;charset=utf-8" ])
 
   let expectedHtml = """<pre><code>Age Group:
     - &quot;Adults&quot;</code></pre>
 <h2 id="this-is-the-title">This is the title</h2>
 <h3 id="abstract">Abstract</h3>
 <p>This is the abstract.</p>
-<p>This is some content.</p>
+<p>This is some dodgily‑encoded content.</p>
 """
 
   html |> should equal expectedHtml 
-
 
 

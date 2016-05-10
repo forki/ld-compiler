@@ -1,6 +1,7 @@
 module compiler.Utils
 
 open System.IO
+open System.Text
 open compiler.ContentHandle
 
 let findFiles inputDir filePattern =
@@ -9,11 +10,11 @@ let findFiles inputDir filePattern =
   files |> Array.map(fun fs -> fs.FullName) |> Array.toList
 
 let readHandle handle =
-  {Path = handle.Path; Content = File.ReadAllText handle.Path}
+  {Path = handle.Path; Content = File.ReadAllText(handle.Path, Encoding.UTF8 )}
 
 let writeFile file =
   try 
-    File.WriteAllText(file.Path, file.Content)
+    File.WriteAllText(file.Path, file.Content, Encoding.UTF8)
     printf "Written %s\n" file.Path
   with ex -> printf "Couldnt write %s to disk!\n" file.Path
 
