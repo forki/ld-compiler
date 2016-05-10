@@ -6,6 +6,12 @@ open Suave.Operators
 open Suave.Files
 open System.Threading
 
+// high level exception handler
+let tryExecute f =
+  try
+    f ()
+  with ex -> printf "[ERROR] %A" ex
+
 let r = ref false
 
 let private isRunning () = !r
@@ -18,7 +24,7 @@ let private asyncCompile compileFn =
     async {
       setRunning true
       printf "Started compiling...\n"
-      compileFn ()
+      tryExecute compileFn 
       setRunning false
       printf "Finished compiling!\n"
   })
