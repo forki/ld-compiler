@@ -11,10 +11,9 @@ let private extract pattern input =
   m.Groups.[1].Value
 
 let private extractAbstract (markdown:MarkdownDocument) = 
-  let found = Seq.item 3 markdown.Paragraphs
-  match found with
-    | Paragraph [Literal text] -> text
-    | _ -> ""
+  let p = markdown.Paragraphs |> Seq.item 3 
+  let doc = MarkdownDocument([p], [] |> Map.ofList)
+  Markdown.WriteHtml(doc)
 
 let private extractAnnotations (markdown:MarkdownDocument) = 
   let found = Seq.item 0 markdown.Paragraphs
