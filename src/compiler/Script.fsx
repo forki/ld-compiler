@@ -27,47 +27,39 @@ open rdf
 open FSharp.RDF
 
 open FSharp.Markdown
-
-module MarkdownUtils =
-
-  let rec textN =
-    function
-    | MarkdownSpan.Literal x -> x
-    | MarkdownSpan.Strong xs -> text xs
-    | MarkdownSpan.Emphasis xs -> text xs
-    | MarkdownSpan.EmbedSpans xs -> text (xs.Render())
-    | MarkdownSpan.HardLineBreak -> "\n"
-    | _ -> ""
-
-  and text = List.map textN >> String.concat ""
-
-  let rec pTextN =
-    function
-    | MarkdownParagraph.Paragraph xs -> text xs
-    | MarkdownParagraph.CodeBlock(x, _, _)
-    | MarkdownParagraph.InlineBlock(x)
-    | MarkdownParagraph.InlineBlock x -> x
-    | MarkdownParagraph.Heading(_, xs) | MarkdownParagraph.Paragraph xs | MarkdownParagraph.Span xs ->
-      text xs
-    | MarkdownParagraph.QuotedBlock xs -> pText xs
-    | MarkdownParagraph.ListBlock(_, xs) -> pText' xs
-    | MarkdownParagraph.TableBlock(x, _, xs) -> ""
-    | MarkdownParagraph.EmbedParagraphs(xs) -> ""
-    | _ -> ""
-
-  and pText = List.map pTextN >> String.concat ""
-  and pText' = List.map pText >> String.concat ""
-
-  let getParagraphText = pTextN
+open FSharp.Data
 
 let openM path =
   let s = File.ReadAllText path;
   Markdown.Parse s
 
 let extractAbstract (markdown:MarkdownDocument) = 
-  let p = markdown.Paragraphs |> Seq.item 3 
-  let doc = MarkdownDocument([p], [] |> Map.ofList)
-  Markdown.WriteHtml(doc)
+  let getElements (html:HtmlDocument) =
+    html.Elements()
+
+  let getInnerText (node:HtmlNode) =
+    node.InnerText()
+
+  let findParagraphWithAbstract () = 
+    let h3Index =
+      markdown.Paragraphs
+      |> Seq.findIndex (function
+                        | Heading (3, _) -> true
+                        | _ -> false)
+    markdown.Paragraphs |> Seq.item ( h3Index+1 )
+
+  let para = findParagraphWithAbstract ()
+
+  MarkdownDocument([para], [] |> Map.ofList)
+  |> Markdown.WriteHtml
+  |> HtmlDocument.Parse
+  |> getElements 
+  |> Seq.map getInnerText
+  |> String.concat ""
+
 
 let st8 = openM "../../../ld-content-test/qualitystandards/qs5/st8/Statement.md" |> extractAbstract
 let st7 = openM "../../../ld-content-test/qualitystandards/qs5/st7/Statement.md" |> extractAbstract
+let st9 = openM "../../../ld-content-test/qualitystandards/qs97/st6/Statement.md"|> extractAbstract
+let st1 = openM "../../../ld-content-test/qualitystandards/qs93/st1/Statement.md"|> extractAbstract
+let st11 = openM "../../../ld-content-test/qualitystandards/qs93/st6/Statement.md"|> extractAbstract

@@ -20,7 +20,7 @@ This is the title
 
 ### Abstract 
 
-This is the abstract [Link](http://somelinkhere.com).
+This is the abstract with a [Link](http://somelinkhere.com).
 
 This is some content
 """
@@ -42,7 +42,7 @@ let ``Should extract the title from the markdown filepath`` () =
 let ``Should extract the abstract from the markdown first paragraph and convert to html`` () =
   let statement = extractStatement sampleMarkdownContent
 
-  statement.Abstract |> should equal ("""<p>This is the abstract <a href="http://somelinkhere.com">Link</a>.</p>""" + System.Environment.NewLine)
+  statement.Abstract |> should equal "This is the abstract with a Link."
 
 [<Test>]
 let ``Should extract the content from whole markdown file`` () =

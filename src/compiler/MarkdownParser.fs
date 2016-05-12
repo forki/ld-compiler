@@ -5,15 +5,37 @@ open compiler.ContentHandle
 open compiler.YamlParser
 open System.Text.RegularExpressions
 open FSharp.Markdown
+open FSharp.Data
 
 let private extract pattern input =
   let m = Regex.Match(input,pattern) 
   m.Groups.[1].Value
 
 let private extractAbstract (markdown:MarkdownDocument) = 
-  let p = markdown.Paragraphs |> Seq.item 3 
-  let doc = MarkdownDocument([p], [] |> Map.ofList)
-  Markdown.WriteHtml(doc)
+  let findParagraphWithAbstract () = 
+      let h3Index =
+          markdown.Paragraphs
+          |> Seq.findIndex (function | Heading (3, _) -> true | _ -> false)
+      markdown.Paragraphs |> Seq.item ( h3Index+1 )
+
+  let getElements (html:HtmlDocument) =
+    html.Elements()
+
+  let getInnerText (node:HtmlNode) =
+    node.InnerText()
+
+  let extractTextFromHtml html = 
+    html
+    |> HtmlDocument.Parse
+    |> getElements 
+    |> Seq.map getInnerText
+    |> String.concat ""
+
+  let para = findParagraphWithAbstract ()
+
+  MarkdownDocument([para], [] |> Map.ofList)
+  |> Markdown.WriteHtml
+  |> extractTextFromHtml
 
 let private extractAnnotations (markdown:MarkdownDocument) = 
   let found = Seq.item 0 markdown.Paragraphs
