@@ -194,16 +194,16 @@ Target "RunTests" (fun _ ->
 
 Target "RunIntegrationTests" (fun _ ->
   ExecProcess (fun info -> info.FileName <- "docker-compose"
-                           info.Arguments <- "up -d") (TimeSpan.FromMinutes 5.0) |> ignore
+                           info.Arguments <- "-f docker-compose.test.yaml up -d") (TimeSpan.FromMinutes 5.0) |> ignore
   let result =
     ExecProcess (fun info -> info.FileName <- "docker-compose"
-                             info.Arguments <- "run --rm mimir bash /tests/run.sh") (TimeSpan.FromMinutes 2.0)
+                             info.Arguments <- "-f docker-compose.test.yaml run --rm mimir bash /tests/run.sh") (TimeSpan.FromMinutes 2.0)
 
   // Now stop and remove the containers
   ExecProcess (fun info -> info.FileName <- "docker-compose"
-                           info.Arguments <- "stop") (TimeSpan.FromMinutes 5.0) |> ignore
+                           info.Arguments <- "-f docker-compose.test.yaml stop") (TimeSpan.FromMinutes 5.0) |> ignore
   ExecProcess (fun info -> info.FileName <- "docker-compose"
-                           info.Arguments <- "rm -f") (TimeSpan.FromMinutes 5.0) |> ignore
+                           info.Arguments <- "-f docker-compose.test.yaml rm -f") (TimeSpan.FromMinutes 5.0) |> ignore
   printf "Docker-compose exited with code %d" result
   if result <> 0 then failwithf "docker-compose returned with a non-zero exit code"
 )

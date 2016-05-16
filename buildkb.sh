@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 GIT_REPO_URL=$1
 
-docker-compose stop
-docker-compose rm -f
-docker-compose up -d
+docker-compose -f docker-compose.test.yaml stop
+docker-compose -f docker-compose.test.yaml rm -f
+docker-compose -f docker-compose.test.yaml up -d
 sleep 10
 echo "Started building the knowledge base from $GIT_REPO_URL"
 
