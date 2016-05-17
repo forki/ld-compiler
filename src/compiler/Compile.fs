@@ -11,6 +11,7 @@ open compiler.RDF
 open compiler.Turtle
 open compiler.Pandoc
 open compiler.Publish
+open compiler.Domain
 open compiler
 
 let private addGraphs outputDir dbName = 
@@ -20,13 +21,20 @@ let private addGraphs outputDir dbName =
   |> concatToArgs 
   |> Stardog.addGraph dbName
 
+let writeHtml outputDir statement = 
+  prepareAsFile "notused" outputDir ".html" (statement.Id, statement.Html)
+  |> writeFile
+
+  statement
+
 let compile extractor rdfArgs baseUrl outputDir dbName = 
   let items = extractor.readAllContentItems ()
 
   let compileItem =
     extractor.readContentForItem
+    >> convertMarkdownToHtml 
     >> extractStatement
-    >> convertMarkdownToHtml outputDir
+    >> writeHtml outputDir
     >> transformToRDF rdfArgs
     >> transformToTurtle
     >> prepareAsFile baseUrl outputDir ".ttl"

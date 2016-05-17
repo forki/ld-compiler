@@ -1,6 +1,6 @@
 module compiler.Pandoc
 
-open compiler.Domain
+open compiler.ContentHandle
 open compiler.Utils
 open System.Text
 open System.Diagnostics
@@ -14,7 +14,8 @@ let private runProcess cmd ( stdInContent:string ) args =
       RedirectStandardInput=true,
       RedirectStandardOutput=true,
       RedirectStandardError=true,
-      UseShellExecute=false)
+      UseShellExecute=false,
+      StandardOutputEncoding=System.Text.Encoding.UTF8)
 
   let proc = new Process(StartInfo=procInfo)
   
@@ -28,18 +29,16 @@ let private runProcess cmd ( stdInContent:string ) args =
   proc.WaitForExit(timeout) |> ignore
   let stdErr = proc.StandardError.ReadToEnd()
   let stdOut = proc.StandardOutput.ReadToEnd()
-  printf "stdOut %s\n" stdOut
-  printf "stdErr %s\n" stdErr
+  if stdErr <> "" then
+    printf "[ERROR] Pandoc: %s\n" stdErr
+  stdOut
 
-let private buildPandocArgs outputDir statement =
-  let outputFile = prepareAsFile "notused" outputDir ".html" (statement.Id, "")
-  sprintf "-f markdown -t html5 -o %s" outputFile.Path
+let private buildPandocArgs () =
+  sprintf "-f markdown -t html5" 
 
-let convertMarkdownToHtml outputDir statement =
-  printf "Converting statement %s to Html" statement.Id
-  statement
-  |> buildPandocArgs outputDir
-  |> runProcess "pandoc" statement.Content
+let convertMarkdownToHtml contentHandle =
+  printf "Converting statement %s to Html" contentHandle.Path
+  let html = runProcess "pandoc" contentHandle.Content (buildPandocArgs())
 
-  statement
+  (contentHandle, html)
 
