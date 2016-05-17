@@ -4,6 +4,8 @@ compiler:
     - stardog
   ports:
     - "8081:8081"
+  labels:
+    io.rancher.sidekicks: stardog
 stardog:
   image: nice/ld-docker-stardog
   ports:
