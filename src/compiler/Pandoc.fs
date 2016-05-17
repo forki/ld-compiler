@@ -33,6 +33,7 @@ let private runProcess cmd ( stdInContent:string ) args =
     printf "[ERROR] Pandoc: %s\n" stdErr
   stdOut
 
+
 let private buildPandocArgs () =
   sprintf "-f markdown -t html5" 
 
