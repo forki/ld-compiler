@@ -7,8 +7,7 @@ compiler:
   labels:
     io.rancher.sidekicks: stardog
   external_links:
-    - compiler/compiler:compiler
-    - elastic/elastic:elastic
+    - elasticsearch/elastic:elastic
     - ontologies/schema:schema
     - resourceapi/resourceapi:resourceapi
 stardog:
