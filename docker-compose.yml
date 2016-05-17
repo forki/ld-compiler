@@ -6,6 +6,11 @@ compiler:
     - "8081:8081"
   labels:
     io.rancher.sidekicks: stardog
+  external_links:
+    - compiler/compiler:compiler
+    - elastic/elastic:elastic
+    - ontologies/schema:schema
+    - resourceapi/resourceapi:resourceapi
 stardog:
   image: nice/ld-docker-stardog
   ports:
