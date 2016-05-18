@@ -15,6 +15,7 @@ let defaultStatement = {
   StatementId = 0
   Annotations = []
   Content = ""
+  Html = ""
 }
 
 let defaultArgs = {

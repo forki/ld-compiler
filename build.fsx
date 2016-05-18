@@ -48,7 +48,7 @@ let tags = ""
 let solutionFile  = "compiler.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
-let unitTestAssemblies = "tests/**/bin/Debug/*.Tests*.dll"
+let unitTestAssemblies = "tests/**/bin/Release/*.Tests*.dll"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
@@ -203,7 +203,7 @@ Target "RunIntegrationTests" (fun _ ->
   ExecProcess (fun info -> info.FileName <- "docker-compose"
                            info.Arguments <- "stop") (TimeSpan.FromMinutes 5.0) |> ignore
   ExecProcess (fun info -> info.FileName <- "docker-compose"
-                           info.Arguments <- "rm -f") (TimeSpan.FromMinutes 5.0) |> ignore
+                           info.Arguments <- "rm -f --all") (TimeSpan.FromMinutes 5.0) |> ignore
   printf "Docker-compose exited with code %d" result
   if result <> 0 then failwithf "docker-compose returned with a non-zero exit code"
 )
@@ -431,10 +431,9 @@ Target "All" DoNothing
 
 "Clean"
   ==> "AssemblyInfo"
-  ==> "BuildDebug"
   ==> "BuildRelease"
-  ==> "CopyBinaries"
   ==> "RunTests"
+  ==> "CopyBinaries"
   ==> "All"
 
 "BuildPackage"
