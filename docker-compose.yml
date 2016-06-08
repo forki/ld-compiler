@@ -1,55 +1,18 @@
 compiler:
-  image: nice/ld-compiler
-  links:
-    - stardog
-    - elastic
-    - schema
-    - resourceapi
+  image: "${IMAGE_NAME}:${IMAGE_VERSION}"
   volumes_from:
     - stardog
   ports:
     - "8081:8081"
-schema:
-  image: nice/ontologies
-  expose:
-    - 80
-  ports:
-    - "20002:80"
+  labels:
+    io.rancher.sidekicks: stardog
+  external_links:
+    - elasticsearch/elastic:elastic
+    - ontologies/schema:schema
+    - resourceapi/resourceapi:resourceapi
 stardog:
   image: nice/ld-docker-stardog
   ports:
     - "5820:5820"
   volumes:
     - /dev/urandom:/dev/random
-elastic:
-  image: nice/ld-docker-elasticsearch
-  ports:
-    - "9200:9200"
-resourceapi:
-  image: nice/ld-resource-api
-  ports:
-    - "8082:8082"
-  volumes_from:
-    - resourceapidata
-resourceapidata:
-  image: busybox:1.24.1
-  volumes:
-    - /data
-viewer:
-  image: nice/ld-suave-viewer
-  links:
-    - elastic
-    - schema
-    - resourceapi
-  ports:
-    - "8083:8083"
-integrationtests:
-  image: nice/ld-publisher-base
-  links:
-    - compiler
-    - elastic
-    - resourceapi
-  volumes:
-    - .:/compiler-src
-    - /artifacts:/artifacts
-  command: sleep 10000000
