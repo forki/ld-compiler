@@ -1,13 +1,13 @@
 #!/bin/bash
 
-docker-compose up -d
+docker-compose -f docker-compose.test.yaml up -d
 sleep 10
-docker-compose run --rm integrationtests bash /compiler-src/tests/compiler.IntegrationTests/run.sh
+docker-compose -f docker-compose.test.yaml run --rm integrationtests bash /compiler-src/tests/compiler.IntegrationTests/run.sh
 result=$?
-docker-compose stop
+docker-compose -f docker-compose.test.yaml stop
 if [ $result -ne 0 ]; then
    echo "Tests failed, showing logs from compiler container"
-   docker logs ldcompiler_compiler_1
+   docker logs -f docker-compose.test.yaml ldcompiler_compiler_1
 fi
-docker-compose rm -vf
+docker-compose -f docker-compose.test.yaml rm -vf
 exit $result
