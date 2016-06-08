@@ -13,6 +13,7 @@ type Statement = {
   StatementId : int
   Annotations : Annotation list
   Content : string
+  Html : string
 }
 
 

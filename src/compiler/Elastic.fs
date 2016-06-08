@@ -91,7 +91,10 @@ let private postMappings esUrl =
 let private refreshIndex esUrl = Http.Request(esUrl + "/_refresh", httpMethod="POST") |> ignore
 let private uploadBulkData esUrl typeName bulkData = 
   let url = sprintf "%s/%s/_bulk" esUrl typeName
-  Http.Request(url, httpMethod="POST", body=TextRequest bulkData ) |> ignore
+  Http.Request(url,
+               httpMethod="POST",
+               body=TextRequest bulkData,
+               headers = [ "Content-Type", "application/json;charset=utf-8" ]) |> ignore
 
 let bulkUpload indexName typeName jsonldResources =
   let esUrl = sprintf "http://elastic:9200/%s" indexName
