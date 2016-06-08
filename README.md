@@ -55,3 +55,6 @@ The publication process which follows on from compilation (src/compiler/Publish.
 * compress to json-ld
 * upload to elastic search
 * collect and POST all static html resources to resource api
+* 
+
+
