@@ -2,9 +2,9 @@ compiler:
   image: nice/ld-compiler
   links:
     - stardog
-    - elastic
-    - schema
-    - resourceapi
+    - elastic:elastic.elasticsearch
+    - schema:schema.ontologies
+    - resourceapi:resourceapi.resourceapi
   volumes_from:
     - stardog
   ports:
@@ -35,20 +35,12 @@ resourceapidata:
   image: busybox:1.24.1
   volumes:
     - /data
-viewer:
-  image: nice/ld-suave-viewer
-  links:
-    - elastic
-    - schema
-    - resourceapi
-  ports:
-    - "8083:8083"
 integrationtests:
   image: nice/ld-publisher-base
   links:
-    - compiler
-    - elastic
-    - resourceapi
+    - compiler:compiler.compiler
+    - elastic:elastic.elasticsearch
+    - resourceapi:resourceapi.resourceapi
   volumes:
     - .:/compiler-src
     - /artifacts:/artifacts
