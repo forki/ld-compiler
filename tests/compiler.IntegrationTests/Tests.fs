@@ -8,13 +8,13 @@ open System.IO
 open System.Web
 
 let runCompileAndWaitTillFinished gitRepoUrl =
-  let res = Http.RequestString("http://compiler:8081/compile",
+  let res = Http.RequestString("http://compiler.compiler:8081/compile",
                                query=["repoUrl", gitRepoUrl],
                                httpMethod="POST")
   res |> should equal "Started"
   let mutable finished = false
   while finished = false do
-    if Http.RequestString("http://compiler:8081/status") = "Not running" then finished <- true
+    if Http.RequestString("http://compiler.compiler:8081/status") = "Not running" then finished <- true
 
 type ElasticResponse = JsonProvider<"""
 {
@@ -38,16 +38,16 @@ type ElasticResponse = JsonProvider<"""
 } """>
 
 let private queryElastic indexName typeName =
-  let url = sprintf "http://elastic:9200/%s/%s/_search" indexName typeName
+  let url = sprintf "http://elastic.elasticsearch:9200/%s/%s/_search" indexName typeName
   let json = Http.RequestString(url, httpMethod="GET")
   ElasticResponse.Parse(json)
 
 [<TearDown>]
 let Teardown () =
   printf "Deleting elastic index\n"
-  try Http.RequestString("http://elastic:9200/kb", httpMethod="DELETE") |> ignore with _ -> ()
+  try Http.RequestString("http://elastic.elasticsearch:9200/kb", httpMethod="DELETE") |> ignore with _ -> ()
   printf "Deleting all static html resources\n"
-  try Http.RequestString("http://resourceapi:8082/resource/qs1/st1", httpMethod="DELETE") |> ignore with _ -> ()
+  try Http.RequestString("http://resourceapi.resourceapi:8082/resource/qs1/st1", httpMethod="DELETE") |> ignore with _ -> ()
 
 [<Test>]
 let ``When publishing a statement it should have added a statement to elastic search index`` () =
@@ -113,7 +113,7 @@ let ``When publishing a statement it should generate static html and post to res
 
   runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
 
-  let html = Http.RequestString("http://resourceapi:8082/resource/qs1/st1",
+  let html = Http.RequestString("http://resourceapi.resourceapi:8082/resource/qs1/st1",
                      headers = [ "Content-Type", "text/plain;charset=utf-8" ])
 
   let expectedHtml = """<pre><code>Age Group:

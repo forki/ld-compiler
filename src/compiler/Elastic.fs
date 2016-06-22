@@ -97,7 +97,7 @@ let private uploadBulkData esUrl typeName bulkData =
                headers = [ "Content-Type", "application/json;charset=utf-8" ]) |> ignore
 
 let bulkUpload indexName typeName jsonldResources =
-  let esUrl = sprintf "http://elastic:9200/%s" indexName
+  let esUrl = sprintf "http://elastic.elasticsearch:9200/%s" indexName
 
   printf "building bulk data for upload to elastic"
   let bulkData = buildBulkData indexName typeName jsonldResources
