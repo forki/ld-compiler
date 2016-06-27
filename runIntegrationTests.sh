@@ -7,7 +7,7 @@ result=$?
 docker-compose -f docker-compose.test.yaml stop
 if [ $result -ne 0 ]; then
    echo "Tests failed, showing logs from compiler container"
-   docker logs -f docker-compose.test.yaml ldcompiler_compiler_1
+   docker logs ldcompiler_compiler_1
 fi
 docker-compose -f docker-compose.test.yaml rm -vf
 exit $result
