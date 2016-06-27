@@ -4,7 +4,19 @@ MAINTAINER James Kirk <james.kirk@nice.org.uk>
 
 ENV STARDOG_VERSION=4.0.1
 
-ADD . /compiler
+RUN mkdir /compiler
+
+# Keep package management separate from code
+ADD paket.dependencies paket.lock .paket/ /compiler/
+ADD .paket/ /compiler/.paket/
+
+WORKDIR /compiler
+
+RUN mono .paket/paket.bootstrapper.exe && mono .paket/paket.exe install
+
+ADD RELEASE_NOTES.md build.sh build.fsx compiler.sln /compiler/
+ADD src /compiler/src
+ADD tests /compiler/tests
 
 RUN /compiler/build.sh &&\
     cd /compiler &&\

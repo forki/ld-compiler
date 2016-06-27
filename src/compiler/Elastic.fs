@@ -106,3 +106,5 @@ let bulkUpload indexName typeName jsonldResources =
   postMappings esUrl
   uploadBulkData esUrl typeName bulkData
   refreshIndex esUrl
+
+  
