@@ -8,7 +8,7 @@ open compiler.ContentHandle
 open FSharp.Data
 
 let private uploadResource html =
-  let url = sprintf "http://resourceapi.resourceapi:8082/resource/%s" html.Path
+  let url = sprintf "http://resourceapi:8082/resource/%s" html.Path
   printf "uploading static html to %s\n" url
   Http.RequestString(url,
                      httpMethod="POST",

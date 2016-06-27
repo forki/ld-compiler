@@ -60,12 +60,12 @@ let private jsonldContexts = [
 ]
 
 let private schemas = [
-  "http://schema.ontologies/ns/qualitystandard.ttl"
-  "http://schema.ontologies/ns/qualitystandard/agegroup.ttl"
-  "http://schema.ontologies/ns/qualitystandard/conditionordisease.ttl"
-  "http://schema.ontologies/ns/qualitystandard/lifestylecondition.ttl"
-  "http://schema.ontologies/ns/qualitystandard/setting.ttl"
-  "http://schema.ontologies/ns/qualitystandard/servicearea.ttl"
+  "http://schema/ns/qualitystandard.ttl"
+  "http://schema/ns/qualitystandard/agegroup.ttl"
+  "http://schema/ns/qualitystandard/conditionordisease.ttl"
+  "http://schema/ns/qualitystandard/lifestylecondition.ttl"
+  "http://schema/ns/qualitystandard/setting.ttl"
+  "http://schema/ns/qualitystandard/servicearea.ttl"
 ]
 
 let private indexName = "kb"

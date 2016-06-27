@@ -2,9 +2,9 @@ compiler:
   image: nice/ld-compiler
   links:
     - stardog
-    - elastic:elastic.elasticsearch
-    - schema:schema.ontologies
-    - resourceapi:resourceapi.resourceapi
+    - elastic:elastic
+    - schema:schema
+    - resourceapi:resourceapi
   volumes_from:
     - stardog
   ports:
@@ -38,9 +38,9 @@ resourceapidata:
 integrationtests:
   image: nice/ld-publisher-base
   links:
-    - compiler:compiler.compiler
-    - elastic:elastic.elasticsearch
-    - resourceapi:resourceapi.resourceapi
+    - compiler:compiler
+    - elastic:elastic
+    - resourceapi:resourceapi
   volumes:
     - .:/compiler-src
     - /artifacts:/artifacts
