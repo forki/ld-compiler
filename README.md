@@ -4,11 +4,15 @@ This project contains a compiler API for triggering the compilation of a linked 
 
 This project is based on the [ProjectScaffold F# template](http://fsprojects.github.io/ProjectScaffold/), uses FAKE for task management and [Paket](http://fsprojects.github.io/Paket/) for packet management.  Please see the project scaffold docs for more information about this setup.
 
+# Requirements
+* docker
+* docker-compose
+
 # Building and running unit tests
 
 To build the project and run unit tests:
 ```
-./build.sh
+docker build .
 ```
 
 # Running integration tests
