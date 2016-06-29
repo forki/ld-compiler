@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>compiler.api.core.Tests</RootNamespace>
     <AssemblyName>compiler.api.core.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
     <Name>compiler.api.core.Tests</Name>
     <TargetFrameworkProfile />
