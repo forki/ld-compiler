@@ -37,6 +37,7 @@ let ``Should build data command on line after create command for jsonld resource
 
   json |> should equal jsonldResourceContent
 
+
 [<Test>]
 let ``Should build a create line and a data line for each jsonld resource`` () =
   let jsonldResources = [("","some json goes here")
