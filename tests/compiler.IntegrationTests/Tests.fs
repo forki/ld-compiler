@@ -83,7 +83,7 @@ let ``When publishing a statement it should apply annotations`` () =
   let doc = (Seq.head response.Hits.Hits).Source
 
   let agegroups = doc.QualitystandardAge |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
-  agegroups |> should contain "\"http://schema/ns/qualitystandard/agegroup#Adults\""
+  agegroups |> should contain "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults\""
 
 
 [<Test>]
