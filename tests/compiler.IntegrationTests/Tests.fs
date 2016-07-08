@@ -62,7 +62,7 @@ let ``When publishing a statement it should have added a statement to elastic se
 
   let doc = (Seq.head response.Hits.Hits).Source
 
-  doc.Id.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/qs1/st1" 
+  doc.Id.JsonValue.AsString() |> should equal "http://schema/resource/qs1/st1" 
   doc.HttpLdNiceOrgUkNsQualitystandardTitle.JsonValue.AsString() |> should equal "Quality Statement 1 from Quality Standard 1" 
   doc.HttpLdNiceOrgUkNsQualitystandardAbstract.JsonValue.AsString() |> should equal "<p>This is the abstract.</p>" 
   doc.HttpLdNiceOrgUkNsQualitystandardQsidentifier.JsonValue.AsInteger() |> should equal 1 
@@ -83,7 +83,7 @@ let ``When publishing a statement it should apply annotations`` () =
   let doc = (Seq.head response.Hits.Hits).Source
 
   let agegroups = doc.QualitystandardAge |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
-  agegroups |> should contain "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults\""
+  agegroups |> should contain "\"http://schema/ns/qualitystandard/agegroup#Adults\""
 
 
 [<Test>]
