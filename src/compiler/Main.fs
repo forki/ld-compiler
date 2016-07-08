@@ -32,11 +32,11 @@ let private rdfArgs = {
        "servicearea", Uri.from "http://ld.nice.org.uk/ns/qualitystandard#serviceArea"
        "lifestylecondition", Uri.from "http://ld.nice.org.uk/ns/qualitystandard#lifestyleCondition" ] |> Map.ofList)
   TermMap = 
-    ([ "setting", vocabLookup "http://ld.nice.org.uk/ns/qualitystandard/setting.ttl"
-       "agegroup", vocabLookup "http://ld.nice.org.uk/ns/qualitystandard/agegroup.ttl"
-       "lifestylecondition", vocabLookup "http://ld.nice.org.uk/ns/qualitystandard/lifestylecondition.ttl"
-       "conditionordisease", vocabLookup "http://ld.nice.org.uk/ns/qualitystandard/conditionordisease.ttl"
-       "servicearea", vocabLookup "http://ld.nice.org.uk/ns/qualitystandard/servicearea.ttl" ] |> Map.ofList)
+    ([ "setting", vocabLookup "http://schema/ns/qualitystandard/setting.ttl"
+       "agegroup", vocabLookup "http://schema/ns/qualitystandard/agegroup.ttl"
+       "lifestylecondition", vocabLookup "http://schema/ns/qualitystandard/lifestylecondition.ttl"
+       "conditionordisease", vocabLookup "http://schema/ns/qualitystandard/conditionordisease.ttl"
+       "servicearea", vocabLookup "http://schema/ns/qualitystandard/servicearea.ttl" ] |> Map.ofList)
 }
 let private propertyPaths = [ 
   "<http://ld.nice.org.uk/ns/qualitystandard#age>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#age>/rdfs:subClassOf*" 
@@ -51,12 +51,12 @@ let private propertyPaths = [
 ]
 
 let private jsonldContexts = [
-  "http://ld.nice.org.uk/ns/qualitystandard.jsonld "
-  "http://ld.nice.org.uk/ns/qualitystandard/conditionordisease.jsonld "
-  "http://ld.nice.org.uk/ns/qualitystandard/agegroup.jsonld "
-  "http://ld.nice.org.uk/ns/qualitystandard/lifestylecondition.jsonld "
-  "http://ld.nice.org.uk/ns/qualitystandard/setting.jsonld "
-  "http://ld.nice.org.uk/ns/qualitystandard/servicearea.jsonld "
+  "http://schema/ns/qualitystandard.jsonld "
+  "http://schema/ns/qualitystandard/conditionordisease.jsonld "
+  "http://schema/ns/qualitystandard/agegroup.jsonld "
+  "http://schema/ns/qualitystandard/lifestylecondition.jsonld "
+  "http://schema/ns/qualitystandard/setting.jsonld "
+  "http://schema/ns/qualitystandard/servicearea.jsonld "
 ]
 
 let private schemas = [
