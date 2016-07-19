@@ -353,6 +353,7 @@
       <Private>True</Private>
       <Paket>True</Paket>
     </Reference>
+    <Reference Include="System.Xml" />
     <Reference Include="VDS.Common">
       <HintPath>..\..\packages\FSharp.RDF\lib\VDS.Common.dll</HintPath>
       <Private>True</Private>
