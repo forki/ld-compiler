@@ -62,6 +62,9 @@
     <Compile Include="ElasticTests.fs" />
     <Compile Include="PublishTests.fs" />
     <None Include="paket.references" />
+    <None Include="..\..\app.config">
+      <Link>app.config</Link>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

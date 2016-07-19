@@ -56,6 +56,9 @@
   <ItemGroup>
     <Compile Include="Tests.fs" />
     <None Include="paket.references" />
+    <None Include="..\..\app.config">
+      <Link>app.config</Link>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
