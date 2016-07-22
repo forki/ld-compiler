@@ -124,6 +124,29 @@ let ``When publishing a statement it should generate static html and post to res
 <p>This is some dodgily‑encoded content.</p>
 """
 
-  html |> should equal expectedHtml 
+  html |> should equal expectedHtml
 
+[<Test>]
+let ``When I post a markdown file to the convert end point it should generate html via pandoc`` () =
 
+  let markdown = """
+This is the title 
+----------------------------------------------
+
+### Abstract 
+
+This is the abstract with a [Link](http://somelinkhere.com).
+
+This is some content
+"""
+  let html = Http.RequestString("http://compiler:8081/convert",
+    headers = [ "Content-Type", "text/plain;charset=utf-8" ], 
+    body = FormValues ["markdown", markdown])
+
+  let expectedHtml = """<h2 id="this-is-the-title">This is the title</h2>
+<h3 id="abstract">Abstract</h3>
+<p>This is the abstract with a <a href="http://somelinkhere.com">Link</a>.</p>
+<p>This is some content</p>
+"""
+
+  html |> should equal expectedHtml
