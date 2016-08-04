@@ -36,18 +36,48 @@ let private extractAnnotations (markdown:MarkdownDocument) =
 
 let private convertToVocab {Name = name; Fields = fields} = {Vocab = name; Terms = fields}
 
+let private HandleNoPositionalIdAnnotationError =
+  printfn "[Error] A statement was missing the PositionalId annotation"
+  ""
+
+let private extractQSandSTNumbers annotation =
+  match annotation with
+    | Some annotation -> annotation.Terms.Head.Replace("-", "/")
+    | None -> HandleNoPositionalIdAnnotationError
+
+let removeText (a:string) =
+  a.Replace("qs","").Replace("st","")
+
+let splitPositionalId (positionalId:string) =
+  positionalId.Split [|'/'|] 
+
+let splitLine = (fun (line : string) -> Seq.toList (line.Split '/'))
+
 let extractStatement (contentHandle, html) =
   let markdown = Markdown.Parse(contentHandle.Content)
 
-  let standardId = extract "qs(\d+)" contentHandle.Path |> System.Int32.Parse
-  let statementId = extract "st(\d+)" contentHandle.Path |> System.Int32.Parse
-  let id = sprintf "qs%d/st%d" standardId statementId
-  let title = sprintf "Quality Statement %d from Quality Standard %d" statementId standardId
   let abs = extractAbstract html
   let annotations = markdown
                     |> extractAnnotations 
                     |> parseYaml
                     |> List.map convertToVocab
+
+  let id = annotations
+            |> List.tryFind (fun x -> x.Vocab.Equals("PositionalId"))
+            |> extractQSandSTNumbers
+
+  let standardAndStatementNumbers id = 
+    match id with
+    | "" -> [|"0";"0"|]
+    | _ -> id |> removeText |> splitPositionalId
+
+  let standardAndStatement =
+    standardAndStatementNumbers id 
+
+  let standardId = standardAndStatement.[0] |> System.Int32.Parse
+  let statementId = standardAndStatement.[1] |> System.Int32.Parse 
+
+  let title = sprintf "Quality Statement %A from Quality Standard %A" statementId standardId
 
   {Id = id
    Title = title 

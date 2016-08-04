@@ -12,6 +12,8 @@ let sampleMarkdownContent = {
   Path = "qualitystandards/qs1/st2/Statement.md"
   Content = """
 ```
+PositionalId:
+  - "qs1-st2"
 Vocab:
   - "Term"
 ```
@@ -25,6 +27,30 @@ This is the abstract with a [Link](http://somelinkhere.com).
 This is some content
 """
 }
+
+let sampleMarkdownWithoutPositionalId = {
+  Path = "qualitystandards/qs1/st2/Statement.md"
+  Content = """
+```
+Vocab:
+  - "Term"
+```
+This is the title 
+----------------------------------------------
+
+### Abstract 
+
+This is the abstract with a [Link](http://somelinkhere.com).
+
+This is some content
+"""
+}
+
+[<Test>]
+let ``Should not extract the id from the markdown and give back an empty string`` () =
+  let statement = extractStatement (sampleMarkdownWithoutPositionalId, "")
+
+  statement.Id |> should equal ""
 
 [<Test>]
 let ``Should extract the id from the markdown filepath`` () =
@@ -66,8 +92,11 @@ let ``Should extract the statement number from file path`` () =
 [<Test>]
 let ``Should extract the annotations from code block`` () =
   let statement = extractStatement (sampleMarkdownContent, "")
+  printfn "%A" statement.Annotations
 
-  statement.Annotations |> should equal [{Vocab = "Vocab"; Terms = ["Term"]}]
+  statement.Annotations |> should equal [{Vocab = "PositionalId";
+                                          Terms = ["qs1-st2"];}; {Vocab = "Vocab";
+                                                                  Terms = ["Term"];}]
 
 [<Test>]
 let ``removeAnchors should remove multiple anchor tags on one line`` () =

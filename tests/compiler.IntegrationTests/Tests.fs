@@ -116,7 +116,9 @@ let ``When publishing a statement it should generate static html and post to res
   let html = Http.RequestString("http://resourceapi:8082/resource/qs1/st1",
                      headers = [ "Content-Type", "text/plain;charset=utf-8" ])
 
-  let expectedHtml = """<pre><code>Age Group:
+  let expectedHtml = """<pre><code>PositionalId:
+    - &quot;qs1-st1&quot;
+Age Group:
     - &quot;Adults&quot;</code></pre>
 <h2 id="this-is-the-title">This is the title</h2>
 <h3 id="abstract">Abstract</h3>
@@ -139,6 +141,7 @@ This is the abstract with a [Link](http://somelinkhere.com).
 
 This is some content
 """
+
   let html = Http.RequestString("http://compiler:8081/convert",
     headers = [ "Content-Type", "text/plain;charset=utf-8" ], 
     body = FormValues ["markdown", markdown])
