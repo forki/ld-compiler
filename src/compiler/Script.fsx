@@ -7,6 +7,7 @@
 #r "../../packages/FSharp.Data/lib/net40/FSharp.Data.dll"
 #r "../../packages/FSharp.Data/lib/net40/FSharp.Data.DesignTime.dll"
 #r "../../packages/FSharp.Formatting/lib/net40/FSharp.Markdown.dll"
+#r "bin/Release/publish.dll"
 
 open VDS.RDF
 open VDS.RDF.Writing
@@ -25,6 +26,8 @@ open Assertion
 open resource
 open rdf
 open FSharp.RDF
+open compiler.YamlParser
+open System
 
 open FSharp.Markdown
 open FSharp.Data
@@ -57,9 +60,30 @@ let extractAbstract (markdown:MarkdownDocument) =
   |> Seq.map getInnerText
   |> String.concat ""
 
+open compiler.Domain
+let convertToVocab {Name = name; Fields = fields} = {Vocab = name; Terms = fields}
+(* let removeText (a:string) =*)
+(*   a.Replace("qs","").Replace("st","")*)
 
-let st8 = openM "../../../ld-content-test/qualitystandards/qs5/st8/Statement.md" |> extractAbstract
-let st7 = openM "../../../ld-content-test/qualitystandards/qs5/st7/Statement.md" |> extractAbstract
-let st9 = openM "../../../ld-content-test/qualitystandards/qs97/st6/Statement.md"|> extractAbstract
-let st1 = openM "../../../ld-content-test/qualitystandards/qs93/st1/Statement.md"|> extractAbstract
-let st11 = openM "../../../ld-content-test/qualitystandards/qs93/st6/Statement.md"|> extractAbstract
+(* let splitPositionalId (positionalId:string) =*)
+(*   positionalId.Split [|'-'|]*)
+
+(* let getPositionalId (elem: Vocab) =*)
+(*   List.find elem.name == "PositionalId" *)
+
+let HandleNoPositionalIdAnnotationError =
+  printfn "[Error]"
+  ""
+
+let extractQSandSTNumbers annotation =
+  match annotation with
+    | Some annotation -> annotation.Terms.Head.Replace("-", "/")
+    | None -> HandleNoPositionalIdAnnotationError
+
+openM "../../../ld-content-test/qualitystandards/qs93/st6/Statement.md"
+  |> extractAnnotations 
+  |> parseYaml 
+  |> List.map convertToVocab
+  |> List.tryFind (fun x -> x.Vocab.Equals("PositionalId"))
+  |> extractQSandSTNumbers
+  (* |> (fun y -> y.Terms.Head)*)
