@@ -47,7 +47,7 @@ This is some content
 }
 
 [<Test>]
-let ``Should not extract the id from the markdown and give back an empty string`` () =
+let ``When markdown doesn't contain a PositionalId the extraction should return an empty string`` () =
   let statement = extractStatement (sampleMarkdownWithoutPositionalId, "")
 
   statement.Id |> should equal ""
