@@ -9,7 +9,7 @@ open compiler.Domain
 open compiler.Markdown
 
 let sampleMarkdownContent = {
-  Path = "qualitystandards/qs1/st2/Statement.md"
+  Path = "Statement.md"
   Content = """
 ```
 PositionalId:
@@ -29,7 +29,7 @@ This is some content
 }
 
 let sampleMarkdownWithoutPositionalId = {
-  Path = "qualitystandards/qs1/st2/Statement.md"
+  Path = "Statement.md"
   Content = """
 ```
 Vocab:
@@ -59,10 +59,10 @@ let ``Should extract the id from the markdown filepath`` () =
   statement.Id |> should equal "qs1/st2"
 
 [<Test>]
-let ``Should extract the title from the markdown filepath`` () =
+let ``Should build the title from the positionalid field in metadata`` () =
   let statement = extractStatement (sampleMarkdownContent, "")
   
-  statement.Title |> should equal "Quality Statement 2 from Quality Standard 1"
+  statement.Title |> should equal "Quality statement 2 from quality standard 1"
 
 [<Test>]
 let ``Should extract the abstract from the converted html and remove anchoring the links but keep text`` () =
