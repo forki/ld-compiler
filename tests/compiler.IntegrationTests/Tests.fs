@@ -6,6 +6,7 @@ open FSharp.Data
 open FSharp.Data.JsonExtensions
 open System.IO
 open System.Web
+open System.Net
 
 let runCompileAndWaitTillFinished gitRepoUrl =
   let res = Http.RequestString("http://compiler:8081/compile",
@@ -62,15 +63,10 @@ let ``When publishing a statement it should have added a statement to elastic se
 
   let doc = (Seq.head response.Hits.Hits).Source
 
-  doc.Id.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/qs1/st1" 
-  doc.HttpLdNiceOrgUkNsQualitystandardTitle.JsonValue.AsString() |> should equal "Quality Statement 1 from Quality Standard 1" 
-  doc.HttpLdNiceOrgUkNsQualitystandardAbstract.JsonValue.AsString() |> should equal "<p>This is the abstract.</p>" 
-  doc.HttpLdNiceOrgUkNsQualitystandardQsidentifier.JsonValue.AsInteger() |> should equal 1 
-  doc.HttpLdNiceOrgUkNsQualitystandardStidentifier.JsonValue.AsInteger() |> should equal 1 
-  
+  doc.Id.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/qs1/st1"   
 
 [<Test>]
-let ``When publishing a statement it should apply annotations`` () =
+let ``When publishing a statement it should apply annotations that exist in metadata`` () =
 
   runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
 
@@ -113,43 +109,20 @@ let ``When publishing a statement it should generate static html and post to res
 
   runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
 
-  let html = Http.RequestString("http://resourceapi:8082/resource/qs1/st1",
-                     headers = [ "Content-Type", "text/plain;charset=utf-8" ])
+  let response = Http.Request("http://resourceapi:8082/resource/qs1/st1",
+                          headers = [ "Content-Type", "text/plain;charset=utf-8" ])
 
-  let expectedHtml = """<pre><code>PositionalId:
-    - &quot;qs1-st1&quot;
-Age Group:
-    - &quot;Adults&quot;</code></pre>
-<h2 id="this-is-the-title">This is the title</h2>
-<h3 id="abstract">Abstract</h3>
-<p>This is the abstract.</p>
-<p>This is some dodgily‑encoded content.</p>
-"""
-
-  html |> should equal expectedHtml
+  response.StatusCode |> should equal HttpStatusCode.OK 
 
 [<Test>]
 let ``When I post a markdown file to the convert end point it should generate html via pandoc`` () =
 
-  let markdown = """
-This is the title 
-----------------------------------------------
-
-### Abstract 
-
-This is the abstract with a [Link](http://somelinkhere.com).
-
-This is some content
-"""
+  let markdown = """### Abstract"""
 
   let html = Http.RequestString("http://compiler:8081/convert",
     headers = [ "Content-Type", "text/plain;charset=utf-8" ], 
     body = FormValues ["markdown", markdown])
 
-  let expectedHtml = """<h2 id="this-is-the-title">This is the title</h2>
-<h3 id="abstract">Abstract</h3>
-<p>This is the abstract with a <a href="http://somelinkhere.com">Link</a>.</p>
-<p>This is some content</p>
-"""
+  let expectedHtml = """<h3 id="abstract">Abstract</h3>"""
 
   html |> should equal expectedHtml
