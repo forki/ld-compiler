@@ -123,6 +123,6 @@ let ``When I post a markdown file to the convert end point it should generate ht
     headers = [ "Content-Type", "text/plain;charset=utf-8" ], 
     body = FormValues ["markdown", markdown])
 
-  let expectedHtml = """<h3 id="abstract">Abstract</h3>"""
+  let expectedHtml = """<h3 id="abstract">Abstract</h3>""" + System.Environment.NewLine
 
   html |> should equal expectedHtml
