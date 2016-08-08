@@ -112,7 +112,7 @@ let ``When publishing a statement it should generate static html and post to res
   let response = Http.Request("http://resourceapi:8082/resource/qs1/st1",
                           headers = [ "Content-Type", "text/plain;charset=utf-8" ])
 
-  response.StatusCode |> should equal HttpStatusCode.OK 
+  response.StatusCode |> should equal 200
 
 [<Test>]
 let ``When I post a markdown file to the convert end point it should generate html via pandoc`` () =
