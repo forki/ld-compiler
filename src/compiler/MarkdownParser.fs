@@ -72,7 +72,7 @@ let extractStatement (contentHandle, html) =
   let standardId = (standardAndStatementNumbers id).[0] |> System.Int32.Parse
   let statementId = (standardAndStatementNumbers id).[1] |> System.Int32.Parse 
 
-  let title = sprintf "Quality Statement %d from Quality Standard %d" statementId standardId
+  let title = sprintf "Quality statement %d from quality standard %d" statementId standardId
 
   {Id = id
    Title = title 
