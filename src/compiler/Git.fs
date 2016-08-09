@@ -14,7 +14,7 @@ let private clone destDir repoUrl =
 let readAll repoUrl () =
   let destDir = "/git"
   clone destDir repoUrl
-  findFiles destDir "Statement.md"
+  findFiles destDir "*.md"
   |> Seq.map (fun f -> {Path = f; Content = ""}) //content lazy loaded laterz
 
 let readOne item =
