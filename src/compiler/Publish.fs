@@ -29,7 +29,7 @@ let publish propertyPaths contexts outputDir indexName typeName =
   let publishStaticHtmlResources = 
     printf "Publishing static html resources\n"
     findFiles outputDir "*.html"
-    |> Seq.iter ((fun f -> {Path=f;Content=""})
+    |> Seq.iter ((fun f -> {Path=f;Guid=getGuidFromFilepath(f);Content=""})
                  >> readHandle
                  >> convertPathToResourceUri outputDir
                  >> uploadResource)
