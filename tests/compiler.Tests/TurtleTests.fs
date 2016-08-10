@@ -8,6 +8,8 @@ open resource
 open rdf
 open compiler.Turtle
 
+let nl:string = System.Environment.NewLine
+
 [<Test>]
 let ``Should serialize resource to ttl`` () =
   let resource = resource !! "http://someuri.com/"
@@ -26,5 +28,5 @@ let ``Should serialize resource to ttl`` () =
 
   let (id,ttl) = transformToTurtle resource
 
-  ttl |> should equal expectedTtl
+  ttl.Replace(nl,"\n") |> should equal expectedTtl
   id |> should equal "http://someuri.com/"

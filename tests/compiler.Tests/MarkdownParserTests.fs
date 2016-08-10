@@ -8,9 +8,8 @@ open compiler.ContentHandle
 open compiler.Domain
 open compiler.Markdown
 
-let sampleMarkdownContent = {
-  Path = "Statement.md"
-  Content = """
+let nl:string = System.Environment.NewLine
+let content = """
 ```
 PositionalId:
   - "qs1-st2"
@@ -26,11 +25,13 @@ This is the abstract with a [Link](http://somelinkhere.com).
 
 This is some content
 """
+let sampleMarkdownContent = {
+  Path = "b17964c7-50d8-4f9d-b7b2-1ec0c039de77.md"
+  //Path = "Statement.md"
+  Content = content.Replace(nl,"\n")
 }
 
-let sampleMarkdownWithoutPositionalId = {
-  Path = "Statement.md"
-  Content = """
+let contentNoPositionId = """
 ```
 Vocab:
   - "Term"
@@ -44,19 +45,25 @@ This is the abstract with a [Link](http://somelinkhere.com).
 
 This is some content
 """
+let sampleMarkdownWithoutPositionalId = {
+  Path = "b17964c7-50d8-4f9d-b7b2-1ec0c039de77.md"
+  //Path = "Statement.md"
+  Content = contentNoPositionId.Replace(nl,"\n")
 }
 
-[<Test>]
-let ``When markdown doesn't contain a PositionalId the extraction should return an empty string`` () =
-  let statement = extractStatement (sampleMarkdownWithoutPositionalId, "")
+//DEFUNCT TEST
+//[<Test>]
+//let ``When markdown doesn't contain a PositionalId the extraction should return an empty string`` () =
+//  let statement = extractStatement (sampleMarkdownWithoutPositionalId, "")
+//
+//  statement.Id |> should equal ""
 
-  statement.Id |> should equal ""
-
 [<Test>]
-let ``Should extract the id from the markdown filepath`` () =
+let ``Should extract the id from the markdown filename`` () =
   let statement = extractStatement (sampleMarkdownContent, "")
 
-  statement.Id |> should equal "qs1/st2"
+  statement.Id |> should equal "b17964c7-50d8-4f9d-b7b2-1ec0c039de77"
+//  statement.Id |> should equal "qs1/st2"
 
 [<Test>]
 let ``Should build the title from the positionalid field in metadata`` () =
@@ -68,8 +75,8 @@ let ``Should build the title from the positionalid field in metadata`` () =
 let ``Should extract the abstract from the converted html and remove anchoring the links but keep text`` () =
   let html = """<p>This is the abstract with a <a href="http://somewhere.com">Link</a>.</p>"""
   let statement = extractStatement (sampleMarkdownContent, html)
-
-  statement.Abstract |> should equal "<p>\n  This is the abstract with a Link.\n</p>"
+  
+  statement.Abstract.Replace(nl, "\n") |> should equal "<p>\n  This is the abstract with a Link.\n</p>"
 
 [<Test>]
 let ``Should extract the content from whole markdown file`` () =
