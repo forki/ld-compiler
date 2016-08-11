@@ -10,7 +10,7 @@ let findFiles inputDir filePattern =
   files |> Array.map(fun fs -> fs.FullName) |> Array.toList
 
 let readHandle handle =
-  {Path = handle.Path; Content = File.ReadAllText(handle.Path, Encoding.UTF8 )}
+  {Path = handle.Path; Guid = handle.Guid; Content = File.ReadAllText(handle.Path, Encoding.UTF8 )}
 
 let writeFile file =
   try 
@@ -20,4 +20,11 @@ let writeFile file =
 
 let prepareAsFile baseUrl outputDir ext (id:string, content) =
   let id = id.Replace(baseUrl+"/", "").Replace("/","_")
-  {Path = sprintf "%s/%s%s" outputDir id ext; Content = content}
+  {Path = sprintf "%s/%s%s" outputDir id ext; Guid = id; Content = content}
+
+let getGuidFromFilepath (filePath:string) =
+  let filename = filePath.Split[|'/'|]
+                   |> Array.rev
+                   |> Array.head
+  filename.Split[|'.'|]
+    |> Array.head

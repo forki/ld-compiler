@@ -26,8 +26,8 @@ This is the abstract with a [Link](http://somelinkhere.com).
 This is some content
 """
 let sampleMarkdownContent = {
-  Path = "b17964c7-50d8-4f9d-b7b2-1ec0c039de77.md"
-  //Path = "Statement.md"
+  Path = "qs2/st2/b17964c7-50d8-4f9d-b7b2-1ec0c039de77.md"
+  Guid = "b17964c7-50d8-4f9d-b7b2-1ec0c039de77"
   Content = content.Replace(nl,"\n")
 }
 
@@ -46,8 +46,8 @@ This is the abstract with a [Link](http://somelinkhere.com).
 This is some content
 """
 let sampleMarkdownWithoutPositionalId = {
-  Path = "b17964c7-50d8-4f9d-b7b2-1ec0c039de77.md"
-  //Path = "Statement.md"
+  Path = "qs2/st2/b17964c7-50d8-4f9d-b7b2-1ec0c039de77.md"
+  Guid = "b17964c7-50d8-4f9d-b7b2-1ec0c039de77"
   Content = contentNoPositionId.Replace(nl,"\n")
 }
 
@@ -63,7 +63,6 @@ let ``Should extract the id from the markdown filename`` () =
   let statement = extractStatement (sampleMarkdownContent, "")
 
   statement.Id |> should equal "b17964c7-50d8-4f9d-b7b2-1ec0c039de77"
-//  statement.Id |> should equal "qs1/st2"
 
 [<Test>]
 let ``Should build the title from the positionalid field in metadata`` () =
