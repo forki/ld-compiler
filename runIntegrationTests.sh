@@ -2,7 +2,7 @@
 
 docker-compose -f docker-compose.test.yaml up -d
 sleep 10
-docker exec -it ldcompiler_integrationtests bash /compiler-src/tests/compiler.IntegrationTests/run.sh
+docker exec ldcompiler_integrationtests bash /compiler-src/tests/compiler.IntegrationTests/run.sh
 result=$?
 docker-compose -f docker-compose.test.yaml stop
 if [ $result -ne 0 ]; then
