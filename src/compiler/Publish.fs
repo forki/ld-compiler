@@ -8,7 +8,7 @@ open compiler.ContentHandle
 open FSharp.Data
 
 let private uploadResource html =
-  let url = sprintf "http://resourceapi:8082/resource/%s" html.Path
+  let url = sprintf "http://resourceapi:8082/resource/%s" html.Guid
   printf "uploading static html to %s\n" url
   Http.RequestString(url,
                      httpMethod="POST",
@@ -29,7 +29,7 @@ let publish propertyPaths contexts outputDir indexName typeName =
   let publishStaticHtmlResources = 
     printf "Publishing static html resources\n"
     findFiles outputDir "*.html"
-    |> Seq.iter ((fun f -> {Path=f;Content=""})
+    |> Seq.iter ((fun f -> {Path=f;Guid=getGuidFromFilepath(f);Content=""})
                  >> readHandle
                  >> convertPathToResourceUri outputDir
                  >> uploadResource)

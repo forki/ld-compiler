@@ -45,3 +45,4 @@ integrationtests:
     - .:/compiler-src
     - /artifacts:/artifacts
   command: sleep 10000000
+  container_name: ldcompiler_integrationtests

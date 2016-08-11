@@ -45,7 +45,7 @@ let private accumulateFields acc (line:string) =
   | _ -> acc
 
 let parseYaml (yaml:string) =
-  let lines = yaml.Split '\n'
+  let lines = yaml.Replace(System.Environment.NewLine,"\n").Split '\n'
   
   let accumulatedFields = 
     lines

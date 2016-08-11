@@ -49,7 +49,7 @@ let private removeText (a:string) =
   a.Replace("qs","").Replace("st","")
 
 let private splitPositionalId (positionalId:string) =
-  positionalId.Split [|'/'|] 
+  positionalId.Split [|'/'|]
 
 let private standardAndStatementNumbers id = 
   match id with
@@ -64,7 +64,7 @@ let extractStatement (contentHandle, html) =
                     |> extractAnnotations 
                     |> parseYaml
                     |> List.map convertToVocab
-
+  
   let id = annotations
             |> List.tryFind (fun x -> x.Vocab.Equals("PositionalId"))
             |> extractQSandSTNumbers
@@ -74,7 +74,7 @@ let extractStatement (contentHandle, html) =
 
   let title = sprintf "Quality statement %d from quality standard %d" statementId standardId
 
-  {Id = id
+  {Id = contentHandle.Guid
    Title = title 
    Abstract = abs 
    StandardId = standardId

@@ -48,7 +48,7 @@ let Teardown () =
   printf "Deleting elastic index\n"
   try Http.RequestString("http://elastic:9200/kb", httpMethod="DELETE") |> ignore with _ -> ()
   printf "Deleting all static html resources\n"
-  try Http.RequestString("http://resourceapi:8082/resource/qs1/st1", httpMethod="DELETE") |> ignore with _ -> ()
+  try Http.RequestString("http://resourceapi:8082/resource/8422158b-302e-4be2-9a19-9085fc09dfe7", httpMethod="DELETE") |> ignore with _ -> ()
 
 [<Test>]
 let ``When publishing a statement it should have added a statement to elastic search index`` () =
@@ -63,7 +63,7 @@ let ``When publishing a statement it should have added a statement to elastic se
 
   let doc = (Seq.head response.Hits.Hits).Source
 
-  doc.Id.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/qs1/st1"   
+  doc.Id.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/8422158b-302e-4be2-9a19-9085fc09dfe7"   
 
 [<Test>]
 let ``When publishing a statement it should apply annotations that exist in metadata`` () =
@@ -109,7 +109,7 @@ let ``When publishing a statement it should generate static html and post to res
 
   runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
 
-  let response = Http.Request("http://resourceapi:8082/resource/qs1/st1",
+  let response = Http.Request("http://resourceapi:8082/resource/8422158b-302e-4be2-9a19-9085fc09dfe7",
                           headers = [ "Content-Type", "text/plain;charset=utf-8" ])
 
   response.StatusCode |> should equal 200
