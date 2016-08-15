@@ -38,7 +38,7 @@ let private buildPandocArgs () =
   sprintf "-f markdown -t html5" 
 
 let convertMarkdownToHtml contentHandle =
-  printf "Converting statement %s to Html" contentHandle.Path
+  printf "Converting statement %s to Html" contentHandle.Guid
   let html = runProcess "pandoc" contentHandle.Content (buildPandocArgs())
 
   (contentHandle, html)

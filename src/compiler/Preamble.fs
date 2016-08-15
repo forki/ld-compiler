@@ -8,7 +8,7 @@ open System.IO
 
 let downloadSchema schemas outputDir =
   let download (schema:string) =
-    {Path = sprintf "%s/%s" outputDir (schema.Remove(0,schema.LastIndexOf('/')+1))
+    {//Path = sprintf "%s/%s" outputDir (schema.Remove(0,schema.LastIndexOf('/')+1))
      Guid = schema.Remove(0,schema.LastIndexOf('/')+1)
      Content = Http.RequestString(schema)}
 

@@ -40,7 +40,7 @@ let compile extractor rdfArgs baseUrl outputDir dbName =
     >> prepareAsFile baseUrl outputDir ".ttl"
     >> writeFile 
 
-  items |> Seq.iter (fun item -> try compileItem item with ex -> printf "[ERROR] problem processing item %s with: %s\n" item.Path ( ex.ToString() ))
+  items |> Seq.iter (fun item -> try compileItem item with ex -> printf "[ERROR] problem processing item %s with: %s\n" item.Guid ( ex.ToString() ))
 
   addGraphs outputDir dbName
 

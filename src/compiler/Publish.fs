@@ -15,8 +15,8 @@ let private uploadResource html =
                      body=TextRequest html.Content,
                      headers = [ "Content-Type", "text/plain;charset=utf-8" ]) |> ignore
 
-let convertPathToResourceUri outputDir handle = 
-  {handle with Path=handle.Path.Replace(outputDir+"/","").Replace(".html", "") .Replace("_","/")}
+//let convertPathToResourceUri outputDir handle = 
+//  {handle with Path=handle.Path.Replace(outputDir+"/","").Replace(".html", "") .Replace("_","/")}
 
 let publish propertyPaths contexts outputDir indexName typeName =
 
@@ -29,9 +29,9 @@ let publish propertyPaths contexts outputDir indexName typeName =
   let publishStaticHtmlResources = 
     printf "Publishing static html resources\n"
     findFiles outputDir "*.html"
-    |> Seq.iter ((fun f -> {Path=f;Guid=getGuidFromFilepath(f);Content=""})
+    |> Seq.iter ((fun f -> {Guid=f; Content=""})
                  >> readHandle
-                 >> convertPathToResourceUri outputDir
+                 //>> convertPathToResourceUri outputDir
                  >> uploadResource)
 
   publishJsonLdResources

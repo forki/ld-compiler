@@ -1,7 +1,7 @@
 module compiler.ContentHandle
 
 type ContentHandle = {
-  Path: string
+//  Path: string
   Guid: string
   Content: string
 }
