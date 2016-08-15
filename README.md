@@ -19,10 +19,12 @@ docker build .
 An integration test environment in created using docker-compose.  The integration tests are then run against this transient environment, which is destroyed after every run.
 
 First you must build the docker image locally:
+
 ```
 docker build -t nice/ld-compiler:dev .
 ```
 Now run the following script:
+
 ```
 cd integration-tests
 sh run.sh
