@@ -27,7 +27,7 @@ This is some content
 """
 let sampleMarkdownContent = {
 //  Path = "qs2/st2/b17964c7-50d8-4f9d-b7b2-1ec0c039de77.md"
-  Guid = "b17964c7-50d8-4f9d-b7b2-1ec0c039de77"
+  Thing = "b17964c7-50d8-4f9d-b7b2-1ec0c039de77"
   Content = content.Replace(nl,"\n")
 }
 
@@ -47,7 +47,7 @@ This is some content
 """
 let sampleMarkdownWithoutPositionalId = {
 //  Path = "qs2/st2/b17964c7-50d8-4f9d-b7b2-1ec0c039de77.md"
-  Guid = "b17964c7-50d8-4f9d-b7b2-1ec0c039de77"
+  Thing = "b17964c7-50d8-4f9d-b7b2-1ec0c039de77"
   Content = contentNoPositionId.Replace(nl,"\n")
 }
 

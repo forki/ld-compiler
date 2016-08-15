@@ -74,7 +74,7 @@ let extractStatement (contentHandle, html) =
 
   let title = sprintf "Quality statement %d from quality standard %d" statementId standardId
 
-  {Id = contentHandle.Guid
+  {Id = contentHandle.Thing
    Title = title 
    Abstract = abs 
    StandardId = standardId

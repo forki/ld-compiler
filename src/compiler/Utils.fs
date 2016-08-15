@@ -17,14 +17,14 @@ let getGuidFromFilepath (filePath:string) =
     |> Array.head
 
 let readHandle handle =
-  {Guid = getGuidFromFilepath(handle.Guid); Content = File.ReadAllText(handle.Guid, Encoding.UTF8 )}
+  {Thing = getGuidFromFilepath(handle.Thing); Content = File.ReadAllText(handle.Thing, Encoding.UTF8 )}
 
 let writeFile file =
   try 
-    File.WriteAllText(file.Guid, file.Content, Encoding.UTF8)
-    printf "Written %s\n" file.Guid
-  with ex -> printf "Couldnt write %s to disk!\n" file.Guid
+    File.WriteAllText(file.Thing, file.Content, Encoding.UTF8)
+    printf "Written %s\n" file.Thing
+  with ex -> printf "Couldnt write %s to disk!\n" file.Thing
 
 let prepareAsFile baseUrl outputDir ext (id:string, content) =
   let id = id.Replace(baseUrl+"/", "").Replace("/","_")
-  {Guid = sprintf "%s/%s%s" outputDir id ext; Content = content}
+  {Thing = sprintf "%s/%s%s" outputDir id ext; Content = content}

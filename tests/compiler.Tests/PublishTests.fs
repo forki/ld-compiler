@@ -16,7 +16,7 @@ open compiler.Utils
 [<Test>]
 let ``getGuidFromFilepath should convert path to correct resource uri`` () =
   let outputDir = "/somedir/somedir"
-  let handle = {Guid = outputDir+"/b17964c7-50d8-4f9d-b7b2-1ec0c039de77.html";Content = ""}
-  let handleUri = getGuidFromFilepath(handle.Guid)
+  let handle = {Thing = outputDir+"/b17964c7-50d8-4f9d-b7b2-1ec0c039de77.html"; Content = ""}
+  let handleUri = getGuidFromFilepath(handle.Thing)
   handleUri |> should equal "b17964c7-50d8-4f9d-b7b2-1ec0c039de77"
   

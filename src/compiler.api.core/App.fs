@@ -55,7 +55,7 @@ let private convertMDToHTML () : WebPart =
       let markdown = match x.request.formData "markdown" with
                      | Choice1Of2 t -> t
                      | _ -> ""
-      let content = {Guid=""; Content = markdown}
+      let content = {Thing=""; Content = markdown}
       let converted = convertMarkdownToHtml content
       return! Successful.OK (snd converted) x
     }
