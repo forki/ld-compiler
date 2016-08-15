@@ -5,4 +5,4 @@ cd /compiler-src
 # Run the server up in the background
 sleep 5
 # Now run the tests
-mono /compiler-src/packages/NUnit.ConsoleRunner/tools/nunit3-console.exe /compiler-src/tests/compiler.IntegrationTests/bin/Debug/compiler.IntegrationTests.dll
+mono /compiler-src/packages/NUnit.ConsoleRunner/tools/nunit3-console.exe /compiler-src/integration-tests/compiler.IntegrationTests/bin/Debug/compiler.IntegrationTests.dll

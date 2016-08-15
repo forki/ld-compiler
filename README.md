@@ -20,11 +20,12 @@ An integration test environment in created using docker-compose.  The integratio
 
 First you must build the docker image locally:
 ```
-docker build -t nice/ld-compiler .
+docker build -t nice/ld-compiler:dev .
 ```
 Now run the following script:
 ```
-./runIntegrationTests.sh
+cd integration-tests
+sh run.sh
 ```
 
 

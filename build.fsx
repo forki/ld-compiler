@@ -171,7 +171,7 @@ Target "RebuildRelease" (fun _ ->
 
 Target "BuildDebugIntegrationTestOnly" (fun _ ->
     printf "Running build task...."
-    let s = !!"tests/compiler.IntegrationTests/compiler.IntegrationTests.fsproj"
+    let s = !!"integration-tests/compiler.IntegrationTests/compiler.IntegrationTests.fsproj"
 #if MONO
             |> MSBuild "" "Build" [ ("DefineConstants","MONO") ] 
 #else
@@ -190,22 +190,6 @@ Target "RunTests" (fun _ ->
                              info.Arguments <- "packages/NUnit.ConsoleRunner/tools/nunit3-console.exe --labels=All --workers=1" + assemblies) (TimeSpan.FromMinutes 2.0)
   if result <> 0 then failwithf "NUnit failed"
     
-)
-
-Target "RunIntegrationTests" (fun _ ->
-  ExecProcess (fun info -> info.FileName <- "docker-compose"
-                           info.Arguments <- "-f docker-compose.test.yaml up -d") (TimeSpan.FromMinutes 5.0) |> ignore
-  let result =
-    ExecProcess (fun info -> info.FileName <- "docker-compose"
-                             info.Arguments <- "-f docker-compose.test.yaml run --rm mimir bash /tests/run.sh") (TimeSpan.FromMinutes 2.0)
-
-  // Now stop and remove the containers
-  ExecProcess (fun info -> info.FileName <- "docker-compose"
-                           info.Arguments <- "-f docker-compose.test.yaml stop") (TimeSpan.FromMinutes 5.0) |> ignore
-  ExecProcess (fun info -> info.FileName <- "docker-compose"
-                           info.Arguments <- "-f docker-compose.test.yaml rm -f --all") (TimeSpan.FromMinutes 5.0) |> ignore
-  printf "Docker-compose exited with code %d" result
-  if result <> 0 then failwithf "docker-compose returned with a non-zero exit code"
 )
 
 #if MONO
@@ -443,7 +427,6 @@ Target "All" DoNothing
 "Clean"
   ==> "BuildRelease"
   ==> "CopyBinaries"
-  ==> "RunIntegrationTests"
 
 
 RunTargetOrDefault "All"
