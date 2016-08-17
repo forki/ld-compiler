@@ -9,13 +9,16 @@ type PublishItem = {
 type ConfigItem = {
     Schema: string
     JsonLD: string
+    Map: bool
     Publish: PublishItem list
 
 }
 
 type OntologyConfig = {
     SchemaBase: string
-    UriBase: string
+    UrlBase: string
+    QSBase: string
+    ThingBase: string
     IndexName: string
     TypeName: string
     SchemaDetails: ConfigItem list
