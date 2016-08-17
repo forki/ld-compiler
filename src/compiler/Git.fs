@@ -15,7 +15,7 @@ let readAll repoUrl () =
   let destDir = "/git"
   clone destDir repoUrl
   findFiles destDir "*.md"
-  |> Seq.map (fun f -> {Path = f; Guid=(getGuidFromFilepath f);Content = ""}) //content lazy loaded laterz
+  |> Seq.map (fun f -> {Thing = f; Content = ""}) //content lazy loaded laterz
 
 let readOne item =
   readHandle item 
