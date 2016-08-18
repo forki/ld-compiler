@@ -24,7 +24,6 @@ let private dbPass = "admin"
 
 let private baseUrl = "http://ld.nice.org.uk/resource" 
 
-//let private rdfArgs = GetRdfArgs (ReadConfigFile (sprintf "%s/OntologyConfig.json" outputDir))
 let private rdfArgs = {
   BaseUrl = baseUrl    
   VocabMap = 
@@ -40,18 +39,17 @@ let private rdfArgs = {
        "conditionordisease", vocabLookup "http://schema/ns/qualitystandard/conditionordisease.ttl"
        "servicearea", vocabLookup "http://schema/ns/qualitystandard/servicearea.ttl" ] |> Map.ofList)
 }
-let mutable private propertyPaths:string list = []
-//let private propertyPaths = [ 
-//  "<http://ld.nice.org.uk/ns/qualitystandard#age>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#age>/rdfs:subClassOf*" 
-//  "<http://ld.nice.org.uk/ns/qualitystandard#condition>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#condition>/rdfs:subClassOf*" 
-//  "<http://ld.nice.org.uk/ns/qualitystandard#setting>/^rdfs:subClassOf*" 
-//  "<http://ld.nice.org.uk/ns/qualitystandard#serviceArea>/^rdfs:subClassOf*" 
-//  "<http://ld.nice.org.uk/ns/qualitystandard#lifestyleCondition>/^rdfs:subClassOf*" 
-//  "<http://ld.nice.org.uk/ns/qualitystandard#title>" 
-//  "<http://ld.nice.org.uk/ns/qualitystandard#abstract>" 
-//  "<http://ld.nice.org.uk/ns/qualitystandard#qsidentifier>" 
-//  "<http://ld.nice.org.uk/ns/qualitystandard#stidentifier>"
-//]
+let private propertyPaths = [ 
+  "<http://ld.nice.org.uk/ns/qualitystandard#age>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#age>/rdfs:subClassOf*" 
+  "<http://ld.nice.org.uk/ns/qualitystandard#condition>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#condition>/rdfs:subClassOf*" 
+  "<http://ld.nice.org.uk/ns/qualitystandard#setting>/^rdfs:subClassOf*" 
+  "<http://ld.nice.org.uk/ns/qualitystandard#serviceArea>/^rdfs:subClassOf*" 
+  "<http://ld.nice.org.uk/ns/qualitystandard#lifestyleCondition>/^rdfs:subClassOf*" 
+  "<http://ld.nice.org.uk/ns/qualitystandard#title>" 
+  "<http://ld.nice.org.uk/ns/qualitystandard#abstract>" 
+  "<http://ld.nice.org.uk/ns/qualitystandard#qsidentifier>" 
+  "<http://ld.nice.org.uk/ns/qualitystandard#stidentifier>"
+]
 
 let private jsonldContexts = [
   "http://schema/ns/qualitystandard.jsonld "
@@ -80,13 +78,18 @@ let compileAndPublish ( fetchUrl:string ) () =
   let extractor =
     {readAllContentItems = Git.readAll (Uri.from fetchUrl)
      readContentForItem = Git.readOne}
-  
-  let items = extractor.readAllContentItems ()
-  let propertyPaths = GetPropPaths (ReadConfigFile (sprintf "%s/OntologyConfig.json" inputDir))
 
   prepare inputDir outputDir dbName dbUser dbPass schemas
 
+  let items = extractor.readAllContentItems ()
+
+  let rdfArgs2 = sprintf "%s/OntologyConfig.json" inputDir
+                  |> GetConfigFromFile
+                  |> DeserializeConfig 
+                  |> GetRdfArgs
+
   compile extractor items rdfArgs baseUrl outputDir dbName
+
   publish propertyPaths jsonldContexts outputDir indexName typeName 
 
   printf "Knowledge base creation complete!\n"

@@ -9,6 +9,7 @@ open compiler.OntologyUtils
 open FSharp.Data
 open compiler.RDF
 open FSharp.RDF
+open Newtonsoft.Json
 
 let private sampleConfig = """
 {
@@ -158,6 +159,24 @@ let private expected_PPath = [
   "<http://ld.nice.org.uk/ns/qualitystandard#stidentifier>"
 ]
 
+let private expected_Vocab = [
+  "setting", "http://ld.nice.org.uk/ns/qualitystandard#setting"
+  "agegroup", "http://ld.nice.org.uk/ns/qualitystandard#age"
+  "conditionordisease", "http://ld.nice.org.uk/ns/qualitystandard#condition"
+  "servicearea", "http://ld.nice.org.uk/ns/qualitystandard#servicearea"
+  "lifestylecondition", "http://ld.nice.org.uk/ns/qualitystandard#lifestylecondition"
+]
+
+let private expected_TermMap = [
+  "setting", "http://schema/ns/qualitystandard/setting.ttl"
+  "agegroup", "http://schema/ns/qualitystandard/agegroup.ttl"
+  "lifestylecondition", "http://schema/ns/qualitystandard/lifestylecondition.ttl"
+  "conditionordisease", "http://schema/ns/qualitystandard/conditionordisease.ttl"
+  "servicearea", "http://schema/ns/qualitystandard/servicearea.ttl"
+]
+
+let private expected_BaseUrl = "http://ld.nice.org.uk/resource"
+
 // For Test ``Should return the full expected RDF Arguments details``
 // Trying as integration test  as get URI error here
 //let private expected_RdfArgs = {
@@ -184,21 +203,51 @@ let ``When I have a json string containing my ontology config it should parse in
 
 [<Test>]
 let ``Should return all but only the expected jsonld file paths`` () =
-  let result:string list = GetJsonLdContext (DeserializeConfig sampleConfig)
+  let result:string list = DeserializeConfig sampleConfig
+                             |> GetJsonLdContext
 
   CompareLists expected_Jsonld result |> should equal ""
 
 [<Test>]
 let ``Should return all but only the expected schema ttl file paths`` () =
-  let result = GetSchemaTtl (DeserializeConfig sampleConfig)
+  let result = DeserializeConfig sampleConfig
+                 |> GetSchemaTtl
 
   CompareLists expected_Ttl result |> should equal ""
 
 [<Test>]
 let ``Should return all but only the expected property paths URIs`` () =
-  let result = GetPropPaths (DeserializeConfig sampleConfig)
+  let result = DeserializeConfig sampleConfig
+                 |> GetPropPaths
 
   CompareLists expected_PPath result |> should equal ""
+
+[<Test>]
+let ``Should read all but only the expected RDF URI Map details`` () =
+  let result = DeserializeConfig sampleConfig
+                 |> GetVocabList
+                 |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
+  let expected_Vocab_serialised = expected_Vocab
+                                    |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
+
+  CompareLists expected_Vocab_serialised result |> should equal ""
+
+[<Test>]
+let ``Should read the expected BaseUrl`` () =
+  let result = DeserializeConfig sampleConfig
+                 |> GetBaseUrl
+
+  result |> should equal expected_BaseUrl
+
+[<Test>]
+let ``Should read all but only the expected RDF Term details`` () =
+  let result = DeserializeConfig sampleConfig
+                 |> GetTermList
+                 |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
+  let expected_TermMap_serialised = expected_TermMap
+                                    |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
+
+  CompareLists expected_TermMap_serialised result |> should equal ""
 
 // Trying as integration test  as get URI error here
 //[<Test>]

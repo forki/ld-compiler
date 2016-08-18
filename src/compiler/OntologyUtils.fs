@@ -8,14 +8,13 @@ open Newtonsoft.Json
 open FSharp.RDF
 open compiler.RDF
 open compiler.Utils
+open System.Text
 
-//let GetConfigFromFile =
-//  let file = sprintf "%s\\OntologyConfig.json" __SOURCE_DIRECTORY__
-//  //let file = sprintf "%s/OntologyConfig.json" 
-//  if File.Exists file then
-//    "Hurrah!! I have found the file. And there was much rejoicing"
-//  else
-//    "Nope"
+let GetConfigFromFile file =
+  if File.Exists file then
+    File.ReadAllText(file, Encoding.UTF8 )
+  else
+    ""
 
 let DeserializeConfig jsonString =
   let ret = JsonConvert.DeserializeObject<OntologyConfig>(jsonString)
@@ -49,28 +48,44 @@ let GetPropPaths oc =
                                                        GetPathWithSubclass oc.UrlBase oc.QSBase p))))
     |> List.concat
 
-let GetVocabMap oc =
+let getGetMmKey s (l:string) =
+    match obj.ReferenceEquals(l, null) with
+    |true -> s
+    |_ -> l.ToLower().Replace(" ","")
+
+let GetVocabList oc =
   oc.SchemaDetails
     |> List.filter (fun x -> x.Map)
     |> List.map (fun f -> (f.Publish 
                              |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
-                             |> List.map (fun p -> (p.Uri, Uri.from(sprintf "<%s%s#%s>" oc.UrlBase oc.QSBase p.Uri)))))
+                             |> List.map (fun p -> (getGetMmKey p.Uri p.Label, sprintf "%s%s#%s" oc.UrlBase oc.QSBase p.Uri))))
     |> List.concat
+
+let GetVocabMap oc =
+  GetVocabList oc
+    |> List.map (fun p -> (fst p, Uri.from(snd p)))
     |> Map.ofList
+
+let GetTermList oc =
+    oc.SchemaDetails
+    |> List.filter (fun x -> x.Map)
+    |> List.map (fun f -> (f.Publish 
+                             |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
+                             |> List.map (fun p -> (getGetMmKey p.Uri p.Label, sprintf "%s%s" oc.SchemaBase f.Schema))))
+
+    |> List.concat
 
 let GetTermMap oc =
-  oc.SchemaDetails
-    |> List.filter (fun x -> x.Map)
-    |> List.map (fun f -> (f.Publish 
-                             |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
-                             |> List.map (fun p -> (p.Uri, vocabLookup(sprintf "<%s#%s>" oc.SchemaBase f.Schema)))))
-
-    |> List.concat
+  GetTermList oc
+    |> List.map (fun t -> (fst t, vocabLookup(snd t)))
     |> Map.ofList
+
+let GetBaseUrl oc =
+  sprintf "%s%s" oc.UrlBase oc.ThingBase
 
 let GetRdfArgs oc =
   {
-    BaseUrl = sprintf "%s%s" oc.UrlBase oc.ThingBase
+    BaseUrl = GetBaseUrl oc
     VocabMap = GetVocabMap oc
     TermMap = GetTermMap oc
   }
