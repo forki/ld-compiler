@@ -223,7 +223,7 @@ let ``Should read all but only the expected RDF URI Map details`` () =
 [<Test>]
 let ``Should read the expected BaseUrl`` () =
   let result = deserializeConfig sampleConfig
-                 |> GetBaseUrl
+                 |> getBaseUrl
 
   result |> should equal expected_BaseUrl
 

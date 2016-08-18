@@ -46,9 +46,9 @@ let compileAndPublish ( fetchUrl:string ) () =
                      |> GetConfigFromFile
                      |> deserializeConfig
   
-  let rdfArgs = config |> GetRdfArgs
+  let rdfArgs = config |> getRdfArgs
 
-  baseUrl <- config |> GetBaseUrl
+  baseUrl <- config |> getBaseUrl
 
   propertyPaths <- config |> getPropPaths
   jsonldContexts <- config |> getJsonLdContext

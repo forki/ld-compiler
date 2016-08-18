@@ -84,12 +84,12 @@ let getTermMap oc =
     |> List.map (fun t -> (fst t, vocabLookup(snd t)))
     |> Map.ofList
 
-let GetBaseUrl oc =
+let getBaseUrl oc =
   sprintf "%s%s" oc.UrlBase oc.ThingBase
 
-let GetRdfArgs oc =
+let getRdfArgs oc =
   {
-    BaseUrl = GetBaseUrl oc
+    BaseUrl = getBaseUrl oc
     VocabMap = getVocabMap oc
     TermMap = getTermMap oc
   }
