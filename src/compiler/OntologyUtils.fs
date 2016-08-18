@@ -7,6 +7,7 @@ open compiler.OntologyConfig
 open Newtonsoft.Json
 open FSharp.RDF
 open compiler.RDF
+open compiler.Utils
 
 //let GetConfigFromFile =
 //  let file = sprintf "%s\\OntologyConfig.json" __SOURCE_DIRECTORY__
@@ -16,7 +17,7 @@ open compiler.RDF
 //  else
 //    "Nope"
 
-let GetConfig jsonString =
+let DeserializeConfig jsonString =
   let ret = JsonConvert.DeserializeObject<OntologyConfig>(jsonString)
   ret
 
@@ -74,4 +75,6 @@ let GetRdfArgs oc =
     TermMap = GetTermMap oc
   }
 
-
+let ReadConfigFile fullpath =
+  let ret = readHandle {Thing = fullpath; Content = ""}
+  DeserializeConfig ret.Content

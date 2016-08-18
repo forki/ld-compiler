@@ -17,7 +17,7 @@ let private sampleConfig = """
 	"QSBase": "ns/qualitystandard",
 	"ThingBase": "resource",
 	"IndexName": "kb",
-    "TypeName": "qualitystatement",
+	"TypeName": "qualitystatement",
 	"SchemaDetails":
 	[
 		{
@@ -34,6 +34,24 @@ let private sampleConfig = """
 					]
 				}
 			]
+		},
+		{
+			"Schema": "qualitystandard/agegroup.ttl",
+			"JsonLD": "qualitystandard/agegroup.jsonld ",
+			"Map": true,
+			"Publish":
+			[
+				{
+					"Uri": "age",
+					"Label": "Age Group",
+					"PropertyPath":
+					[
+						"^rdfs:subClassOf*",
+						"rdfs:subClassOf*"
+					]
+				}
+			]
+			
 		},
 		{
 			"Schema": "qualitystandard/conditionordisease.ttl",
@@ -54,6 +72,38 @@ let private sampleConfig = """
 			
 		},
 		{
+			"Schema": "qualitystandard/servicearea.ttl",
+			"JsonLD": "qualitystandard/servicearea.jsonld ",
+			"Map": true,
+			"Publish":
+			[
+				{
+					"Uri": "servicearea",
+					"PropertyPath": 
+					[
+						"^rdfs:subClassOf*"
+					]
+				}
+			]
+			
+		},
+		{
+			"Schema": "qualitystandard/lifestylecondition.ttl",
+			"JsonLD": "qualitystandard/lifestylecondition.jsonld ",
+			"Map": true,
+			"Publish":
+			[
+				{
+					"Uri": "lifestylecondition",
+					"PropertyPath":
+					[
+						"^rdfs:subClassOf*"
+					]
+				}
+			]
+			
+		},
+		{
 			"Schema": "qualitystandard.ttl",
 			"JsonLD": "qualitystandard.jsonld ",
 			"Map": false,
@@ -66,10 +116,10 @@ let private sampleConfig = """
 					"Uri": "abstract"
 				},
 				{
-					"Uri": "positionalid"
+					"Uri": "qsidentifier"
 				},
 				{
-					"Uri": "firstissued"
+					"Uri": "stidentifier"
 				}
 			]
 			
@@ -79,24 +129,33 @@ let private sampleConfig = """
 """
 
 let private expected_Jsonld = [
-  "http://schema/ns/qualitystandard/conditionordisease.jsonld "
-  "http://schema/ns/qualitystandard/setting.jsonld "
   "http://schema/ns/qualitystandard.jsonld "
+  "http://schema/ns/qualitystandard/conditionordisease.jsonld "
+  "http://schema/ns/qualitystandard/agegroup.jsonld "
+  "http://schema/ns/qualitystandard/lifestylecondition.jsonld "
+  "http://schema/ns/qualitystandard/setting.jsonld "
+  "http://schema/ns/qualitystandard/servicearea.jsonld "
 ]
 
 let private expected_Ttl = [
-  "http://schema/ns/qualitystandard/conditionordisease.ttl"
-  "http://schema/ns/qualitystandard/setting.ttl"
   "http://schema/ns/qualitystandard.ttl"
+  "http://schema/ns/qualitystandard/agegroup.ttl"
+  "http://schema/ns/qualitystandard/conditionordisease.ttl"
+  "http://schema/ns/qualitystandard/lifestylecondition.ttl"
+  "http://schema/ns/qualitystandard/setting.ttl"
+  "http://schema/ns/qualitystandard/servicearea.ttl"
 ]
 
-let private expected_PPath = [
+let private expected_PPath = [ 
+  "<http://ld.nice.org.uk/ns/qualitystandard#age>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#age>/rdfs:subClassOf*" 
   "<http://ld.nice.org.uk/ns/qualitystandard#condition>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#condition>/rdfs:subClassOf*" 
-  "<http://ld.nice.org.uk/ns/qualitystandard#setting>/^rdfs:subClassOf*"
+  "<http://ld.nice.org.uk/ns/qualitystandard#setting>/^rdfs:subClassOf*" 
+  "<http://ld.nice.org.uk/ns/qualitystandard#servicearea>/^rdfs:subClassOf*" 
+  "<http://ld.nice.org.uk/ns/qualitystandard#lifestylecondition>/^rdfs:subClassOf*" 
   "<http://ld.nice.org.uk/ns/qualitystandard#title>" 
   "<http://ld.nice.org.uk/ns/qualitystandard#abstract>" 
-  "<http://ld.nice.org.uk/ns/qualitystandard#positionalid>" 
-  "<http://ld.nice.org.uk/ns/qualitystandard#firstissued>"
+  "<http://ld.nice.org.uk/ns/qualitystandard#qsidentifier>" 
+  "<http://ld.nice.org.uk/ns/qualitystandard#stidentifier>"
 ]
 
 // For Test ``Should return the full expected RDF Arguments details``
@@ -119,25 +178,25 @@ let CompareLists e a =
 
 [<Test>]
 let ``When I have a json string containing my ontology config it should parse into a compiler.OntologyConfig instance`` () =
-  let config = GetConfig sampleConfig
+  let config = DeserializeConfig sampleConfig
 
   config.SchemaBase |> should equal "http://schema/ns/"
 
 [<Test>]
 let ``Should return all but only the expected jsonld file paths`` () =
-  let result:string list = GetJsonLdContext (GetConfig sampleConfig)
+  let result:string list = GetJsonLdContext (DeserializeConfig sampleConfig)
 
   CompareLists expected_Jsonld result |> should equal ""
 
 [<Test>]
 let ``Should return all but only the expected schema ttl file paths`` () =
-  let result = GetSchemaTtl (GetConfig sampleConfig)
+  let result = GetSchemaTtl (DeserializeConfig sampleConfig)
 
   CompareLists expected_Ttl result |> should equal ""
 
 [<Test>]
 let ``Should return all but only the expected property paths URIs`` () =
-  let result = GetPropPaths (GetConfig sampleConfig)
+  let result = GetPropPaths (DeserializeConfig sampleConfig)
 
   CompareLists expected_PPath result |> should equal ""
 
