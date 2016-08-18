@@ -24,4 +24,3 @@ let prepare inputDir outputDir dbName dbUser dbPass schemas =
   [inputDir; outputDir] |> Seq.iter tryClean
   Stardog.deleteDb dbName dbUser dbPass
   Stardog.createDb dbName
-  downloadSchema schemas outputDir

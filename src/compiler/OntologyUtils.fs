@@ -16,36 +16,40 @@ let GetConfigFromFile file =
   else
     ""
 
-let DeserializeConfig jsonString =
+let deserializeConfig jsonString =
   let ret = JsonConvert.DeserializeObject<OntologyConfig>(jsonString)
   ret
 
-let GetJsonLdContext oc =
+let ReadConfigFile fullpath =
+  let ret = readHandle {Thing = fullpath; Content = ""}
+  deserializeConfig ret.Content
+
+let getJsonLdContext oc =
   oc.SchemaDetails
     |> List.map (fun f -> (sprintf "%s%s" oc.SchemaBase f.JsonLD))
 
-let GetSchemaTtl oc =
+let getSchemaTtl oc =
   oc.SchemaDetails
     |> List.map (fun f -> (sprintf "%s%s" oc.SchemaBase f.Schema))
 
-let rec ConcatDelimit (list:string List) delimiter =
+let rec concatDelimit (list:string List) delimiter =
   if list = [] then
     ()
   if list.Length = 1 then
     list.Head
   else
-    sprintf "%s%s%s" list.Head delimiter (ConcatDelimit list.Tail delimiter)
+    sprintf "%s%s%s" list.Head delimiter (concatDelimit list.Tail delimiter)
 
-let GetPathWithSubclass urlBase qsBase p = 
-  ConcatDelimit (p.PropertyPath |> List.map (fun pp -> (sprintf "<%s%s#%s>/%s" urlBase qsBase p.Uri pp))) "|"
+let getPathWithSubclass urlBase qsBase p = 
+  concatDelimit (p.PropertyPath |> List.map (fun pp -> (sprintf "<%s%s#%s>/%s" urlBase qsBase p.Uri pp))) "|"
 
-let GetPropPaths oc =
+let getPropPaths oc =
   oc.SchemaDetails
     |> List.map (fun f -> (f.Publish 
                              |> List.map (fun p -> (if obj.ReferenceEquals(p.PropertyPath, null) then
                                                       sprintf "<%s%s#%s>" oc.UrlBase oc.QSBase p.Uri
                                                     else
-                                                       GetPathWithSubclass oc.UrlBase oc.QSBase p))))
+                                                       getPathWithSubclass oc.UrlBase oc.QSBase p))))
     |> List.concat
 
 let getGetMmKey s (l:string) =
@@ -53,7 +57,7 @@ let getGetMmKey s (l:string) =
     |true -> s
     |_ -> l.ToLower().Replace(" ","")
 
-let GetVocabList oc =
+let getVocabList oc =
   oc.SchemaDetails
     |> List.filter (fun x -> x.Map)
     |> List.map (fun f -> (f.Publish 
@@ -61,12 +65,12 @@ let GetVocabList oc =
                              |> List.map (fun p -> (getGetMmKey p.Uri p.Label, sprintf "%s%s#%s" oc.UrlBase oc.QSBase p.Uri))))
     |> List.concat
 
-let GetVocabMap oc =
-  GetVocabList oc
+let getVocabMap oc =
+  getVocabList oc
     |> List.map (fun p -> (fst p, Uri.from(snd p)))
     |> Map.ofList
 
-let GetTermList oc =
+let getTermList oc =
     oc.SchemaDetails
     |> List.filter (fun x -> x.Map)
     |> List.map (fun f -> (f.Publish 
@@ -75,8 +79,8 @@ let GetTermList oc =
 
     |> List.concat
 
-let GetTermMap oc =
-  GetTermList oc
+let getTermMap oc =
+  getTermList oc
     |> List.map (fun t -> (fst t, vocabLookup(snd t)))
     |> Map.ofList
 
@@ -86,10 +90,6 @@ let GetBaseUrl oc =
 let GetRdfArgs oc =
   {
     BaseUrl = GetBaseUrl oc
-    VocabMap = GetVocabMap oc
-    TermMap = GetTermMap oc
+    VocabMap = getVocabMap oc
+    TermMap = getTermMap oc
   }
-
-let ReadConfigFile fullpath =
-  let ret = readHandle {Thing = fullpath; Content = ""}
-  DeserializeConfig ret.Content
