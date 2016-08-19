@@ -36,14 +36,32 @@ let private extractAnnotations (markdown:MarkdownDocument) =
 
 let private convertToVocab {Name = name; Fields = fields} = {Vocab = name; Terms = fields}
 
-let private HandleNoPositionalIdAnnotationError =
-  printfn "[Error] A statement was missing the PositionalId annotation"
+let private HandleAnnotationError annotation state =
+  match state with
+    | "Invalid" -> printfn "[Error] A statement had an invalid value for the %s annotation" annotation
+    | "Missing" -> printfn "[Error] A statement was missing the %s annotation" annotation
+    | _ -> printfn "[Error] An error (%s) was encountered processing a stement with the %s annotation" state annotation
   ""
 
 let private extractQSandSTNumbers annotation =
+  let PositionIdError = HandleAnnotationError "PositionalId"
   match annotation with
     | Some annotation -> annotation.Terms.Head.Replace("-", "/")
-    | None -> HandleNoPositionalIdAnnotationError
+    | None -> PositionIdError "Missing"
+
+let private validateDate (date:string) (inFormat:string) (outFormat:string) (raiseError:string -> string) =
+  if (obj.ReferenceEquals(date, null)=false && date.Length > 0) then
+    match System.DateTime.TryParseExact(date, inFormat, System.Globalization.CultureInfo.InvariantCulture,System.Globalization.DateTimeStyles.None) with
+      | true, x -> x.ToString(outFormat)
+      | _ ->  raiseError "Invalid"
+  else
+   raiseError "Missing"
+
+let private exctractFirstIssued annotation =
+  let FirstIssuedError = HandleAnnotationError "First Issued"
+  match annotation with
+    | Some annotation -> validateDate (annotation.Terms.Head) "dd-MM-yyyy" "MMMM yyyy" FirstIssuedError
+    | None -> FirstIssuedError "Missing"
 
 let private removeText (a:string) =
   a.Replace("qs","").Replace("st","")
@@ -70,15 +88,22 @@ let extractStatement (contentHandle, html) =
             |> extractQSandSTNumbers
 
   let standardId = (standardAndStatementNumbers id).[0] |> System.Int32.Parse
-  let statementId = (standardAndStatementNumbers id).[1] |> System.Int32.Parse 
+  let statementId = (standardAndStatementNumbers id).[1] |> System.Int32.Parse
+
+  let firstIssued = annotations
+                      |> List.tryFind(fun x -> x.Vocab.Equals("First Issued"))
+                      |> exctractFirstIssued
 
   let title = sprintf "Quality statement %d from quality standard %d" statementId standardId
 
-  {Id = contentHandle.Thing
-   Title = title 
-   Abstract = abs 
-   StandardId = standardId
-   StatementId = statementId
-   Annotations = annotations
-   Content = contentHandle.Content
-   Html = html}
+  {
+    Id = contentHandle.Thing
+    Title = title 
+    Abstract = abs 
+    StandardId = standardId
+    StatementId = statementId
+    FirstIssued = firstIssued
+    Annotations = annotations
+    Content = contentHandle.Content
+    Html = html
+  }

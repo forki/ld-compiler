@@ -13,6 +13,8 @@ let content = """
 ```
 PositionalId:
   - "qs1-st2"
+First Issued:
+  - "01-10-2010"
 Vocab:
   - "Term"
 ```
@@ -31,7 +33,28 @@ let sampleMarkdownContent = {
   Content = content.Replace(nl,"\n")
 }
 
-let contentNoPositionId = """
+let contentMandatoryMissing = """
+```
+PositionalId:
+First Issued:
+Vocab:
+  - "Term"
+```
+This is the title 
+----------------------------------------------
+
+### Abstract 
+
+This is the abstract with a [Link](http://somelinkhere.com).
+
+This is some content
+"""
+let sampleMarkdownMandatoryMissing = {
+//  Path = "qs2/st2/b17964c7-50d8-4f9d-b7b2-1ec0c039de77.md"
+  Thing = "b17964c7-50d8-4f9d-b7b2-1ec0c039de77"
+  Content = contentMandatoryMissing.Replace(nl,"\n")
+}
+let dodgyMarkdownContent = """
 ```
 Vocab:
   - "Term"
@@ -45,18 +68,30 @@ This is the abstract with a [Link](http://somelinkhere.com).
 
 This is some content
 """
-let sampleMarkdownWithoutPositionalId = {
+let dodgyMarkdown = {
 //  Path = "qs2/st2/b17964c7-50d8-4f9d-b7b2-1ec0c039de77.md"
   Thing = "b17964c7-50d8-4f9d-b7b2-1ec0c039de77"
-  Content = contentNoPositionId.Replace(nl,"\n")
+  Content = dodgyMarkdownContent.Replace(nl,"\n")
 }
 
-//DEFUNCT TEST
-//[<Test>]
-//let ``When markdown doesn't contain a PositionalId the extraction should return an empty string`` () =
-//  let statement = extractStatement (sampleMarkdownWithoutPositionalId, "")
-//
-//  statement.Id |> should equal ""
+[<Test>]
+let ``When markdown doesn't contain a PositionalId the extraction should return zero Standard and Statement Ids`` () =
+  let statement = extractStatement (sampleMarkdownMandatoryMissing, "")
+
+  statement.StandardId |> should equal 0
+  statement.StatementId |> should equal 0
+
+[<Test>]
+let ``When markdown doesn't contain a First Issued date should return an empty string`` () =
+  let statement = extractStatement (sampleMarkdownMandatoryMissing, "")
+
+  statement.FirstIssued |> should equal ""
+
+[<Test>]
+let ``When markdown does contain a First Issued date should return it in the display format`` () =
+  let statement = extractStatement (sampleMarkdownContent, "")
+
+  statement.FirstIssued |> should equal "October 2010"
 
 [<Test>]
 let ``Should extract the id from the markdown filename`` () =
