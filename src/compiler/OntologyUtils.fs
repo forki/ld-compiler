@@ -10,7 +10,7 @@ open compiler.RDF
 open compiler.Utils
 open System.Text
 
-let GetConfigFromFile file =
+let getConfigFromFile file =
   if File.Exists file then
     File.ReadAllText(file, Encoding.UTF8 )
   else
@@ -18,10 +18,6 @@ let GetConfigFromFile file =
 
 let deserializeConfig jsonString =
   JsonConvert.DeserializeObject<OntologyConfig>(jsonString)
-
-let ReadConfigFile fullpath =
-  let ret = readHandle {Thing = fullpath; Content = ""}
-  deserializeConfig ret.Content
 
 let getJsonLdContexts oc =
   oc.SchemaDetails
@@ -31,7 +27,7 @@ let getSchemaTtls oc =
   oc.SchemaDetails
     |> List.map (fun f -> (sprintf "%s%s" oc.SchemaBase f.Schema))
 
-let getPathWithSubclass urlBase qsBase p =
+let private getPathWithSubclass urlBase qsBase p =
   let delimiter = "|"
   let buildPropertyPathUri pp = sprintf "<%s%s#%s>/%s" urlBase qsBase p.Uri pp 
   let concatPropertyPaths acc prop = match acc with
@@ -42,12 +38,12 @@ let getPathWithSubclass urlBase qsBase p =
   |> List.fold concatPropertyPaths ""  
 
 let getPropPaths oc =
+  let buildSchemaDetails p = match obj.ReferenceEquals(p.PropertyPath, null) with
+                             | true ->  sprintf "<%s%s#%s>" oc.UrlBase oc.QSBase p.Uri
+                             | _ -> getPathWithSubclass oc.UrlBase oc.QSBase p
   oc.SchemaDetails
     |> List.map (fun f -> (f.Publish 
-                             |> List.map (fun p -> (if obj.ReferenceEquals(p.PropertyPath, null) then
-                                                      sprintf "<%s%s#%s>" oc.UrlBase oc.QSBase p.Uri
-                                                    else
-                                                       getPathWithSubclass oc.UrlBase oc.QSBase p))))
+                             |> List.map (fun p -> buildSchemaDetails p)))
     |> List.concat
 
 let private getGetMmKey s (l:string) =
@@ -55,30 +51,35 @@ let private getGetMmKey s (l:string) =
     |true -> s
     |_ -> l.ToLower().Replace(" ","")
 
-let getVocabList oc =
-  oc.SchemaDetails
+let rdf_getVocabMap oc =
+  let getMmkVocabList p =
+    p
+    |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
+    |> List.map (fun p -> (getGetMmKey p.Uri p.Label, sprintf "%s%s#%s" oc.UrlBase oc.QSBase p.Uri))
+
+  let getVocabList oc =
+    oc.SchemaDetails
     |> List.filter (fun x -> x.Map)
-    |> List.map (fun f -> (f.Publish 
-                             |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
-                             |> List.map (fun p -> (getGetMmKey p.Uri p.Label, sprintf "%s%s#%s" oc.UrlBase oc.QSBase p.Uri))))
+    |> List.map (fun f -> (f.Publish |> getMmkVocabList))
     |> List.concat
 
-let getVocabMap oc =
   getVocabList oc
     |> List.map (fun p -> (fst p, Uri.from(snd p)))
     |> Map.ofList
 
-let getTermList oc =
+let rdf_getTermMap oc =
+  let getTermPublishList pl schema =
+    pl
+    |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
+    |> List.filter (fun p -> p.PropertyPath.Length > 0)
+    |> List.map (fun p -> (getGetMmKey p.Uri p.Label, sprintf "%s%s" oc.SchemaBase schema)) 
+ 
+  let getTermList oc =
     oc.SchemaDetails
     |> List.filter (fun x -> x.Map)
-    |> List.map (fun f -> (f.Publish 
-                             |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
-                             |> List.filter (fun p -> p.PropertyPath.Length > 0)
-                             |> List.map (fun p -> (getGetMmKey p.Uri p.Label, sprintf "%s%s" oc.SchemaBase f.Schema))))
-
+    |> List.map (fun f -> getTermPublishList f.Publish f.Schema)
     |> List.concat
 
-let getTermMap oc =
   getTermList oc
     |> List.map (fun t -> (fst t, vocabLookup(snd t)))
     |> Map.ofList
@@ -89,12 +90,11 @@ let getBaseUrl oc =
 let getRdfArgs oc =
   {
     BaseUrl = getBaseUrl oc
-    VocabMap = getVocabMap oc
-    TermMap = getTermMap oc
+    VocabMap = rdf_getVocabMap oc
+    TermMap = rdf_getTermMap oc
   }
 
 let getAnnotatationValidations oc =
-
   oc.SchemaDetails
     |> List.filter (fun x -> x.Map=false)
     |> List.map (fun f -> (f.Publish 

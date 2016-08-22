@@ -34,7 +34,7 @@ let compileAndPublish ( fetchUrl:string ) () =
 
   let items = extractor.readAllContentItems ()
   let config = sprintf "%s/OntologyConfig.json" inputDir
-                     |> GetConfigFromFile
+                     |> getConfigFromFile
                      |> deserializeConfig
 
   downloadSchema (config |> getSchemaTtls) outputDir

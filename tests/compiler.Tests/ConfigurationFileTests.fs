@@ -216,42 +216,62 @@ let areListsTheSame e a =
   let diff = ((Set.difference se sa) + (Set.difference sa se)) |> Set.toList |> List.fold (+) ""
   diff |> should equal ""  
 
-[<Test>]
-let ``When I have a json string containing my ontology config it should parse into a compiler.OntologyConfig instance`` () =
-  let config = deserializeConfig sampleConfig
+//[<Test>]
+//let ``When I have a json string containing my ontology config it should parse into a compiler.OntologyConfig instance`` () =
+//  let config = deserializeConfig sampleConfig
+//
+//  config.SchemaBase |> should equal "http://schema/ns/"
+//
+//[<Test>]
+//let ``Should extract jsonld contexts from config`` () =
+//  let result:string list = deserializeConfig sampleConfig
+//                             |> getJsonLdContexts
+//
+//  areListsTheSame expected_Jsonld result
+//[<Test>]
+//let ``Should extract schema ttl from config`` () =
+//  let result = deserializeConfig sampleConfig
+//                 |> getSchemaTtls
+//
+//  areListsTheSame expected_Ttl result
+//
+//[<Test>]
+//let ``Should extract property paths from config`` () =
+//  let result = deserializeConfig sampleConfig
+//                 |> getPropPaths
+//
+//  areListsTheSame expected_PPath result
+//
+//[<Test>]
+//let ``Should extract vocab to property map from configs`` () =
+//  let result = deserializeConfig sampleConfig
+//                 |> getVocabList
+//                 |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
+//  let expected_Vocab_serialised = expected_Vocab_Property
+//                                    |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
+//
+//  areListsTheSame expected_Vocab_serialised result
 
-  config.SchemaBase |> should equal "http://schema/ns/"
+//[<Test>]
+//let ``Should extract vocab to terms map from configs`` () =
+//  let result = deserializeConfig sampleConfig
+//                 |> getTermList
+//                 |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
+//  let expected_TermMap_serialised = expected_Vocab_Terms
+//                                    |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
+//
+//  areListsTheSame expected_TermMap_serialised result
 
-[<Test>]
-let ``Should extract jsonld contexts from config`` () =
-  let result:string list = deserializeConfig sampleConfig
-                             |> getJsonLdContexts
+//// Need to build an integration test for the RDF Arguments
+//[<Test>]
+//let ``Should extract vocab to terms map from configs`` () =
+//  let result = deserializeConfig sampleConfig
+//                 |> getRdfArgs
+//                 |> JsonConvert.SerializeObject
+//  let expected_RdfArgs = "NEEDS CONSTRUCTING"
+//
+//  areListsTheSame [expected_RdfArgs] [result]
 
-  areListsTheSame expected_Jsonld result
-
-[<Test>]
-let ``Should extract schema ttl from config`` () =
-  let result = deserializeConfig sampleConfig
-                 |> getSchemaTtls
-
-  areListsTheSame expected_Ttl result
-
-[<Test>]
-let ``Should extract property paths from config`` () =
-  let result = deserializeConfig sampleConfig
-                 |> getPropPaths
-
-  areListsTheSame expected_PPath result
-
-[<Test>]
-let ``Should extract vocab to property map from configs`` () =
-  let result = deserializeConfig sampleConfig
-                 |> getVocabList
-                 |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
-  let expected_Vocab_serialised = expected_Vocab_Property
-                                    |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
-
-  areListsTheSame expected_Vocab_serialised result
 
 [<Test>]
 let ``Should read the expected BaseUrl from config`` () =
@@ -260,17 +280,7 @@ let ``Should read the expected BaseUrl from config`` () =
   |> should equal expected_BaseUrl
 
 [<Test>]
-let ``Should extract vocab to terms map from configs`` () =
-  let result = deserializeConfig sampleConfig
-                 |> getTermList
-                 |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
-  let expected_TermMap_serialised = expected_Vocab_Terms
-                                    |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
-
-  areListsTheSame expected_TermMap_serialised result
-
-[<Test>]
-let ``Should read all but only the expected annotation validarions`` () =
+let ``Should read the expected annotation validations from config`` () =
   let result = deserializeConfig sampleConfig
                  |> getAnnotatationValidations
                  |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
