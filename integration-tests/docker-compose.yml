@@ -1,5 +1,5 @@
 compiler:
-  image: nice/ld-compiler
+  image: nice/ld-compiler:dev
   links:
     - stardog
     - elastic:elastic
@@ -42,7 +42,7 @@ integrationtests:
     - elastic:elastic
     - resourceapi:resourceapi
   volumes:
-    - .:/compiler-src
+    - ../:/compiler-src
     - /artifacts:/artifacts
   command: sleep 10000000
   container_name: ldcompiler_integrationtests
