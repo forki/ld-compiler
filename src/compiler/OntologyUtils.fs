@@ -17,8 +17,7 @@ let GetConfigFromFile file =
     ""
 
 let deserializeConfig jsonString =
-  let ret = JsonConvert.DeserializeObject<OntologyConfig>(jsonString)
-  ret
+  JsonConvert.DeserializeObject<OntologyConfig>(jsonString)
 
 let ReadConfigFile fullpath =
   let ret = readHandle {Thing = fullpath; Content = ""}
@@ -32,16 +31,15 @@ let getSchemaTtl oc =
   oc.SchemaDetails
     |> List.map (fun f -> (sprintf "%s%s" oc.SchemaBase f.Schema))
 
-let rec concatDelimit (list:string List) delimiter =
-  if list = [] then
-    ()
-  if list.Length = 1 then
-    list.Head
-  else
-    sprintf "%s%s%s" list.Head delimiter (concatDelimit list.Tail delimiter)
-
-let getPathWithSubclass urlBase qsBase p = 
-  concatDelimit (p.PropertyPath |> List.map (fun pp -> (sprintf "<%s%s#%s>/%s" urlBase qsBase p.Uri pp))) "|"
+let getPathWithSubclass urlBase qsBase p =
+  let delimiter = "|"
+  let buildPropertyPathUri pp = sprintf "<%s%s#%s>/%s" urlBase qsBase p.Uri pp 
+  let concatPropertyPaths acc prop = match acc with
+                                     | "" -> prop
+                                     | _ -> sprintf "%s%s%s" acc delimiter prop
+  p.PropertyPath 
+  |> List.map buildPropertyPathUri
+  |> List.fold concatPropertyPaths ""  
 
 let getPropPaths oc =
   oc.SchemaDetails
@@ -52,7 +50,7 @@ let getPropPaths oc =
                                                        getPathWithSubclass oc.UrlBase oc.QSBase p))))
     |> List.concat
 
-let getGetMmKey s (l:string) =
+let private getGetMmKey s (l:string) =
     match obj.ReferenceEquals(l, null) with
     |true -> s
     |_ -> l.ToLower().Replace(" ","")
