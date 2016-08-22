@@ -16,7 +16,7 @@ docker build .
 ```
 
 # Running integration tests
-An integration test environment in created using docker-compose.  The integration tests are then run against this transient environment, which is destroyed after every run.
+A transient environment is created using docker-compose with the files in the integration-tests folder.  Integration tests are then run against this environment, which is destroyed after every run.
 
 First you must build the docker image locally:
 
