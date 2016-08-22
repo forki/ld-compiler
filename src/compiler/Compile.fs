@@ -27,12 +27,12 @@ let writeHtml outputDir statement =
 
   statement
 
-let compile extractor items rdfArgs baseUrl outputDir dbName = 
+let compile extractor items rdfArgs baseUrl annotationValidations outputDir dbName = 
 
   let compileItem =
     extractor.readContentForItem
     >> convertMarkdownToHtml 
-    >> extractStatement
+    >> extractStatement annotationValidations
     >> writeHtml outputDir
     >> transformToRDF rdfArgs
     >> transformToTurtle

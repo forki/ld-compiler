@@ -6,6 +6,7 @@ open compiler.YamlParser
 open System.Text.RegularExpressions
 open FSharp.Markdown
 open FSharp.Data
+open compiler.OntologyConfig
 
 let private extract pattern input =
   let m = Regex.Match(input,pattern) 
@@ -74,7 +75,20 @@ let private standardAndStatementNumbers id =
   | "" -> [|"0";"0"|]
   | _ -> id |> removeText |> splitPositionalId
 
-let extractStatement (contentHandle, html) =
+//let private evaluateValidation (validation, (vocabList:Annotation list)) =
+//  let raiseError = HandleAnnotationError validation.Uri
+//  if vocabList.IsEmpty && validation.Required then
+//    let a = raiseError "Missing"
+//  else
+    
+    
+
+let private findValidationVocab validation vocab =
+  let fvl = vocab
+            |> List.filter(fun v -> v.Vocab.ToLower().Replace(" ","") = validation.Uri)
+  (validation, fvl)
+
+let extractStatement (annotationValidations:PublishItem list) (contentHandle, html) =
   let markdown = Markdown.Parse(contentHandle.Content)
 
   let abs = extractAbstract html
@@ -82,17 +96,17 @@ let extractStatement (contentHandle, html) =
                     |> extractAnnotations 
                     |> parseYaml
                     |> List.map convertToVocab
-  
-  let id = annotations
-            |> List.tryFind (fun x -> x.Vocab.Equals("PositionalId"))
-            |> extractQSandSTNumbers
 
-  let standardId = (standardAndStatementNumbers id).[0] |> System.Int32.Parse
-  let statementId = (standardAndStatementNumbers id).[1] |> System.Int32.Parse
+//  let validation = annotationValidations
+//                     |> List.map (fun f -> findValidationVocab f annotations)
+//                     |> evaluateValidation
 
-  let firstIssued = annotations
-                      |> List.tryFind(fun x -> x.Vocab.Equals("First Issued"))
-                      |> exctractFirstIssued
+  let positionalId = annotations
+                       |> List.tryFind (fun x -> x.Vocab.Equals("PositionalId"))
+                       |> extractQSandSTNumbers
+
+  let standardId = (standardAndStatementNumbers positionalId).[0] |> System.Int32.Parse
+  let statementId = (standardAndStatementNumbers positionalId).[1] |> System.Int32.Parse
 
   let title = sprintf "Quality statement %d from quality standard %d" statementId standardId
 
@@ -102,7 +116,6 @@ let extractStatement (contentHandle, html) =
     Abstract = abs 
     StandardId = standardId
     StatementId = statementId
-    FirstIssued = firstIssued
     Annotations = annotations
     Content = contentHandle.Content
     Html = html

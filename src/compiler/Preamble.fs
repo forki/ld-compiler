@@ -20,7 +20,7 @@ let private tryClean dir =
   with ex -> ()
   Directory.CreateDirectory dir |> ignore
 
-let prepare inputDir outputDir dbName dbUser dbPass schemas = 
+let prepare inputDir outputDir dbName dbUser dbPass = 
   [inputDir; outputDir] |> Seq.iter tryClean
   Stardog.deleteDb dbName dbUser dbPass
   Stardog.createDb dbName

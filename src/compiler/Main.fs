@@ -22,15 +22,6 @@ let private dbName = "nice"
 let private dbUser = "admin"
 let private dbPass = "admin"
 
-//// These get pulled in from the config file ///////
-
-let mutable private baseUrl = "" 
-let mutable private propertyPaths:string list = []
-let mutable private jsonldContexts:string list = []
-let mutable private schemas:string list = []
-let mutable private indexName = ""
-let mutable private typeName = ""
-
 /////////////////////////////////////////////////////////////////
 
 let compileAndPublish ( fetchUrl:string ) () =
@@ -39,27 +30,17 @@ let compileAndPublish ( fetchUrl:string ) () =
     {readAllContentItems = Git.readAll (Uri.from fetchUrl)
      readContentForItem = Git.readOne}
 
-  prepare inputDir outputDir dbName dbUser dbPass schemas
+  prepare inputDir outputDir dbName dbUser dbPass
 
   let items = extractor.readAllContentItems ()
   let config = sprintf "%s/OntologyConfig.json" inputDir
                      |> GetConfigFromFile
                      |> deserializeConfig
-  
-  let rdfArgs = config |> getRdfArgs
 
-  baseUrl <- config |> getBaseUrl
+  downloadSchema (config |> getSchemaTtls) outputDir
 
-  propertyPaths <- config |> getPropPaths
-  jsonldContexts <- config |> getJsonLdContext
-  schemas <- config |> getSchemaTtl
-  indexName <- config.IndexName
-  typeName <- config.TypeName
+  compile extractor items (config |> getRdfArgs) (config |> getBaseUrl)  (config |> getAnnotatationValidations) outputDir dbName
 
-  downloadSchema schemas outputDir
-
-  compile extractor items rdfArgs baseUrl outputDir dbName
-
-  publish propertyPaths jsonldContexts outputDir indexName typeName 
+  publish (config |> getPropPaths) (config |> getJsonLdContexts) outputDir config.IndexName config.TypeName 
 
   printf "Knowledge base creation complete!\n"

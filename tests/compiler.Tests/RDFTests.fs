@@ -13,7 +13,6 @@ let defaultStatement = {
   Abstract = ""
   StandardId = 0
   StatementId = 0
-  FirstIssued = ""
   Annotations = []
   Content = ""
   Html = ""

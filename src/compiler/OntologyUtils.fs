@@ -23,11 +23,11 @@ let ReadConfigFile fullpath =
   let ret = readHandle {Thing = fullpath; Content = ""}
   deserializeConfig ret.Content
 
-let getJsonLdContext oc =
+let getJsonLdContexts oc =
   oc.SchemaDetails
     |> List.map (fun f -> (sprintf "%s%s" oc.SchemaBase f.JsonLD))
 
-let getSchemaTtl oc =
+let getSchemaTtls oc =
   oc.SchemaDetails
     |> List.map (fun f -> (sprintf "%s%s" oc.SchemaBase f.Schema))
 
@@ -73,6 +73,7 @@ let getTermList oc =
     |> List.filter (fun x -> x.Map)
     |> List.map (fun f -> (f.Publish 
                              |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
+                             |> List.filter (fun p -> p.PropertyPath.Length > 0)
                              |> List.map (fun p -> (getGetMmKey p.Uri p.Label, sprintf "%s%s" oc.SchemaBase f.Schema))))
 
     |> List.concat
@@ -91,3 +92,13 @@ let getRdfArgs oc =
     VocabMap = getVocabMap oc
     TermMap = getTermMap oc
   }
+
+let getAnnotatationValidations oc =
+
+  oc.SchemaDetails
+    |> List.filter (fun x -> x.Map=false)
+    |> List.map (fun f -> (f.Publish 
+                            |> List.filter (fun p -> p.Required=true)
+                        ))
+    |> List.concat
+

@@ -121,6 +121,19 @@ let private sampleConfig = """
 				},
 				{
 					"Uri": "stidentifier"
+				},
+                {
+					"Uri": "positionalid",
+					"Required": true,
+					"Format": "PositionalId",
+                    "PropertyPath": []
+				},
+				{
+					"Uri": "firstissued",
+					"Required": true,
+					"Format": "Date",
+					"OutFormatMask": "MMMM yyyy",
+                    "PropertyPath": []
 				}
 			]
 			
@@ -175,6 +188,25 @@ let private expected_Vocab_Terms = [
   "servicearea", "http://schema/ns/qualitystandard/servicearea.ttl"
 ]
 
+let private expected_AnnotationValidations = [
+  {
+    Uri= "positionalid"
+    Label=null
+    Required= true
+    Format= "PositionalId"
+    OutFormatMask=null
+    PropertyPath=[]
+  }
+  {
+    Uri= "firstissued"
+    Label=null
+    Required= true
+    Format= "Date"
+    OutFormatMask= "MMMM yyyy"
+    PropertyPath=[]
+  }
+]
+
 let private expected_BaseUrl = "http://ld.nice.org.uk/resource"
 
 let areListsTheSame e a =
@@ -193,14 +225,14 @@ let ``When I have a json string containing my ontology config it should parse in
 [<Test>]
 let ``Should extract jsonld contexts from config`` () =
   let result:string list = deserializeConfig sampleConfig
-                             |> getJsonLdContext
+                             |> getJsonLdContexts
 
   areListsTheSame expected_Jsonld result
 
 [<Test>]
 let ``Should extract schema ttl from config`` () =
   let result = deserializeConfig sampleConfig
-                 |> getSchemaTtl
+                 |> getSchemaTtls
 
   areListsTheSame expected_Ttl result
 
@@ -236,3 +268,15 @@ let ``Should extract vocab to terms map from configs`` () =
                                     |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
 
   areListsTheSame expected_TermMap_serialised result
+
+[<Test>]
+let ``Should read all but only the expected annotation validarions`` () =
+  let result = deserializeConfig sampleConfig
+                 |> getAnnotatationValidations
+                 |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
+
+  let expected_result = expected_AnnotationValidations
+                          |> List.map (fun x -> (JsonConvert.SerializeObject(x))) 
+
+  areListsTheSame expected_result result
+
