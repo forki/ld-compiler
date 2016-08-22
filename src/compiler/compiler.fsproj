@@ -206,6 +206,8 @@
     <Compile Include="YamlParser.fs" />
     <Compile Include="MarkdownParser.fs" />
     <Compile Include="RDF.fs" />
+    <Compile Include="OntologyConfig.fs" />
+    <Compile Include="OntologyUtils.fs" />
     <Compile Include="Turtle.fs" />
     <Compile Include="Stardog.fs" />
     <Compile Include="JsonLd.fs" />

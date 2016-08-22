@@ -27,8 +27,7 @@ let writeHtml outputDir statement =
 
   statement
 
-let compile extractor rdfArgs baseUrl outputDir dbName = 
-  let items = extractor.readAllContentItems ()
+let compile extractor items rdfArgs baseUrl outputDir dbName = 
 
   let compileItem =
     extractor.readContentForItem
