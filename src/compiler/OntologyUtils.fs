@@ -11,21 +11,20 @@ open compiler.Utils
 open System.Text
 
 let getConfigFromFile file =
-  if File.Exists file then
-    File.ReadAllText(file, Encoding.UTF8 )
-  else
-    ""
+  match File.Exists file with
+  | true -> File.ReadAllText(file, Encoding.UTF8 )
+  | _ -> ""
 
 let deserializeConfig jsonString =
   JsonConvert.DeserializeObject<OntologyConfig>(jsonString)
 
 let getJsonLdContexts oc =
   oc.SchemaDetails
-    |> List.map (fun f -> (sprintf "%s%s" oc.SchemaBase f.JsonLD))
+  |> List.map (fun f -> (sprintf "%s%s" oc.SchemaBase f.JsonLD))
 
 let getSchemaTtls oc =
   oc.SchemaDetails
-    |> List.map (fun f -> (sprintf "%s%s" oc.SchemaBase f.Schema))
+  |> List.map (fun f -> (sprintf "%s%s" oc.SchemaBase f.Schema))
 
 let private getPathWithSubclass urlBase qsBase p =
   let delimiter = "|"
@@ -42,9 +41,8 @@ let getPropPaths oc =
                              | true ->  sprintf "<%s%s#%s>" oc.UrlBase oc.QSBase p.Uri
                              | _ -> getPathWithSubclass oc.UrlBase oc.QSBase p
   oc.SchemaDetails
-    |> List.map (fun f -> (f.Publish 
-                             |> List.map (fun p -> buildSchemaDetails p)))
-    |> List.concat
+  |> List.map (fun f -> (f.Publish |> List.map (fun p -> buildSchemaDetails p)))
+  |> List.concat
 
 let private getGetMmKey s (l:string) =
     match obj.ReferenceEquals(l, null) with
@@ -68,7 +66,7 @@ let rdf_getVocabMap oc =
     |> Map.ofList
 
 let rdf_getTermMap oc =
-  let getTermPublishList pl schema =
+  let getTermPublishList pl schema = 
     pl
     |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
     |> List.filter (fun p -> p.PropertyPath.Length > 0)
@@ -81,8 +79,8 @@ let rdf_getTermMap oc =
     |> List.concat
 
   getTermList oc
-    |> List.map (fun t -> (fst t, vocabLookup(snd t)))
-    |> Map.ofList
+  |> List.map (fun t -> (fst t, vocabLookup(snd t)))
+  |> Map.ofList
 
 let getBaseUrl oc =
   sprintf "%s%s" oc.UrlBase oc.ThingBase
@@ -96,9 +94,7 @@ let getRdfArgs oc =
 
 let getAnnotatationValidations oc =
   oc.SchemaDetails
-    |> List.filter (fun x -> x.Map=false)
-    |> List.map (fun f -> (f.Publish 
-                            |> List.filter (fun p -> p.Required=true)
-                        ))
-    |> List.concat
+  |> List.filter (fun x -> x.Map=false)
+  |> List.map (fun f -> (f.Publish |> List.filter (fun p -> p.Required=true)))
+  |> List.concat
 

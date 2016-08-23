@@ -144,7 +144,7 @@ let ``Should extract the annotations from code block`` () =
 
   statement.Annotations |> should equal [{Vocab = "PositionalId";
                                           Terms = ["qs1-st2"];}; {Vocab = "First Issued";
-                                                                  Terms = ["01-10-2010"];}; {Vocab = "Vocab";
+                                                                  Terms = ["October 2010"];}; {Vocab = "Vocab";
                                                                                              Terms = ["Term"];}]
 
 [<Test>]

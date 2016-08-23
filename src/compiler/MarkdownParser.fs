@@ -32,38 +32,36 @@ let private extractAbstract (html:string) =
 let private extractAnnotations (markdown:MarkdownDocument) = 
   let found = Seq.item 0 markdown.Paragraphs
   match found with
-    | CodeBlock (text,_,_) -> text
-    | _ -> ""
+  | CodeBlock (text,_,_) -> text
+  | _ -> ""
 
-let private convertToVocab {Name = name; Fields = fields} = {Vocab = name; Terms = fields}
-
-let private HandleAnnotationError annotation state =
+let private raiseError annotation state =
   match state with
-    | "Invalid" -> printfn "[Error] A statement had an invalid value for the %s annotation" annotation
-    | "Missing" -> printfn "[Error] A statement was missing the %s annotation" annotation
-    | _ -> printfn "[Error] An error (%s) was encountered processing a stement with the %s annotation" state annotation
+  | "Invalid" -> printfn "[Error] A statement had an invalid value for the %s annotation" annotation
+  | "Blank" -> printfn "[Error] A statement had a blank value for the %s annotation" annotation
+  | "Missing" -> printfn "[Error] A statement was missing the %s annotation" annotation
+  | _ -> printfn "[Error] An error (%s) was encountered processing a stement with the %s annotation" state annotation
   ""
 
 let private extractQSandSTNumbers annotation =
-  let PositionIdError = HandleAnnotationError "PositionalId"
+  let PositionIdError = raiseError "PositionalId"
   match annotation with
-    | Some annotation -> annotation.Terms.Head.Replace("-", "/")
-    | None -> PositionIdError "Missing"
+  | Some annotation -> annotation.Terms.Head.Replace("-", "/")
+  | None -> PositionIdError "Missing"
 
 let private validateDate (date:string) (inFormat:string) (outFormat:string) (raiseError:string -> string) =
   if (obj.ReferenceEquals(date, null)=false && date.Length > 0) then
     match System.DateTime.TryParseExact(date, inFormat, System.Globalization.CultureInfo.InvariantCulture,System.Globalization.DateTimeStyles.None) with
-      | true, x -> x.ToString(outFormat)
-      | _ ->  raiseError "Invalid"
+    | true, x -> x.ToString(outFormat)
+    | _ ->  raiseError "Invalid"
   else
    raiseError "Missing"
 
-let private exctractFirstIssued annotation =
-  let FirstIssuedError = HandleAnnotationError "First Issued"
-  match annotation with
-    | Some annotation -> validateDate (annotation.Terms.Head) "dd-MM-yyyy" "MMMM yyyy" FirstIssuedError
-    | None -> FirstIssuedError "Missing"
+let private processDate name field outFormat =
+  let raiseDateError = raiseError name
 
+  validateDate (field) "dd-MM-yyyy" outFormat raiseDateError
+ 
 let private removeText (a:string) =
   a.Replace("qs","").Replace("st","")
 
@@ -75,18 +73,40 @@ let private standardAndStatementNumbers id =
   | "" -> [|"0";"0"|]
   | _ -> id |> removeText |> splitPositionalId
 
-//let private evaluateValidation (validation, (vocabList:Annotation list)) =
-//  let raiseError = HandleAnnotationError validation.Uri
-//  if vocabList.IsEmpty && validation.Required then
-//    let a = raiseError "Missing"
-//  else
-    
-    
+let processField validation field =
+  match validation.Format with
+  | "Date" -> processDate validation.Uri field validation.OutFormatMask
+  | "PositionalId" -> field // Add a PositionalId validation line
+  | _ -> field
 
-let private findValidationVocab validation vocab =
-  let fvl = vocab
-            |> List.filter(fun v -> v.Vocab.ToLower().Replace(" ","") = validation.Uri)
-  (validation, fvl)
+let private processFields validation fields =
+  fields |> List.map (fun f -> processField validation f) 
+
+let private convertToVocabValidate validationList section =
+  let validation = validationList |> List.filter (fun v -> v.Uri.ToLower().Replace(" ","") = section.Name.ToLower().Replace(" ",""))
+  let multiMatch =
+    raiseError section.Name "Configuration File: Multiple Validations" |> ignore
+    { Vocab = section.Name; Terms = [] }
+
+  match validation.Length with
+  | 0 -> { Vocab = section.Name; Terms = section.Fields }
+  | 1 -> { Vocab = section.Name; Terms = (section.Fields |> processFields validation.Head) }
+  | _ -> multiMatch
+
+let private validateAnnotationExists (annotations:Section List) mandatoryValidation =
+  let a = annotations |> List.filter (fun a -> a.Name.ToLower().Replace(" ","") = mandatoryValidation.Uri.ToLower().Replace(" ",""))
+  
+  match a.Length with
+  | 0 -> raiseError mandatoryValidation.Uri "Missing"
+  | _ -> match a.Head.Fields.Length with
+         | 0 -> raiseError mandatoryValidation.Uri "Blank"
+         | _ -> ""
+   
+let private validateMandatoryAnnotations validations (annotations:Section List) = 
+  validations |> List.filter (fun v -> v.Required)
+              |> List.map (fun v -> validateAnnotationExists annotations v)
+              |> ignore
+  annotations
 
 let extractStatement (annotationValidations:PublishItem list) (contentHandle, html) =
   let markdown = Markdown.Parse(contentHandle.Content)
@@ -95,15 +115,13 @@ let extractStatement (annotationValidations:PublishItem list) (contentHandle, ht
   let annotations = markdown
                     |> extractAnnotations 
                     |> parseYaml
-                    |> List.map convertToVocab
-
-//  let validation = annotationValidations
-//                     |> List.map (fun f -> findValidationVocab f annotations)
-//                     |> evaluateValidation
-
+                    |> validateMandatoryAnnotations annotationValidations
+                    |> List.map (fun section -> convertToVocabValidate annotationValidations section)
+                    |> List.filter (fun a -> a.Terms.Length > 0)
+                    
   let positionalId = annotations
-                       |> List.tryFind (fun x -> x.Vocab.Equals("PositionalId"))
-                       |> extractQSandSTNumbers
+                     |> List.tryFind (fun x -> x.Vocab.Equals("PositionalId"))
+                     |> extractQSandSTNumbers
 
   let standardId = (standardAndStatementNumbers positionalId).[0] |> System.Int32.Parse
   let statementId = (standardAndStatementNumbers positionalId).[1] |> System.Int32.Parse
