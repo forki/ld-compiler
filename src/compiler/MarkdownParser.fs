@@ -73,10 +73,28 @@ let private standardAndStatementNumbers id =
   | "" -> [|"0";"0"|]
   | _ -> id |> removeText |> splitPositionalId
 
+let validatePositionalId (posnId:string) =
+  let posnIdError = raiseError "PositionalId"
+
+  let valid (prefix:string) (part:string) =
+    let compare = sprintf "%s%s" prefix (part.Replace(prefix,""))
+    System.String.Equals(compare, part)
+
+  let validateParts qs st =
+    match (valid "qs" qs) && (valid "st" st) with
+    | true -> sprintf "%s-%s" qs st
+    | _ -> posnIdError "Invalid"
+
+  let idParts = posnId.Split [|'-'|] |> Array.toList
+
+  match idParts.Length with
+  | 2 -> validateParts (idParts |> List.head) (idParts |> List.tail |> List.head)
+  | _ -> posnIdError "Invalid"
+  
 let processField validation field =
   match validation.Format with
   | "Date" -> processDate validation.Uri field validation.OutFormatMask
-  | "PositionalId" -> field // Add a PositionalId validation line
+  | "PositionalId" -> validatePositionalId field
   | _ -> field
 
 let private processFields validation fields =
@@ -90,7 +108,7 @@ let private convertToVocabValidate validationList section =
 
   match validation.Length with
   | 0 -> { Vocab = section.Name; Terms = section.Fields }
-  | 1 -> { Vocab = section.Name; Terms = (section.Fields |> processFields validation.Head) }
+  | 1 -> { Vocab = section.Name; Terms = (section.Fields |> processFields validation.Head |> List.filter (fun f -> f.Length > 0 )) }
   | _ -> multiMatch
 
 let private validateAnnotationExists (annotations:Section List) mandatoryValidation =

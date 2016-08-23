@@ -16,6 +16,8 @@ PositionalId:
   - "qs1-st2"
 First Issued:
   - "01-10-2010"
+NotRequired:
+  - "01-11-2000"
 Vocab:
   - "Term"
 ```
@@ -54,6 +56,54 @@ let sampleMarkdownMandatoryMissing = {
   Content = contentMandatoryMissing.Replace(nl,"\n")
 }
 
+let contentMandatoryEmpty = """
+```
+PositionalId:
+First Issued:
+Vocab:
+  - "Term"
+```
+This is the title 
+----------------------------------------------
+
+### Abstract 
+
+This is the abstract with a [Link](http://somelinkhere.com).
+
+This is some content
+"""
+let sampleMarkdownMandatoryEmpty = {
+//  Path = "qs2/st2/b17964c7-50d8-4f9d-b7b2-1ec0c039de77.md"
+  Thing = "b17964c7-50d8-4f9d-b7b2-1ec0c039de77"
+  Content = contentMandatoryEmpty.Replace(nl,"\n")
+}
+
+let contentMandatoryInvalid = """
+```
+PositionalId:
+  - "st2-qs1"
+First Issued:
+  - "Invalid"
+NotRequired:
+  - "Invalid"
+Vocab:
+  - "Term"
+```
+This is the title 
+----------------------------------------------
+
+### Abstract 
+
+This is the abstract with a [Link](http://somelinkhere.com).
+
+This is some content
+"""
+let sampleMarkdownMandatoryInvalid = {
+//  Path = "qs2/st2/b17964c7-50d8-4f9d-b7b2-1ec0c039de77.md"
+  Thing = "b17964c7-50d8-4f9d-b7b2-1ec0c039de77"
+  Content = contentMandatoryInvalid.Replace(nl,"\n")
+}
+
 let private annotationValidations = [
   {
     Uri= "positionalid"
@@ -71,15 +121,15 @@ let private annotationValidations = [
     OutFormatMask= "MMMM yyyy"
     PropertyPath=[]
   }
+  {
+    Uri= "notrequired"
+    Label=null
+    Required= false
+    Format= "Date"
+    OutFormatMask= "MMMM yyyy"
+    PropertyPath=[]
+  }
 ]
-
-
-//What about bad values?
-//eg.
-//PositionalId:
-//  - "1-2"
-//First Issued:
-//  - "October-2010"
 
 [<Test>]
 let ``When markdown doesn't contain a PositionalId the extraction should return zero Standard and Statement Ids`` () =
@@ -88,17 +138,30 @@ let ``When markdown doesn't contain a PositionalId the extraction should return 
   statement.StandardId |> should equal 0
   statement.StatementId |> should equal 0
 
-//[<Test>]
-//let ``When markdown doesn't contain a First Issued date should return an empty string`` () =
-//  let statement = extractStatement (sampleMarkdownMandatoryMissing, "")
-//
-//  statement.FirstIssued |> should equal ""
-//
-//[<Test>]
-//let ``When markdown does contain a First Issued date should return it in the display format`` () =
-//  let statement = extractStatement (sampleMarkdownContent, "")
-//
-//  statement.FirstIssued |> should equal "October 2010"
+[<Test>]
+let ``When markdown does not contain a required annotation it is not presented in the extracted annotations but any provided annotations are`` () =
+  let statement = extractStatement annotationValidations (sampleMarkdownMandatoryMissing, "")
+
+  statement.Annotations |> List.filter (fun a -> a.Vocab = "PositionalId") |> List.length |> should equal 0
+  statement.Annotations |> List.filter (fun a -> a.Vocab = "First Issued") |> List.length |> should equal 0
+  statement.Annotations |> List.filter (fun a -> a.Vocab = "Vocab") |> List.length |> should equal 1
+
+[<Test>]
+let ``When markdown does not contain values for required annotation it is not presented in the extracted annotations but any provided annotations are`` () =
+  let statement = extractStatement annotationValidations (sampleMarkdownMandatoryEmpty, "")
+
+  statement.Annotations |> List.filter (fun a -> a.Vocab = "PositionalId") |> List.length |> should equal 0
+  statement.Annotations |> List.filter (fun a -> a.Vocab = "First Issued") |> List.length |> should equal 0
+  statement.Annotations |> List.filter (fun a -> a.Vocab = "Vocab") |> List.length |> should equal 1
+
+[<Test>]
+let ``When markdown contain bad values for annotations it is not presented in the extracted annotations but any provided annotations are`` () =
+  let statement = extractStatement annotationValidations (sampleMarkdownMandatoryInvalid, "")
+
+  statement.Annotations |> List.filter (fun a -> a.Vocab = "PositionalId") |> List.length |> should equal 0
+  statement.Annotations |> List.filter (fun a -> a.Vocab = "First Issued") |> List.length |> should equal 0
+  statement.Annotations |> List.filter (fun a -> a.Vocab = "NotRequired") |> List.length |> should equal 0
+  statement.Annotations |> List.filter (fun a -> a.Vocab = "Vocab") |> List.length |> should equal 1
 
 [<Test>]
 let ``Should extract the id from the markdown filename`` () =
@@ -142,10 +205,12 @@ let ``Should extract the annotations from code block`` () =
   let statement = extractStatement annotationValidations (sampleMarkdownContent, "")
   printfn "%A" statement.Annotations
 
-  statement.Annotations |> should equal [{Vocab = "PositionalId";
-                                          Terms = ["qs1-st2"];}; {Vocab = "First Issued";
-                                                                  Terms = ["October 2010"];}; {Vocab = "Vocab";
-                                                                                             Terms = ["Term"];}]
+  statement.Annotations |> should equal [
+                                          {Vocab = "PositionalId"; Terms = ["qs1-st2"];};
+                                          {Vocab = "First Issued"; Terms = ["October 2010"];};
+                                          {Vocab = "NotRequired"; Terms = ["November 2000"];};
+                                          {Vocab = "Vocab"; Terms = ["Term"];}
+                                        ]
 
 [<Test>]
 let ``removeAnchors should remove multiple anchor tags on one line`` () =
