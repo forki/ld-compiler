@@ -29,7 +29,7 @@ Now run the following script:
 cd integration-tests
 sh run.sh
 ```
-
+NOTE: Don't worry if you see the error message: *"ERROR: Tag dev not found in repository docker.io/nice/ld-compiler"*.  This error is expected and doesn't affect the ability to run the tests.
 
 # Building a knowledge base for debugging
 There is a buildkb script that takes a git repo url and builds a knowledge base and leaves it up for inspecting/debugging. for example
