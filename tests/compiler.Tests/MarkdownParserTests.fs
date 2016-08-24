@@ -131,37 +131,33 @@ let private annotationValidations = [
   }
 ]
 
-[<Test>]
-let ``When markdown doesn't contain a PositionalId the extraction should return zero Standard and Statement Ids`` () =
-  let statement = extractStatement annotationValidations (sampleMarkdownMandatoryMissing, "")
-
-  statement.StandardId |> should equal 0
-  statement.StatementId |> should equal 0
 
 [<Test>]
-let ``When markdown does not contain a required annotation it is not presented in the extracted annotations but any provided annotations are`` () =
-  let statement = extractStatement annotationValidations (sampleMarkdownMandatoryMissing, "")
-
-  statement.Annotations |> List.filter (fun a -> a.Vocab = "PositionalId") |> List.length |> should equal 0
-  statement.Annotations |> List.filter (fun a -> a.Vocab = "First Issued") |> List.length |> should equal 0
-  statement.Annotations |> List.filter (fun a -> a.Vocab = "Vocab") |> List.length |> should equal 1
-
-[<Test>]
-let ``When markdown does not contain values for required annotation it is not presented in the extracted annotations but any provided annotations are`` () =
-  let statement = extractStatement annotationValidations (sampleMarkdownMandatoryEmpty, "")
-
-  statement.Annotations |> List.filter (fun a -> a.Vocab = "PositionalId") |> List.length |> should equal 0
-  statement.Annotations |> List.filter (fun a -> a.Vocab = "First Issued") |> List.length |> should equal 0
-  statement.Annotations |> List.filter (fun a -> a.Vocab = "Vocab") |> List.length |> should equal 1
+let ``When markdown does not contain a required annotation a 'missing annotation' exception is raised`` () =
+  let res = try
+              extractStatement annotationValidations (sampleMarkdownMandatoryMissing, "") |> ignore
+              ""
+            with
+            | Failure msg -> msg
+  res |> should equal "[Validation Error] Missing the positionalid annotation"
 
 [<Test>]
-let ``When markdown contain bad values for annotations it is not presented in the extracted annotations but any provided annotations are`` () =
-  let statement = extractStatement annotationValidations (sampleMarkdownMandatoryInvalid, "")
+let ``When markdown does not contain values for required annotationa 'missing annotation' exception is raised`` () =
+  let res = try
+              extractStatement annotationValidations (sampleMarkdownMandatoryMissing, "") |> ignore
+              ""
+            with
+            | Failure msg -> msg
+  res |> should equal "[Validation Error] Missing the positionalid annotation"
 
-  statement.Annotations |> List.filter (fun a -> a.Vocab = "PositionalId") |> List.length |> should equal 0
-  statement.Annotations |> List.filter (fun a -> a.Vocab = "First Issued") |> List.length |> should equal 0
-  statement.Annotations |> List.filter (fun a -> a.Vocab = "NotRequired") |> List.length |> should equal 0
-  statement.Annotations |> List.filter (fun a -> a.Vocab = "Vocab") |> List.length |> should equal 1
+[<Test>]
+let ``When markdown contain bad values for annotations an 'invalid annotation' exception is raised`` () =
+  let res = try
+              extractStatement annotationValidations (sampleMarkdownMandatoryInvalid, "") |> ignore
+              ""
+            with
+            | Failure msg -> msg
+  res |> should equal "[Validation Error] Invalid value for the PositionalId annotation"
 
 [<Test>]
 let ``Should extract the id from the markdown filename`` () =

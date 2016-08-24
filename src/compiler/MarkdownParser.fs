@@ -35,13 +35,13 @@ let private extractAnnotations (markdown:MarkdownDocument) =
   | CodeBlock (text,_,_) -> text
   | _ -> ""
 
-let private raiseError id annotation state =
+let private raiseError annotation state =
   match state with
-  | "Invalid" -> printfn "[Error] Statement %s had an invalid value for the %s annotation" id annotation
-  | "Blank" -> printfn "[Error] Statement %s had a blank value for the %s annotation" id annotation
-  | "Missing" -> printfn "[Error] Statement %s was missing the %s annotation" id annotation
-  | _ -> printfn "[Error] Statement %s encountered  an error (%s) while processing the %s annotation" id state annotation
-  ""
+  | "Invalid" -> sprintf "[Validation Error] Invalid value for the %s annotation" annotation
+  | "Blank" -> sprintf "[Validation Error] Blank value for the %s annotation" annotation
+  | "Missing" -> sprintf "[Validation Error] Missing the %s annotation" annotation
+  | _ -> sprintf "[Validation Error] Error (%s) encountered while processing the %s annotation" state annotation
+  |> failwith
 
 let private extractQSandSTNumbers annotation =
   match annotation with
@@ -56,8 +56,8 @@ let private validateDate (date:string) (inFormat:string) (outFormat:string) (rai
   else
    raiseError "Missing"
 
-let private processDate validationException name field outFormat =
-  let raiseDateError = validationException name
+let private processDate name field outFormat =
+  let raiseDateError = raiseError name
 
   validateDate (field) "dd-MM-yyyy" outFormat raiseDateError
  
@@ -72,8 +72,8 @@ let private standardAndStatementNumbers id =
   | "" -> [|"0";"0"|]
   | _ -> id |> removeText |> splitPositionalId
 
-let validatePositionalId validationException (posnId:string) =
-  let posnIdError = validationException "PositionalId"
+let validatePositionalId (posnId:string) =
+  let posnIdError = raiseError "PositionalId"
 
   let valid (prefix:string) (part:string) =
     let compare = sprintf "%s%s" prefix (part.Replace(prefix,""))
@@ -90,47 +90,46 @@ let validatePositionalId validationException (posnId:string) =
   | 2 -> validateParts (idParts |> List.head) (idParts |> List.tail |> List.head)
   | _ -> posnIdError "Invalid"
   
-let processField validationException validation field =
+let processField validation field =
   match validation.Format with
-  | "Date" -> processDate validationException validation.Uri field validation.OutFormatMask
-  | "PositionalId" -> validatePositionalId validationException field
+  | "Date" -> processDate validation.Uri field validation.OutFormatMask
+  | "PositionalId" -> validatePositionalId field
   | _ -> field
 
-let private processFields validationException validation fields =
-  fields |> List.map (fun f -> processField validationException validation f) 
+let private processFields validation fields =
+  fields |> List.map (fun f -> processField validation f) 
 
-let private convertToVocabValidate validationException validationList section =
+let private convertToVocabValidate validationList section =
   let validation = validationList |> List.filter (fun v -> v.Uri.ToLower().Replace(" ","") = section.Name.ToLower().Replace(" ",""))
 
   match validation.Length with
   | 0 -> { Vocab = section.Name; Terms = section.Fields }
-  | _ -> { Vocab = section.Name; Terms = (section.Fields |> processFields validationException validation.Head |> List.filter (fun f -> f.Length > 0 )) }
+  | _ -> { Vocab = section.Name; Terms = (section.Fields |> processFields validation.Head |> List.filter (fun f -> f.Length > 0 )) }
 
-let private validateAnnotationExists validationException (annotations:Section List) mandatoryValidation =
+let private validateAnnotationExists (annotations:Section List) mandatoryValidation =
   let a = annotations |> List.filter (fun a -> a.Name.ToLower().Replace(" ","") = mandatoryValidation.Uri.ToLower().Replace(" ",""))
   
   match a.Length with
-  | 0 -> validationException mandatoryValidation.Uri "Missing"
+  | 0 -> raiseError mandatoryValidation.Uri "Missing"
   | _ -> match a.Head.Fields.Length with
-         | 0 -> validationException mandatoryValidation.Uri "Blank"
+         | 0 -> raiseError mandatoryValidation.Uri "Blank"
          | _ -> ""
    
-let private validateMandatoryAnnotations validationException validations (annotations:Section List) = 
+let private validateMandatoryAnnotations validations (annotations:Section List) = 
   validations |> List.filter (fun v -> v.Required)
-              |> List.map (fun v -> validateAnnotationExists validationException annotations v)
+              |> List.map (fun v -> validateAnnotationExists annotations v)
               |> ignore
   annotations
 
 let extractStatement (annotationValidations:PublishItem list) (contentHandle, html) =
   let markdown = Markdown.Parse(contentHandle.Content)
-  let validationException = raiseError contentHandle.Thing
 
   let abs = extractAbstract html
   let annotations = markdown
                     |> extractAnnotations 
                     |> parseYaml
-                    |> validateMandatoryAnnotations validationException annotationValidations
-                    |> List.map (fun section -> convertToVocabValidate validationException annotationValidations section)
+                    |> validateMandatoryAnnotations annotationValidations
+                    |> List.map (fun section -> convertToVocabValidate annotationValidations section)
                     |> List.filter (fun a -> a.Terms.Length > 0)
                     
   let positionalId = annotations
