@@ -30,7 +30,7 @@ let private runProcess cmd ( stdInContent:string ) args =
   let stdErr = proc.StandardError.ReadToEnd()
   let stdOut = proc.StandardOutput.ReadToEnd()
   if stdErr <> "" then
-    printf "[ERROR] Pandoc: %s\n" stdErr
+    printfn "[ERROR] Pandoc: %s\n" stdErr
   stdOut
 
 
@@ -38,7 +38,7 @@ let private buildPandocArgs () =
   sprintf "-f markdown -t html5" 
 
 let convertMarkdownToHtml contentHandle =
-  printf "Converting statement %s to Html" contentHandle.Thing
+  printfn "Converting statement %s to Html" contentHandle.Thing
   let html = runProcess "pandoc" contentHandle.Content (buildPandocArgs())
 
   (contentHandle, html)
