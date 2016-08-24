@@ -282,7 +282,7 @@ let ``Should read the expected BaseUrl from config`` () =
 [<Test>]
 let ``Should read the expected annotation validations from config`` () =
   let result = deserializeConfig sampleConfig
-                 |> getAnnotatationValidations
+                 |> getAnnotationValidations
                  |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
 
   let expected_result = expected_AnnotationValidations

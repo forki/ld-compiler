@@ -39,7 +39,7 @@ let compileAndPublish ( fetchUrl:string ) () =
 
   downloadSchema (config |> getSchemaTtls) outputDir
 
-  compile extractor items (config |> getRdfArgs) (config |> getBaseUrl)  (config |> getAnnotatationValidations) outputDir dbName
+  compile extractor items (config |> getRdfArgs) (config |> getBaseUrl)  (config |> getAnnotationValidations) outputDir dbName
 
   publish (config |> getPropPaths) (config |> getJsonLdContexts) outputDir config.IndexName config.TypeName 
 

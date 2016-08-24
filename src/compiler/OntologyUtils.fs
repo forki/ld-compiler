@@ -18,13 +18,13 @@ let getConfigFromFile file =
 let deserializeConfig jsonString =
   JsonConvert.DeserializeObject<OntologyConfig>(jsonString)
 
-let getJsonLdContexts oc =
-  oc.SchemaDetails
-  |> List.map (fun f -> (sprintf "%s%s" oc.SchemaBase f.JsonLD))
+let getJsonLdContexts config =
+  config.SchemaDetails
+  |> List.map (fun f -> (sprintf "%s%s" config.SchemaBase f.JsonLD))
 
-let getSchemaTtls oc =
-  oc.SchemaDetails
-  |> List.map (fun f -> (sprintf "%s%s" oc.SchemaBase f.Schema))
+let getSchemaTtls config =
+  config.SchemaDetails
+  |> List.map (fun f -> (sprintf "%s%s" config.SchemaBase f.Schema))
 
 let private getPathWithSubclass urlBase qsBase p =
   let delimiter = "|"
@@ -36,11 +36,11 @@ let private getPathWithSubclass urlBase qsBase p =
   |> List.map buildPropertyPathUri
   |> List.fold concatPropertyPaths ""  
 
-let getPropPaths oc =
+let getPropPaths config =
   let buildSchemaDetails p = match obj.ReferenceEquals(p.PropertyPath, null) with
-                             | true ->  sprintf "<%s%s#%s>" oc.UrlBase oc.QSBase p.Uri
-                             | _ -> getPathWithSubclass oc.UrlBase oc.QSBase p
-  oc.SchemaDetails
+                             | true ->  sprintf "<%s%s#%s>" config.UrlBase config.QSBase p.Uri
+                             | _ -> getPathWithSubclass config.UrlBase config.QSBase p
+  config.SchemaDetails
   |> List.map (fun f -> (f.Publish |> List.map (fun p -> buildSchemaDetails p)))
   |> List.concat
 
@@ -49,51 +49,51 @@ let private getGetMmKey s (l:string) =
     |true -> s
     |_ -> l.ToLower().Replace(" ","")
 
-let rdf_getVocabMap oc =
+let rdf_getVocabMap config =
   let getMmkVocabList p =
     p
     |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
-    |> List.map (fun p -> (getGetMmKey p.Uri p.Label, sprintf "%s%s#%s" oc.UrlBase oc.QSBase p.Uri))
+    |> List.map (fun p -> (getGetMmKey p.Uri p.Label, sprintf "%s%s#%s" config.UrlBase config.QSBase p.Uri))
 
-  let getVocabList oc =
-    oc.SchemaDetails
+  let getVocabList config =
+    config.SchemaDetails
     |> List.filter (fun x -> x.Map)
     |> List.map (fun f -> (f.Publish |> getMmkVocabList))
     |> List.concat
 
-  getVocabList oc
+  getVocabList config
     |> List.map (fun p -> (fst p, Uri.from(snd p)))
     |> Map.ofList
 
-let rdf_getTermMap oc =
+let rdf_getTermMap config =
   let getTermPublishList pl schema = 
     pl
     |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
     |> List.filter (fun p -> p.PropertyPath.Length > 0)
-    |> List.map (fun p -> (getGetMmKey p.Uri p.Label, sprintf "%s%s" oc.SchemaBase schema)) 
+    |> List.map (fun p -> (getGetMmKey p.Uri p.Label, sprintf "%s%s" config.SchemaBase schema)) 
  
-  let getTermList oc =
-    oc.SchemaDetails
+  let getTermList config =
+    config.SchemaDetails
     |> List.filter (fun x -> x.Map)
     |> List.map (fun f -> getTermPublishList f.Publish f.Schema)
     |> List.concat
 
-  getTermList oc
+  getTermList config
   |> List.map (fun t -> (fst t, vocabLookup(snd t)))
   |> Map.ofList
 
-let getBaseUrl oc =
-  sprintf "%s%s" oc.UrlBase oc.ThingBase
+let getBaseUrl config =
+  sprintf "%s%s" config.UrlBase config.ThingBase
 
-let getRdfArgs oc =
+let getRdfArgs config =
   {
-    BaseUrl = getBaseUrl oc
-    VocabMap = rdf_getVocabMap oc
-    TermMap = rdf_getTermMap oc
+    BaseUrl = getBaseUrl config
+    VocabMap = rdf_getVocabMap config
+    TermMap = rdf_getTermMap config
   }
 
-let getAnnotatationValidations oc =
-  oc.SchemaDetails
+let getAnnotationValidations config =
+  config.SchemaDetails
   |> List.filter (fun x -> x.Map=false)
   |> List.map (fun f -> (f.Publish |> List.filter (fun p -> p.Required=true)))
   |> List.concat
