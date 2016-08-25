@@ -1,5 +1,6 @@
 ﻿module compiler.ValidationUtils
 
+open compiler.Domain
 open compiler.OntologyConfig
 
 // Generic raise error START
@@ -68,5 +69,5 @@ let private processYesNo name field =
 //  fields |> List.map (fun f -> processField validation f)
 
 // validateStatement - function used by Compiler
-let validateStatement validations statement =
+let validateStatement validations (statement:Statement) =
   statement

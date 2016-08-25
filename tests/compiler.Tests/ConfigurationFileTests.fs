@@ -6,10 +6,10 @@ open FsUnit
 open compiler.Utils
 open compiler.OntologyConfig
 open compiler.OntologyUtils
+open compiler.Test.TestUtilities
 open FSharp.Data
 open compiler.RDF
 open FSharp.RDF
-open Newtonsoft.Json
 
 let private sampleConfig = """
 {
@@ -209,13 +209,6 @@ let private expected_AnnotationValidations = [
 
 let private expected_BaseUrl = "http://ld.nice.org.uk/resource"
 
-let areListsTheSame e a =
-  let se = set e
-  let sa = set a
-
-  let diff = ((Set.difference se sa) + (Set.difference sa se)) |> Set.toList |> List.fold (+) ""
-  diff |> should equal ""  
-
 //[<Test>]
 //let ``When I have a json string containing my ontology config it should parse into a compiler.OntologyConfig instance`` () =
 //  let config = deserializeConfig sampleConfig
@@ -283,10 +276,6 @@ let ``Should read the expected BaseUrl from config`` () =
 let ``Should read the expected annotation validations from config`` () =
   let result = deserializeConfig sampleConfig
                  |> getAnnotatationValidations
-                 |> List.map (fun x -> (JsonConvert.SerializeObject(x)))
 
-  let expected_result = expected_AnnotationValidations
-                          |> List.map (fun x -> (JsonConvert.SerializeObject(x))) 
-
-  areListsTheSame expected_result result
+  areListsTheSame expected_AnnotationValidations result
 
