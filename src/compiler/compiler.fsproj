@@ -208,6 +208,7 @@
     <Compile Include="OntologyConfig.fs" />
     <Compile Include="OntologyUtils.fs" />
     <Compile Include="MarkdownParser.fs" />
+    <Compile Include="ValidationUtils.fs" />
     <Compile Include="Turtle.fs" />
     <Compile Include="Stardog.fs" />
     <Compile Include="JsonLd.fs" />
