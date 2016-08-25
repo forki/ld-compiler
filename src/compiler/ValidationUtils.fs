@@ -3,7 +3,6 @@
 open compiler.Domain
 open compiler.OntologyConfig
 
-// Generic raise error START
 let private raiseError annotation state =
   match state with
   | "Invalid" -> sprintf "[Validation Error] Invalid value for the %s annotation" annotation
@@ -11,11 +10,7 @@ let private raiseError annotation state =
   | "Missing" -> sprintf "[Validation Error] Missing the %s annotation" annotation
   | _ -> sprintf "[Validation Error] Error (%s) encountered while processing the %s annotation" state annotation
   |> failwith
-// Generic raise error END
 
-// Process Date START
-// Will validate & convert to appropriate format
-// Dates must be provided dd-MM-yyyy to be valid
 let private processDate name field outFormat =
   let validateDate (date:string) (inFormat:string) (outFormat:string) (raiseError:string -> string) =
     if (obj.ReferenceEquals(date, null)=false && date.Length > 0) then
@@ -27,9 +22,7 @@ let private processDate name field outFormat =
   let raiseDateError = raiseError name
 
   validateDate (field) "dd-MM-yyyy" outFormat raiseDateError
-// Process Date END
 
-// Vaidate PositionalId START
 let validatePositionalId (posnId:string) =
   let posnIdError = raiseError "PositionalId"
 
@@ -47,27 +40,48 @@ let validatePositionalId (posnId:string) =
   match idParts.Length with
   | 2 -> validateParts (idParts |> List.head) (idParts |> List.tail |> List.head)
   | _ -> posnIdError "Invalid"
-// PositionalId END
 
-// Validate YesNo START
-let private processYesNo name field =
-  let raiseYesNoError = raiseError name
-  match field with
-  | "yes" -> field
-  | "no" -> field
-  | _ -> raiseYesNoError (sprintf "%s is invalid for a YesNo annotation" field)
-// Validate YesNo END
+let validateValue validation value =
+  match validation.Format with
+  | "Date" -> processDate validation.Uri value validation.OutFormatMask
+  | "PositionalId" -> validatePositionalId value
+  | _ -> value
 
-//let processField validation field =
-//  match validation.Format with
-//  | "Date" -> processDate validation.Uri field validation.OutFormatMask
-//  | "YesNo" -> processYesNo validation.Uri field
-//  | "PositionalId" -> validatePositionalId field
-//  | _ -> field
-//
-//let private processFields validation fields =
-//  fields |> List.map (fun f -> processField validation f)
+let private validateMandatoryAnnotations validations annotations = 
+  let validateAnnotationExists annotations mandatoryValidation =
+    let a = annotations |> List.filter (fun a -> a.Vocab.ToLower().Replace(" ","") = mandatoryValidation.Uri.ToLower().Replace(" ",""))
+      
+    match a.Length with
+    | 0 -> raiseError mandatoryValidation.Uri "Missing"
+    | _ -> match a.Head.Vocab.Length with
+           | 0 -> raiseError mandatoryValidation.Uri "Blank"
+           | _ -> ()
 
-// validateStatement - function used by Compiler
+  validations |> List.filter (fun v -> v.Required)
+              |> List.map (fun v -> validateAnnotationExists annotations v)
+              |> ignore
+  annotations
+
+let private validateProvidedAnnotations validations annotations =
+  let validateAnnotation validations (annotation:Annotation) =
+    let relevantValidation = validations |> List.filter (fun v -> v.Uri.ToLower().Replace(" ","") = annotation.Vocab.ToLower().Replace(" ",""))
+    match relevantValidation.Length with
+    | 0 -> annotation
+    | _ -> { Vocab = annotation.Vocab; Terms = annotation.Terms |> List.map (fun t -> validateValue relevantValidation.Head t) }
+
+  annotations |> List.map (fun a -> validateAnnotation validations a)
+
 let validateStatement validations (statement:Statement) =
-  statement
+  {
+    Id = statement.Id
+    Title = statement.Title
+    Abstract = statement.Abstract
+    StandardId = statement.StandardId
+    StatementId = statement.StatementId
+    Annotations = statement.Annotations
+                    |> List.filter (fun x -> x.Terms.Length > 0)
+                    |> validateMandatoryAnnotations validations
+                    |> validateProvidedAnnotations validations
+    Content = statement.Content
+    Html = statement.Html
+  }
