@@ -275,7 +275,7 @@ let ``Should read the expected BaseUrl from config`` () =
 [<Test>]
 let ``Should read the expected annotation validations from config`` () =
   let result = deserializeConfig sampleConfig
-                 |> getAnnotatationValidations
+                 |> getAnnotationValidations
 
   areListsTheSame expected_AnnotationValidations result
 
