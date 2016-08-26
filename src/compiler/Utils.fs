@@ -28,3 +28,10 @@ let writeFile file =
 let prepareAsFile baseUrl outputDir ext (id:string, content) =
   let id = id.Replace(baseUrl+"/", "").Replace("/","_")
   {Thing = sprintf "%s/%s%s" outputDir id ext; Content = content}
+
+let tryClean dir = 
+  printf "Cleaning directory : %s\n" dir 
+  try 
+    Directory.Delete(dir, true)
+  with ex -> ()
+  Directory.CreateDirectory dir |> ignore

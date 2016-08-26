@@ -12,6 +12,8 @@ open compiler.Turtle
 open compiler.Pandoc
 open compiler.Publish
 open compiler.Domain
+open compiler.ValidationUtils
+open compiler.ConfigUtils
 open compiler
 
 let private addGraphs outputDir dbName = 
@@ -27,12 +29,16 @@ let writeHtml outputDir statement =
 
   statement
 
-let compile extractor items rdfArgs baseUrl outputDir dbName = 
+let compile config extractor items outputDir dbName = 
+  let rdfArgs = config |> getRdfArgs
+  let baseUrl = config |> getBaseUrl
+  let validations = config |> getPropertyValidations
 
   let compileItem =
     extractor.readContentForItem
     >> convertMarkdownToHtml 
     >> extractStatement
+    >> validateStatement validations
     >> writeHtml outputDir
     >> transformToRDF rdfArgs
     >> transformToTurtle

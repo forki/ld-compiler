@@ -199,15 +199,16 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Domain.fs" />
+    <Compile Include="ConfigTypes.fs" />
     <Compile Include="ContentHandle.fs" />
     <Compile Include="ContentExtractor.fs" />
     <Compile Include="Utils.fs" />
-    <Compile Include="Git.fs" />
     <Compile Include="YamlParser.fs" />
-    <Compile Include="MarkdownParser.fs" />
     <Compile Include="RDF.fs" />
-    <Compile Include="OntologyConfig.fs" />
-    <Compile Include="OntologyUtils.fs" />
+    <Compile Include="ConfigUtils.fs" />
+    <Compile Include="Git.fs" />
+    <Compile Include="MarkdownParser.fs" />
+    <Compile Include="ValidationUtils.fs" />
     <Compile Include="Turtle.fs" />
     <Compile Include="Stardog.fs" />
     <Compile Include="JsonLd.fs" />
