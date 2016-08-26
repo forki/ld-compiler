@@ -32,7 +32,7 @@ let writeHtml outputDir statement =
 let compile config extractor items outputDir dbName = 
   let rdfArgs = config |> getRdfArgs
   let baseUrl = config |> getBaseUrl
-  let validations = config |> getAnnotationValidations
+  let validations = config |> getPropertyValidations
 
   let compileItem =
     extractor.readContentForItem

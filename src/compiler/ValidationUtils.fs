@@ -6,10 +6,10 @@ open compiler.ConfigTypes
 
 let private raiseError annotation state =
   match state with
-  | "Invalid" -> sprintf "[Validation Error] Invalid value for the %s annotation" annotation
-  | "Blank" -> sprintf "[Validation Error] Blank value for the %s annotation" annotation
-  | "Missing" -> sprintf "[Validation Error] Missing the %s annotation" annotation
-  | _ -> sprintf "[Validation Error] Error (%s) encountered while processing the %s annotation" state annotation
+  | "Invalid" -> sprintf "Invalid value for the %s annotation" annotation
+  | "Blank" -> sprintf "Blank value for the %s annotation" annotation
+  | "Missing" -> sprintf "Missing the %s annotation" annotation
+  | _ -> sprintf "Error (%s) encountered while processing the %s annotation" state annotation
   |> failwith
 
 let private processDate name field outFormat =
@@ -24,7 +24,7 @@ let private processDate name field outFormat =
 
   validateDate (field) "dd-MM-yyyy" outFormat raiseDateError
 
-let validatePositionalId (posnId:string) =
+let private validatePositionalId (posnId:string) =
   let posnIdError = raiseError "PositionalId"
 
   let valid (prefix:string) (part:string) =
@@ -42,7 +42,7 @@ let validatePositionalId (posnId:string) =
   | 2 -> validateParts (idParts |> List.head) (idParts |> List.tail |> List.head)
   | _ -> posnIdError "Invalid"
 
-let validateValue validation value =
+let private validateValue validation value =
   match validation.Format with
   | "Date" -> processDate validation.Uri value validation.OutFormatMask
   | "PositionalId" -> validatePositionalId value

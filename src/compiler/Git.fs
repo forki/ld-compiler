@@ -1,6 +1,8 @@
 module compiler.Git 
 
 open System.Diagnostics
+open System.IO
+open System.Text
 open compiler.Utils
 open compiler.ContentHandle
 open compiler.ConfigUtils
@@ -13,6 +15,12 @@ let private clone destDir repoUrl =
   let timeout = 100000
 
   proc.WaitForExit(timeout) |> ignore
+
+  
+let private getConfigFromFile file =
+  match File.Exists file with
+  | true -> File.ReadAllText(file, Encoding.UTF8 )
+  | _ -> ""
 
 let readAll repoUrl () =
   clone contentDir repoUrl

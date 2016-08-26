@@ -36,32 +36,15 @@ let private annotationValidations = [
 
 ]
 
-//type Annotation = {
-//  Vocab : string
-//  Terms : string list
-//}
-//
-//type Statement = {
-//  Id : string
-//  Title : string
-//  Abstract : string
-//  StandardId : int
-//  StatementId : int
-//  Annotations : Annotation list
-//  Content : string
-//  Html : string
-//}
-
 let private validStatement = {
   Id = System.Guid.NewGuid().ToString()
   Title = "Quality statement 1 from quality standard 1"
   Abstract = "Abstract"
   StandardId = 1
   StatementId = 1
-  Annotations = [
-    {Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-    {Vocab = "Required"; Terms = ["A value"] }
-  ]
+  Annotations = 
+    [{Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+     {Vocab = "Required"; Terms = ["A value"] }]
   Content = "Content"
   Html = "HTML"
 }
@@ -72,11 +55,10 @@ let private validStatement_WithDate = {
   Abstract = "Abstract"
   StandardId = 1
   StatementId = 1
-  Annotations = [
-    {Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-    {Vocab = "Required"; Terms = ["A value"] }
-    {Vocab = "Not Required Date"; Terms = ["01-10-2010"] }
-  ]
+  Annotations = 
+    [{Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+     {Vocab = "Required"; Terms = ["A value"] }
+     {Vocab = "Not Required Date"; Terms = ["01-10-2010"] }]
   Content = "Content"
   Html = "HTML"
 }
@@ -87,11 +69,10 @@ let private validStatement_WithDate_Transformed = {
   Abstract = "Abstract"
   StandardId = 1
   StatementId = 1
-  Annotations = [
-    {Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-    {Vocab = "Required"; Terms = ["A value"] }
-    {Vocab = "Not Required Date"; Terms = ["October 2010"] }
-  ]
+  Annotations = 
+    [{Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+     {Vocab = "Required"; Terms = ["A value"] }
+     {Vocab = "Not Required Date"; Terms = ["October 2010"] }]
   Content = "Content"
   Html = "HTML"
 }
@@ -102,10 +83,9 @@ let private invalidStatemen_BadPositionalId = {
   Abstract = "Abstract"
   StandardId = 1
   StatementId = 1
-  Annotations = [
-    {Vocab = "PositionalId"; Terms = ["st1-qs1"] }
-    {Vocab = "Required"; Terms = ["A value"] }
-  ]
+  Annotations = 
+    [{Vocab = "PositionalId"; Terms = ["st1-qs1"] }
+     {Vocab = "Required"; Terms = ["A value"] }] 
   Content = "Content"
   Html = "HTML"
 }
@@ -116,10 +96,9 @@ let private invalidStatemen_RequiredBlank = {
   Abstract = "Abstract"
   StandardId = 1
   StatementId = 1
-  Annotations = [
-    {Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-    {Vocab = "Required"; Terms = [] }
-  ]
+  Annotations = 
+    [{Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+     {Vocab = "Required"; Terms = [] }]
   Content = "Content"
   Html = "HTML"
 }
@@ -130,10 +109,9 @@ let private invalidStatemen_RequiredMissing = {
   Abstract = "Abstract"
   StandardId = 1
   StatementId = 1
-  Annotations = [
-    {Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-    {Vocab = "Not Required Date"; Terms = ["01-10-2010"] }
-  ]
+  Annotations = 
+    [{Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+     {Vocab = "Not Required Date"; Terms = ["01-10-2010"] }]
   Content = "Content"
   Html = "HTML"
 }
@@ -144,11 +122,10 @@ let private invalidStatemen_BadDate = {
   Abstract = "Abstract"
   StandardId = 1
   StatementId = 1
-  Annotations = [
-    {Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-    {Vocab = "Required"; Terms = ["A value"] }
-    {Vocab = "Not Required Date"; Terms = ["01 October 2010"] }
-  ]
+  Annotations = 
+    [{Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+     {Vocab = "Required"; Terms = ["A value"] }
+     {Vocab = "Not Required Date"; Terms = ["01 October 2010"] }]
   Content = "Content"
   Html = "HTML"
 }
@@ -172,7 +149,7 @@ let ``AnnotationValidation: When a statement has an invalid PositionalId then va
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "[Validation Error] Invalid value for the PositionalId annotation"
+  res |> should equal "Invalid value for the PositionalId annotation"
 
 [<Test>]
 let ``AnnotationValidation: When a statement has an blank required annotation then validating the statement will throw a 'missing annotation' exception`` () =
@@ -181,7 +158,7 @@ let ``AnnotationValidation: When a statement has an blank required annotation th
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "[Validation Error] Missing the required annotation"
+  res |> should equal "Missing the required annotation"
 
 [<Test>]
 let ``AnnotationValidation: When a statement is missing required annotation then validating the statement will throw a 'missing annotation' exception`` () =
@@ -190,7 +167,7 @@ let ``AnnotationValidation: When a statement is missing required annotation then
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "[Validation Error] Missing the required annotation"
+  res |> should equal "Missing the required annotation"
 
 [<Test>]
 let ``AnnotationValidation: When a statement has a date formatted annotation which is not valid (dd-MM-yyyy) then validating the statement will throw a 'missing annotation' exception`` () =
@@ -199,7 +176,7 @@ let ``AnnotationValidation: When a statement has a date formatted annotation whi
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "[Validation Error] Invalid value for the notrequireddate annotation"
+  res |> should equal "Invalid value for the notrequireddate annotation"
 
 
 
