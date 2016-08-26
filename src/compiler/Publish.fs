@@ -5,6 +5,7 @@ open compiler.Elastic
 open compiler.Stardog
 open compiler.Utils
 open compiler.ContentHandle
+open compiler.ConfigUtils
 open FSharp.Data
 
 let private uploadResource html =
@@ -15,13 +16,16 @@ let private uploadResource html =
                      body=TextRequest html.Content,
                      headers = [ "Content-Type", "text/plain;charset=utf-8" ]) |> ignore
 
-let publish propertyPaths contexts outputDir indexName typeName =
+let publish outputDir config =
+  let jsonldContexts = config |> getJsonLdContexts
 
   let publishJsonLdResources =
     printf "Publishing jsonld resources\n"
-    Stardog.extractResources propertyPaths
-    |> transformToJsonLD contexts
-    |> bulkUpload indexName typeName
+    config
+    |> getPropPaths
+    |> Stardog.extractResources
+    |> transformToJsonLD jsonldContexts
+    |> bulkUpload config.IndexName config.TypeName
 
   let publishStaticHtmlResources = 
     printf "Publishing static html resources\n"

@@ -1,9 +1,9 @@
-﻿module compiler.OntologyUtils
+﻿module compiler.ConfigUtils
 
 open System
 open System.IO
 open FSharp.Data
-open compiler.OntologyConfig
+open compiler.ConfigTypes
 open Newtonsoft.Json
 open FSharp.RDF
 open compiler.RDF
@@ -16,7 +16,7 @@ let getConfigFromFile file =
   | _ -> ""
 
 let deserializeConfig jsonString =
-  JsonConvert.DeserializeObject<OntologyConfig>(jsonString)
+  JsonConvert.DeserializeObject<ConfigTypes.Config>(jsonString)
 
 let getJsonLdContexts config =
   config.SchemaDetails

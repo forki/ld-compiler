@@ -4,7 +4,7 @@ open NUnit.Framework
 open FsUnit
 
 open compiler.Domain
-open compiler.OntologyConfig
+open compiler.ConfigTypes
 open compiler.ValidationUtils
 open compiler.Test.TestUtilities
 

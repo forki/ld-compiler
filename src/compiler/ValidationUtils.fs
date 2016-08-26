@@ -1,7 +1,8 @@
 ﻿module compiler.ValidationUtils
 
 open compiler.Domain
-open compiler.OntologyConfig
+open compiler.ConfigUtils
+open compiler.ConfigTypes
 
 let private raiseError annotation state =
   match state with

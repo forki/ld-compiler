@@ -1,4 +1,4 @@
-﻿module compiler.OntologyConfig
+﻿module compiler.ConfigTypes
 
 type PublishItem = {
     Uri: string
@@ -17,7 +17,7 @@ type ConfigItem = {
 
 }
 
-type OntologyConfig = {
+type Config = {
     SchemaBase: string
     UrlBase: string
     QSBase: string

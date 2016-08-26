@@ -55,8 +55,8 @@
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <ItemGroup>
     <Compile Include="TestUtilities.fs" />
-    <Compile Include="AnnotationValidationTests.fs" />
-    <Compile Include="ConfigurationFileTests.fs" />
+    <Compile Include="ValidationUtilsTests.fs" />
+    <Compile Include="ConfigUtilsTests.fs" />
     <Compile Include="MarkdownParserTests.fs" />
     <Compile Include="YamlParserTests.fs" />
     <Compile Include="RDFTests.fs" />

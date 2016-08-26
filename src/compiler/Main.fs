@@ -11,12 +11,11 @@ open compiler.Turtle
 open compiler.Pandoc
 open compiler.Publish
 open compiler.Preamble
-open compiler.OntologyUtils
+open compiler.ConfigUtils
 open FSharp.RDF
 open FSharp.Data
 
 //// These should be passed in as arguments ////////
-let private inputDir = "/git"
 let private outputDir = "/artifacts"
 let private dbName = "nice"
 let private dbUser = "admin"
@@ -28,19 +27,21 @@ let compileAndPublish ( fetchUrl:string ) () =
 
   let extractor =
     {readAllContentItems = Git.readAll (Uri.from fetchUrl)
-     readContentForItem = Git.readOne}
+     readContentForItem = Git.readOne
+     readConfig = Git.readConfig
+     prepare = Git.prepare}
 
-  prepare inputDir outputDir dbName dbUser dbPass
+  extractor.prepare ()
+
+  prepare outputDir dbName dbUser dbPass
 
   let items = extractor.readAllContentItems ()
-  let config = sprintf "%s/OntologyConfig.json" inputDir
-                     |> getConfigFromFile
-                     |> deserializeConfig
+  let config = extractor.readConfig ()
 
-  downloadSchema (config |> getSchemaTtls) outputDir
+  downloadSchema config outputDir
 
-  compile extractor items (config |> getRdfArgs) (config |> getBaseUrl)  (config |> getAnnotationValidations) outputDir dbName
+  compile config extractor items outputDir dbName
 
-  publish (config |> getPropPaths) (config |> getJsonLdContexts) outputDir config.IndexName config.TypeName 
+  publish outputDir config
 
   printf "Knowledge base creation complete!\n"

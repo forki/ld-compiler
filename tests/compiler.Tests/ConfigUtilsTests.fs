@@ -4,8 +4,8 @@ open NUnit.Framework
 open FsUnit
 
 open compiler.Utils
-open compiler.OntologyConfig
-open compiler.OntologyUtils
+open compiler.ConfigTypes
+open compiler.ConfigUtils
 open compiler.Test.TestUtilities
 open FSharp.Data
 open compiler.RDF
