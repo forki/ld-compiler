@@ -63,11 +63,14 @@ open Assertion
 let transformToRDF args statement =
   let uri = sprintf "%s/%s" args.BaseUrl statement.Id
   let annotations = lookupAnnotations args.VocabMap args.TermMap statement.Annotations
+  let firstIssued = statement.Annotations |> List.find (fun x -> x.Vocab.Replace(" ","").ToLower() = "firstissued") 
   resource !! uri
     ( [a !! "http://ld.nice.org.uk/ns/qualitystandard#QualityStatement"
        dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#title" (statement.Title^^xsd.string)
        dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#abstract" (statement.Abstract^^xsd.string)
        dataProperty !!"http://www.w3.org/2011/content#chars" (statement.Content^^xsd.string)
        dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#stidentifier" (statement.StatementId^^xsd.integer)
-       dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#qsidentifier" (statement.StandardId^^xsd.integer)] @ annotations ) 
+       dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#qsidentifier" (statement.StandardId^^xsd.integer)
+       dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#firstissued" (firstIssued.Terms.Head^^xsd.string)
+       ] @ annotations ) 
   
