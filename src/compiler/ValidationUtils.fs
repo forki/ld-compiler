@@ -42,10 +42,17 @@ let private validatePositionalId (posnId:string) =
   | 2 -> validateParts (idParts |> List.head) (idParts |> List.tail |> List.head)
   | _ -> posnIdError "Invalid"
 
+let private validateYesNo name value =
+  match value with
+  | "yes"
+  | "no" -> value
+  | _ -> raiseError name "Invalid"
+
 let private validateValue validation value =
   match validation.Format with
   | "Date" -> processDate validation.Uri value validation.OutFormatMask
   | "PositionalId" -> validatePositionalId value
+  | "YesNo" -> validateYesNo validation.Uri value
   | _ -> value
 
 let private validateMandatoryAnnotations validations annotations = 
