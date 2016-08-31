@@ -67,6 +67,7 @@ let private validateValue validation (value:string) =
 
 let private validateMandatoryAnnotations validations annotations = 
   let validateAnnotationExists annotations mandatoryValidation =
+
     let a = annotations |> List.filter (fun a -> a.Vocab.ToLower().Replace(" ","") = mandatoryValidation.Uri.ToLower().Replace(" ",""))
       
     match a.Length with
@@ -74,8 +75,39 @@ let private validateMandatoryAnnotations validations annotations =
     | _ -> match a.Head.Vocab.Length with
            | 0 -> raiseError mandatoryValidation.Uri "Blank"
            | _ -> ()
+ 
+  let assessAnnotations (validationParts:string array) =
+    let assessTerms annotationTerms thisTerm =
+      annotationTerms |> List.filter (fun t -> t = thisTerm)
+                      |> List.length > 0
 
-  validations |> List.filter (fun v -> v.Required)
+    let annotationVocab = Array.get validationParts 2
+    let annotationTerm = Array.get validationParts 3
+    annotations |> List.filter (fun a -> a.Vocab.Replace(" ","").ToLower() = annotationVocab.Replace(" ","").ToLower())
+                |> List.map (fun a -> assessTerms a.Terms annotationTerm)
+                |> List.contains true
+ 
+  let assessValidation validation =
+    let isConditionalValidation validationParts = 
+      match Array.get validationParts 1 with
+      | "Conditional" -> true
+      | _ -> false
+
+    let validationParts = validation.Format.Split [|':'|]
+    match validationParts.Length with
+    | 4 -> match isConditionalValidation validationParts with
+           | true -> validation, (assessAnnotations validationParts)
+           | _ -> validation, validation.Required
+    | _ -> validation, validation.Required
+
+  let conditionalValidation validation =
+    match obj.ReferenceEquals(validation.Format, null) with
+    | false -> assessValidation validation
+    | _ -> validation, validation.Required
+
+  validations |> List.map (fun v -> conditionalValidation v)
+              |> List.filter (fun t -> snd t)
+              |> List.map (fun t -> fst t)
               |> List.map (fun v -> validateAnnotationExists annotations v)
               |> ignore
   annotations
