@@ -7,21 +7,29 @@ open resource
 open NUnit.Framework
 open FsUnit
 
+
+let defaultAnnotations = [
+  {Vocab = "First issued"
+   Terms = ["2010-10-01"] }   
+]
+
 let defaultStatement = {
   Id = "id_goes_here"
   Title = ""
   Abstract = ""
   StandardId = 0
   StatementId = 0
-  Annotations = []
+  Annotations = defaultAnnotations
   Content = ""
   Html = ""
 }
 
+let private baseUrl = "http://ld.nice.org.uk/resource" 
+
 let defaultArgs = {
   VocabMap = Map.ofList []
   TermMap = Map.ofList ["", Map.ofList []]
-  BaseUrl = ""
+  BaseUrl = baseUrl
 }
 
 let private FindDataProperty (uri:string) resource =
@@ -34,26 +42,34 @@ let private FindObjectProperty (uri:string) resource =
    | ObjectProperty (Uri.from uri) values -> values
    | _ -> []
 
-let private baseUrl = "http://ld.nice.org.uk/resource" 
 
 [<Test>]
 let ``Should create resource with type of qualitystatement``() =
-  let args = {defaultArgs with BaseUrl = baseUrl}
 
   defaultStatement
-  |> transformToRDF args
+  |> transformToRDF defaultArgs
   |> FindObjectProperty "rdf:type" 
   |> Seq.map (fun p -> p.ToString())
   |> Seq.head
   |> should equal "http://ld.nice.org.uk/ns/qualitystandard#QualityStatement"
   
+
+[<Test>]
+let ``Should create a resource with data property firstissueddate``() =
+
+  defaultStatement
+  |> transformToRDF defaultArgs
+  |> FindDataProperty "http://ld.nice.org.uk/ns/qualitystandard#firstissued" 
+  |> Seq.map (fun p -> p.ToString())
+  |> Seq.head
+  |> should equal "2010-10-01"
+  
 [<Test>]
 let ``Should create resource with subject uri as id``() =
   let statement = {defaultStatement with Id = "id_goes_here" }
-  let args = {defaultArgs with BaseUrl = baseUrl}
 
   let id = statement 
-           |> transformToRDF args 
+           |> transformToRDF defaultArgs 
            |> Resource.id 
    
   id.ToString() |> should equal "http://ld.nice.org.uk/resource/id_goes_here"
@@ -61,19 +77,17 @@ let ``Should create resource with subject uri as id``() =
 [<Test>]
 let ``Should create title dataproperty for resource``() =
   let statement = {defaultStatement with Title = "This is the title" }
-  let args = {defaultArgs with BaseUrl = baseUrl}
 
   let title = statement
-              |> transformToRDF args
+              |> transformToRDF defaultArgs
               |> FindDataProperty "http://ld.nice.org.uk/ns/qualitystandard#title" 
 
   title |> should equal ["This is the title"]
 
 [<Test>]
 let ``Should convert a single annotated term into an objectproperty``() =
-  let statement = {defaultStatement with Annotations = [{Vocab="Vocab1"; Terms=[ "Term1" ] }]}
-  let args = {defaultArgs with BaseUrl = baseUrl
-                               VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"] |> Map.ofList
+  let statement = {defaultStatement with Annotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1" ] }]}
+  let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"] |> Map.ofList ] |> Map.ofList}
   let property = 
     statement
@@ -86,9 +100,8 @@ let ``Should convert a single annotated term into an objectproperty``() =
 
 [<Test>]
 let ``Should convert multiple annotated terms from one vocab as objectproperties``() =
-  let statement = {defaultStatement with Annotations = [{Vocab="Vocab1"; Terms=[ "Term1"; "Term2" ] }]}
-  let args = {defaultArgs with BaseUrl = baseUrl
-                               VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"] |> Map.ofList
+  let statement = {defaultStatement with Annotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1"; "Term2" ] }]}
+  let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"
                                                      "term2", Uri.from "http://someuri.com/Vocab1#Term2"] |> Map.ofList ] |> Map.ofList}
   let properties = 
@@ -103,10 +116,9 @@ let ``Should convert multiple annotated terms from one vocab as objectproperties
 
 [<Test>]
 let ``Should convert annotated terms from multiple vocabs as objectproperties``() =
-  let statement = {defaultStatement with Annotations = [{Vocab="Vocab1"; Terms=[ "Term1"] }
-                                                        {Vocab="Vocab2"; Terms=[ "Term1"] }]}
-  let args = {defaultArgs with BaseUrl = baseUrl
-                               VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"
+  let statement = {defaultStatement with Annotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1"] }
+                                                                             {Vocab="Vocab2"; Terms=[ "Term1"] }]}
+  let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"
                                            "vocab2", Uri.from "http://someuri.com/Vocab2"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"] |> Map.ofList 
                                           "vocab2", ["term1", Uri.from "http://someuri.com/Vocab2#Term1"] |> Map.ofList ] |> Map.ofList}

@@ -28,6 +28,7 @@ type ElasticResponse = JsonProvider<"""
           "http://ld.nice.org.uk/ns/qualitystandard#abstract":"",
           "http://ld.nice.org.uk/ns/qualitystandard#qsidentifier":"",
           "http://ld.nice.org.uk/ns/qualitystandard#stidentifier":"",
+          "http://ld.nice.org.uk/ns/qualitystandard#firstissued":"",
           "_id":"",
           "_type":"",
           "qualitystandard:age":[""]
@@ -64,6 +65,22 @@ let ``When publishing a statement it should have added a statement to elastic se
   let doc = (Seq.head response.Hits.Hits).Source
 
   doc.Id.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/8422158b-302e-4be2-9a19-9085fc09dfe7"   
+
+[<Test>]
+let ``When publishing a statement it should apply structured data annotations that exist in metadata`` () =
+
+  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
+
+  let indexName = "kb"
+  let typeName = "qualitystatement"
+  let response = queryElastic indexName typeName
+
+  response.Hits.Total |> should equal 1 
+
+  let doc = (Seq.head response.Hits.Hits).Source
+
+  let firstIssued = doc.HttpLdNiceOrgUkNsQualitystandardFirstissued
+  firstIssued.JsonValue.AsString() |> should equal "2010-06-01"
 
 [<Test>]
 let ``When publishing a statement it should apply annotations that exist in metadata`` () =
