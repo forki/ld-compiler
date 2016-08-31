@@ -80,7 +80,7 @@ let ``When publishing a statement it should apply structured data annotations th
   let doc = (Seq.head response.Hits.Hits).Source
 
   let firstIssued = doc.HttpLdNiceOrgUkNsQualitystandardFirstissued
-  firstIssued |> should equal "2010-06-01"
+  firstIssued.JsonValue.AsString() |> should equal "2010-06-01"
 
 [<Test>]
 let ``When publishing a statement it should apply annotations that exist in metadata`` () =
