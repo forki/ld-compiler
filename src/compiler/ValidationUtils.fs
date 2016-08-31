@@ -12,17 +12,17 @@ let private raiseError annotation state =
   | _ -> sprintf "Error (%s) encountered while processing the %s annotation" state annotation
   |> failwith
 
-let private processDate name field outFormat =
-  let validateDate (date:string) (inFormat:string) (outFormat:string) (raiseError:string -> string) =
+let private processDate name field =
+  let validateDate (date:string) (raiseError:string -> string) =
     if (obj.ReferenceEquals(date, null)=false && date.Length > 0) then
-      match System.DateTime.TryParseExact(date, inFormat, System.Globalization.CultureInfo.InvariantCulture,System.Globalization.DateTimeStyles.None) with
-      | true, x -> x.ToString(outFormat)
+      match System.DateTime.TryParseExact(date, "dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture,System.Globalization.DateTimeStyles.None) with
+      | true, x -> x.ToString("yyyy-MM-dd")
       | _ ->  raiseError "Invalid"
     else
       raiseError "Missing"
   let raiseDateError = raiseError name
 
-  validateDate (field) "dd-MM-yyyy" outFormat raiseDateError
+  validateDate field raiseDateError
 
 let private validatePositionalId (posnId:string) =
   let posnIdError = raiseError "PositionalId"
@@ -48,12 +48,22 @@ let private validateYesNo name value =
   | "no" -> value
   | _ -> raiseError name "Invalid"
 
-let private validateValue validation value =
-  match validation.Format with
-  | "Date" -> processDate validation.Uri value validation.OutFormatMask
-  | "PositionalId" -> validatePositionalId value
-  | "YesNo" -> validateYesNo validation.Uri value
-  | _ -> value
+let private validateValue validation (value:string) =
+  let matchValidationType validation format value =
+    match format with
+    | "Date" -> processDate validation.Uri value
+    | "PositionalId" -> validatePositionalId value
+    | "YesNo" -> validateYesNo validation.Uri value
+    | _ -> value
+
+  let matchValidationHead value (formatOption:string Option) =
+      match formatOption.IsNone with
+      | true -> value
+      | false -> matchValidationType validation formatOption.Value value
+
+  match obj.ReferenceEquals(validation.Format, null) with
+  | true -> value
+  | _ ->  validation.Format.Split [|':'|] |> Array.tryHead |> matchValidationHead value
 
 let private validateMandatoryAnnotations validations annotations = 
   let validateAnnotationExists annotations mandatoryValidation =
@@ -93,3 +103,4 @@ let validateStatement validations (statement:Statement) =
     Content = statement.Content
     Html = statement.Html
   }
+

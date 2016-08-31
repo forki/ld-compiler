@@ -30,7 +30,7 @@ let private annotationValidations = [
     Label=null
     Required= false
     Format= "Date"
-    OutFormatMask= "yyyy-MM-dd"
+    OutFormatMask= null
     PropertyPath=[]
   }
   {
@@ -45,74 +45,13 @@ let private annotationValidations = [
     Uri= "conditionallyrequireddate"
     Label=null
     Required= false
-    Format= "Conditional:Date:notrequiredyesno:no"
+    Format= "Date:Conditional:notrequiredyesno:no"
     OutFormatMask= null
     PropertyPath=[]
   }
 ]
 
 
-
-
-
-
-let private invalidStatement_RequiredBlank = {
-  Id = System.Guid.NewGuid().ToString()
-  Title = "Quality statement 1 from quality standard 1"
-  Abstract = "Abstract"
-  StandardId = 1
-  StatementId = 1
-  Annotations = [
-    {Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-    {Vocab = "Required"; Terms = [] }
-  ]
-  Content = "Content"
-  Html = "HTML"
-}
-
-let private invalidStatement_RequiredMissing = {
-  Id = System.Guid.NewGuid().ToString()
-  Title = "Quality statement 1 from quality standard 1"
-  Abstract = "Abstract"
-  StandardId = 1
-  StatementId = 1
-  Annotations = [
-    {Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-    {Vocab = "Not Required Date"; Terms = ["01-10-2010"] }
-  ]
-  Content = "Content"
-  Html = "HTML"
-}
-
-let private invalidStatement_BadDate = {
-  Id = System.Guid.NewGuid().ToString()
-  Title = "Quality statement 1 from quality standard 1"
-  Abstract = "Abstract"
-  StandardId = 1
-  StatementId = 1
-  Annotations = [
-    {Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-    {Vocab = "Required"; Terms = ["A value"] }
-    {Vocab = "Not Required Date"; Terms = ["01 October 2010"] }
-  ]
-  Content = "Content"
-  Html = "HTML"
-}
-
-let private invalidStatement_BadYesNo = {
-  Id = System.Guid.NewGuid().ToString()
-  Title = "Quality statement 1 from quality standard 1"
-  Abstract = "Abstract"
-  StandardId = 1
-  StatementId = 1
-  Annotations = [
-    {Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-    {Vocab = "Required"; Terms = ["A value"] }
-    {Vocab = "Not Required YesNo"; Terms = ["Some Other Value"] }
-  ]
-  Content = "Content"
-  Html = "HTML"
-}
 
 [<Test>]
 let ``ValidationUtilsTests: When all statement annotations are valid (no dates) then validating the statement will return an identical statement`` () =
@@ -122,10 +61,8 @@ let ``ValidationUtilsTests: When all statement annotations are valid (no dates) 
     Abstract = "Abstract"
     StandardId = 1
     StatementId = 1
-    Annotations = [
-      {Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-      {Vocab = "Required"; Terms = ["A value"] }
-    ]
+    Annotations = [ { Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+                    { Vocab = "Required"; Terms = ["A value"] } ]
     Content = "Content"
     Html = "HTML"
   }
@@ -142,13 +79,11 @@ let ``ValidationUtilsTests: When all statement annotations are valid (with dates
     Abstract = "Abstract"
     StandardId = 1
     StatementId = 1
-    Annotations = [
-    {Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-    {Vocab = "Required"; Terms = ["A value"] }
-    {Vocab = "Not Required Date"; Terms = ["01-10-2010"] }
-    {Vocab = "Not Required YesNo"; Terms = ["no"] }
-    {Vocab = "Conditionally Required Date"; Terms = ["01-08-2016"]}
-    ]
+    Annotations = [ { Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+                    { Vocab = "Required"; Terms = ["A value"] }
+                    { Vocab = "Not Required Date"; Terms = ["01-10-2010"] }
+                    { Vocab = "Not Required YesNo"; Terms = ["no"] }
+                    { Vocab = "Conditionally Required Date"; Terms = ["01-08-2016"] } ]
     Content = "Content"
     Html = "HTML"
   }
@@ -159,13 +94,11 @@ let ``ValidationUtilsTests: When all statement annotations are valid (with dates
     Abstract = "Abstract"
     StandardId = 1
     StatementId = 1
-    Annotations = [
-    {Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-    {Vocab = "Required"; Terms = ["A value"] }
-    {Vocab = "Not Required Date"; Terms = ["2010-10-01"] }
-    {Vocab = "Not Required YesNo"; Terms = ["no"] }
-    {Vocab = "Conditionally Required Date"; Terms = ["2016-08-01"]}
-    ]
+    Annotations = [ { Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+                    { Vocab = "Required"; Terms = ["A value"] }
+                    { Vocab = "Not Required Date"; Terms = ["2010-10-01"] }
+                    { Vocab = "Not Required YesNo"; Terms = ["no"] }
+                    { Vocab = "Conditionally Required Date"; Terms = ["2016-08-01"] } ]
     Content = "Content"
     Html = "HTML"
   }
@@ -181,10 +114,8 @@ let ``ValidationUtilsTests: When a statement has an invalid PositionalId then va
     Abstract = "Abstract"
     StandardId = 1
     StatementId = 1
-    Annotations = [
-      {Vocab = "PositionalId"; Terms = ["st1-qs1"] }
-      {Vocab = "Required"; Terms = ["A value"] }
-    ] 
+    Annotations = [ { Vocab = "PositionalId"; Terms = ["st1-qs1"] }
+                    { Vocab = "Required"; Terms = ["A value"] } ] 
     Content = "Content"
     Html = "HTML"
   }
@@ -198,8 +129,20 @@ let ``ValidationUtilsTests: When a statement has an invalid PositionalId then va
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has an blank required annotation then validating the statement will throw a 'missing annotation' exception`` () =
+  let data = {
+    Id = System.Guid.NewGuid().ToString()
+    Title = "Quality statement 1 from quality standard 1"
+    Abstract = "Abstract"
+    StandardId = 1
+    StatementId = 1
+    Annotations = [ { Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+                    { Vocab = "Required"; Terms = [] } ]
+    Content = "Content"
+    Html = "HTML"
+  }
+
   let res = try
-              validateStatement annotationValidations invalidStatement_RequiredBlank |> ignore
+              validateStatement annotationValidations data |> ignore
               "No exception caught"
             with
             | Failure msg -> msg
@@ -207,8 +150,20 @@ let ``ValidationUtilsTests: When a statement has an blank required annotation th
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement is missing required annotation then validating the statement will throw a 'missing annotation' exception`` () =
+  let data = {
+    Id = System.Guid.NewGuid().ToString()
+    Title = "Quality statement 1 from quality standard 1"
+    Abstract = "Abstract"
+    StandardId = 1
+    StatementId = 1
+    Annotations = [ { Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+                    { Vocab = "Not Required Date"; Terms = ["01-10-2010"] } ]
+    Content = "Content"
+    Html = "HTML"
+  }
+  
   let res = try
-              validateStatement annotationValidations invalidStatement_RequiredMissing |> ignore
+              validateStatement annotationValidations data |> ignore
               "No exception caught"
             with
             | Failure msg -> msg
@@ -216,8 +171,21 @@ let ``ValidationUtilsTests: When a statement is missing required annotation then
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has a date formatted annotation which is not valid (dd-MM-yyyy) then validating the statement will throw a 'missing annotation' exception`` () =
+  let data = {
+    Id = System.Guid.NewGuid().ToString()
+    Title = "Quality statement 1 from quality standard 1"
+    Abstract = "Abstract"
+    StandardId = 1
+    StatementId = 1
+    Annotations = [ { Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+                    { Vocab = "Required"; Terms = ["A value"] }
+                    { Vocab = "Not Required Date"; Terms = ["01 October 2010"] } ]
+    Content = "Content"
+    Html = "HTML"
+  }
+
   let res = try
-              validateStatement annotationValidations invalidStatement_BadDate |> ignore
+              validateStatement annotationValidations data |> ignore
               "No exception caught"
             with
             | Failure msg -> msg
@@ -225,13 +193,44 @@ let ``ValidationUtilsTests: When a statement has a date formatted annotation whi
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has a YesNo formatted annotation which is not yes or no then validating the statement will throw a 'missing annotation' exception`` () =
+  let data = {
+    Id = System.Guid.NewGuid().ToString()
+    Title = "Quality statement 1 from quality standard 1"
+    Abstract = "Abstract"
+    StandardId = 1
+    StatementId = 1
+    Annotations = [ { Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+                    { Vocab = "Required"; Terms = ["A value"] }
+                    { Vocab = "Not Required YesNo"; Terms = ["Some Other Value"] } ]
+    Content = "Content"
+    Html = "HTML"
+  }
+
   let res = try
-              validateStatement annotationValidations invalidStatement_BadYesNo |> ignore
+              validateStatement annotationValidations data |> ignore
               "No exception caught"
             with
             | Failure msg -> msg
   res |> should equal "Invalid value for the notrequiredyesno annotation"
 
+[<Test>]
+let ``ValidationUtilsTests: When a statement has a CONDITIONALLY REQUIRED annotation which is not provided then validating the statement will throw a 'missing annotation' exception`` () =
+  let data = {
+    Id = System.Guid.NewGuid().ToString()
+    Title = "Quality statement 1 from quality standard 1"
+    Abstract = "Abstract"
+    StandardId = 1
+    StatementId = 1
+    Annotations = [ { Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+                    { Vocab = "Required"; Terms = ["A value"] }
+                    { Vocab = "Not Required YesNo"; Terms = ["no"] } ]
+    Content = "Content"
+    Html = "HTML"
+  }
 
-
-  
+  let res = try
+              validateStatement annotationValidations data |> ignore
+              "No exception caught"
+            with
+            | Failure msg -> msg
+  res |> should equal "Missing the conditionallyrequireddate annotation"
