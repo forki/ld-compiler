@@ -68,12 +68,12 @@ let private validateValue validation (value:string) =
 let private validateMandatoryAnnotations validations annotations = 
   let validateAnnotationExists annotations mandatoryValidation =
 
-    let a = annotations |> List.filter (fun a -> a.Vocab.ToLower().Replace(" ","") = mandatoryValidation.Uri.ToLower().Replace(" ",""))
+    let a = annotations |> List.filter (fun a -> a.Vocab = mandatoryValidation.Label)
       
     match a.Length with
-    | 0 -> raiseError mandatoryValidation.Uri "Missing"
+    | 0 -> raiseError mandatoryValidation.Label "Missing"
     | _ -> match a.Head.Vocab.Length with
-           | 0 -> raiseError mandatoryValidation.Uri "Blank"
+           | 0 -> raiseError mandatoryValidation.Label "Blank"
            | _ -> ()
  
   let assessAnnotations (validationParts:string array) =
@@ -83,7 +83,8 @@ let private validateMandatoryAnnotations validations annotations =
 
     let annotationVocab = Array.get validationParts 2
     let annotationTerm = Array.get validationParts 3
-    annotations |> List.filter (fun a -> a.Vocab.Replace(" ","").ToLower() = annotationVocab.Replace(" ","").ToLower())
+//    annotations |> List.filter (fun a -> a.Vocab.Replace(" ","").ToLower() = annotationVocab.Replace(" ","").ToLower())
+    annotations |> List.filter (fun a -> a.Vocab = annotationVocab)
                 |> List.map (fun a -> assessTerms a.Terms annotationTerm)
                 |> List.contains true
  
@@ -112,7 +113,7 @@ let private validateMandatoryAnnotations validations annotations =
 
 let private validateProvidedAnnotations validations annotations =
   let validateAnnotation validations (annotation:Annotation) =
-    let relevantValidation = validations |> List.filter (fun v -> v.Uri.ToLower().Replace(" ","") = annotation.Vocab.ToLower().Replace(" ",""))
+    let relevantValidation = validations |> List.filter (fun v -> v.Label = annotation.Vocab)
     match relevantValidation.Length with
     | 0 -> annotation
     | _ -> { Vocab = annotation.Vocab; Terms = annotation.Terms |> List.map (fun t -> validateValue relevantValidation.Head t) }

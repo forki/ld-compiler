@@ -1,6 +1,8 @@
 module compiler.Tests.RDFTests
 
 open compiler.Domain
+open compiler.ConfigTypes
+open compiler.ConfigUtils
 open compiler.RDF
 open FSharp.RDF
 open resource
@@ -24,7 +26,38 @@ let defaultStatement = {
   Html = ""
 }
 
-let private baseUrl = "http://ld.nice.org.uk/resource" 
+let private baseUrl = "http://ld.nice.org.uk/resource"
+
+let private validations = [
+  {
+    Uri= "required"
+    Label=null
+    Validate= true
+    Format= "String:Required"
+    PropertyPath=[]
+  }
+  {
+    Uri= "notrequireddate"
+    Label=null
+    Validate= true
+    Format= "Date"
+    PropertyPath=[]
+  }
+  {
+    Uri= "notrequiredyesno"
+    Label=null
+    Validate= true
+    Format= "YesNo"
+    PropertyPath=[]
+  }
+  {
+    Uri= "conditionallyrequireddate"
+    Label=null
+    Validate = true
+    Format= "Date:Conditional:notrequiredyesno:no"
+    PropertyPath=[]
+  }
+]
 
 let defaultArgs = {
   VocabMap = Map.ofList []
@@ -47,7 +80,7 @@ let private FindObjectProperty (uri:string) resource =
 let ``Should create resource with type of qualitystatement``() =
 
   defaultStatement
-  |> transformToRDF defaultArgs
+  |> transformToRDF defaultArgs validations baseUrl
   |> FindObjectProperty "rdf:type" 
   |> Seq.map (fun p -> p.ToString())
   |> Seq.head
@@ -55,11 +88,11 @@ let ``Should create resource with type of qualitystatement``() =
   
 
 [<Test>]
-let ``Should create a resource with data property firstissueddate``() =
+let ``Should create a resource with data property wasFirstIssuedOn``() =
 
   defaultStatement
-  |> transformToRDF defaultArgs
-  |> FindDataProperty "http://ld.nice.org.uk/ns/qualitystandard#firstissued" 
+  |> transformToRDF defaultArgs validations baseUrl
+  |> FindDataProperty "http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn" 
   |> Seq.map (fun p -> p.ToString())
   |> Seq.head
   |> should equal "2010-10-01"
@@ -69,7 +102,7 @@ let ``Should create resource with subject uri as id``() =
   let statement = {defaultStatement with Id = "id_goes_here" }
 
   let id = statement 
-           |> transformToRDF defaultArgs 
+           |> transformToRDF defaultArgs validations baseUrl
            |> Resource.id 
    
   id.ToString() |> should equal "http://ld.nice.org.uk/resource/id_goes_here"
@@ -79,7 +112,7 @@ let ``Should create title dataproperty for resource``() =
   let statement = {defaultStatement with Title = "This is the title" }
 
   let title = statement
-              |> transformToRDF defaultArgs
+              |> transformToRDF defaultArgs validations baseUrl
               |> FindDataProperty "http://ld.nice.org.uk/ns/qualitystandard#title" 
 
   title |> should equal ["This is the title"]
@@ -91,7 +124,7 @@ let ``Should convert a single annotated term into an objectproperty``() =
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"] |> Map.ofList ] |> Map.ofList}
   let property = 
     statement
-    |> transformToRDF args
+    |> transformToRDF args validations baseUrl
     |> FindObjectProperty "http://someuri.com/Vocab1" 
     |> Seq.map (fun p -> p.ToString())
     |> Seq.head
@@ -106,7 +139,7 @@ let ``Should convert multiple annotated terms from one vocab as objectproperties
                                                      "term2", Uri.from "http://someuri.com/Vocab1#Term2"] |> Map.ofList ] |> Map.ofList}
   let properties = 
     statement
-    |> transformToRDF args
+    |> transformToRDF args validations baseUrl
     |> FindObjectProperty "http://someuri.com/Vocab1" 
     |> Seq.map (fun p -> p.ToString())
     |> Seq.toList
@@ -122,7 +155,7 @@ let ``Should convert annotated terms from multiple vocabs as objectproperties``(
                                            "vocab2", Uri.from "http://someuri.com/Vocab2"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"] |> Map.ofList 
                                           "vocab2", ["term1", Uri.from "http://someuri.com/Vocab2#Term1"] |> Map.ofList ] |> Map.ofList}
-  let rdf = statement |> transformToRDF args
+  let rdf = statement |> transformToRDF args validations baseUrl
 
   rdf
   |> FindObjectProperty "http://someuri.com/Vocab1" 

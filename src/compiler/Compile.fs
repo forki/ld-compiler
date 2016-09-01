@@ -40,7 +40,7 @@ let compile config extractor items outputDir dbName =
     >> extractStatement
     >> validateStatement validations
     >> writeHtml outputDir
-    >> transformToRDF rdfArgs
+    >> transformToRDF rdfArgs validations baseUrl
     >> transformToTurtle
     >> prepareAsFile baseUrl outputDir ".ttl"
     >> writeFile 
