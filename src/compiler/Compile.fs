@@ -14,6 +14,7 @@ open compiler.Publish
 open compiler.Domain
 open compiler.ValidationUtils
 open compiler.ConfigUtils
+open compiler.BindDataToHtml
 open compiler
 
 let private addGraphs outputDir dbName = 
@@ -39,6 +40,7 @@ let compile config extractor items outputDir dbName =
     >> convertMarkdownToHtml 
     >> extractStatement
     >> validateStatement validations
+    >> bindDataToHtml
     >> writeHtml outputDir
     >> transformToRDF rdfArgs
     >> transformToTurtle

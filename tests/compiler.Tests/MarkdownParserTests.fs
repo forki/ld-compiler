@@ -98,7 +98,6 @@ let ``Should extract the statement number from file path`` () =
 [<Test>]
 let ``Should extract the annotations from code block`` () =
   let statement = extractStatement (sampleMarkdownContent, "")
-  printfn "%A" statement.Annotations
 
   statement.Annotations |> should equal [{Vocab = "PositionalId";
                                           Terms = ["qs1-st2"];}; {Vocab = "Vocab";
