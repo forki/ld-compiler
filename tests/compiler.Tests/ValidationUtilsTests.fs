@@ -12,35 +12,35 @@ let private annotationValidations = [
   {
     Uri= "positionalid"
     Label=null
-    ElasticAnnotation= true
+    Validate= true
     Format= "PositionalId:Required"
     PropertyPath=[]
   }
   {
     Uri= "required"
     Label=null
-    ElasticAnnotation= true
+    Validate= true
     Format= "String:Required"
     PropertyPath=[]
   }
   {
     Uri= "notrequireddate"
     Label=null
-    ElasticAnnotation= true
+    Validate= true
     Format= "Date"
     PropertyPath=[]
   }
   {
     Uri= "notrequiredyesno"
     Label=null
-    ElasticAnnotation= true
+    Validate= true
     Format= "YesNo"
     PropertyPath=[]
   }
   {
     Uri= "conditionallyrequireddate"
     Label=null
-    ElasticAnnotation = true
+    Validate = true
     Format= "Date:Conditional:notrequiredyesno:no"
     PropertyPath=[]
   }

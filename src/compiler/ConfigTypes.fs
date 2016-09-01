@@ -3,7 +3,7 @@
 type PublishItem = {
     Uri: string
     Label: string
-    ElasticAnnotation: bool
+    Validate: bool
     Format: string
     PropertyPath: string list
 }

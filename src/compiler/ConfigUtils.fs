@@ -69,7 +69,7 @@ let getRdfArgs config =
 let getPropertyValidations config =
   config.SchemaDetails
   |> List.filter (fun x -> x.Map=false)
-  |> List.map (fun f -> (f.Publish |> List.filter (fun p -> p.ElasticAnnotation)))
+  |> List.map (fun f -> (f.Publish |> List.filter (fun p -> p.Validate)))
   |> List.concat
 
 let deserializeConfig jsonString =
@@ -84,9 +84,16 @@ let getSchemaTtls config =
   |> List.map (fun f -> (sprintf "%s%s" config.SchemaBase f.Schema))
 
 let getPropPaths config =
-  let buildSchemaDetails p = match obj.ReferenceEquals(p.PropertyPath, null) with
-                             | true ->  sprintf "<%s%s#%s>" config.UrlBase config.QSBase p.Uri
-                             | _ -> getPathWithSubclass config.UrlBase config.QSBase p
+  let isEmptyPropertyPathSet p =
+    match obj.ReferenceEquals(p.PropertyPath, null) with
+    | true -> true
+    | _ -> p.PropertyPath.IsEmpty 
+    
+  let buildSchemaDetails p =
+    match isEmptyPropertyPathSet p with
+    | true ->  sprintf "<%s%s#%s>" config.UrlBase config.QSBase p.Uri
+    | _ -> getPathWithSubclass config.UrlBase config.QSBase p
+
   config.SchemaDetails
   |> List.map (fun f -> f.Publish 
                         |> List.map (fun p -> buildSchemaDetails p))
