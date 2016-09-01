@@ -28,6 +28,11 @@ let ``Should insert data correctly into html `` () =
   let statement = { defaultStatement with Annotations = defaultAnnotations }
   let result = bindDataToHtml statement
 
-  let expectedHtml = "<table><tr><td>First Issued</td><td>Ocotber 2010</td></tr></table>"
-  
+  let expectedHtml = """
+<table>
+<tr>
+<td>First Issued On</td><td>October 2010</td>
+</tr>
+</table>
+"""  
   result.Html |> should equal expectedHtml

@@ -1,4 +1,5 @@
 source https://nuget.org/api/v2
+nuget DotLiquid
 nuget FSharp.Data
 nuget FSharp.Formatting 2.10.3
 nuget FSharp.RDF
