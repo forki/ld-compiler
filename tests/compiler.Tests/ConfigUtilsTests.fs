@@ -124,13 +124,13 @@ let private sampleConfig = """
 				},
                 {
 					"Uri": "positionalid",
-					"Validate": true,
+					"ElasticAnnotation": true,
 					"Format": "PositionalId:Required",
                     "PropertyPath": []
 				},
 				{
 					"Uri": "firstissued",
-					"Validate": true,
+					"ElasticAnnotation": true,
 					"Format": "Date:Required",
                     "PropertyPath": []
 				}
@@ -175,14 +175,14 @@ let private expected_PropertyValidations = [
   {
     Uri= "positionalid"
     Label=null
-    Validate= true
+    ElasticAnnotation= true
     Format= "PositionalId:Required"
     PropertyPath=[]
   }
   {
     Uri= "firstissued"
     Label=null
-    Validate= true
+    ElasticAnnotation= true
     Format= "Date:Required"
     PropertyPath=[]
   }
