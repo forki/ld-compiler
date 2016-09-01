@@ -67,11 +67,20 @@ let getRdfArgs config =
   }
 
 let getPropertyValidations config =
+//  let isAnnotationValidation (publishItem:PublishItem) =
+//    match publishItem.Required with
+//    | true -> true
+//    | _ -> match obj.ReferenceEquals(publishItem.Format, null) with
+//           | true -> false
+//           | _ -> match publishItem.Format.Length with
+//                  | 0 -> false
+//                  | _ -> true
+
   config.SchemaDetails
   |> List.filter (fun x -> x.Map=false)
-  |> List.map (fun f -> (f.Publish |> List.filter (fun p -> p.Required=true)))
+  |> List.map (fun f -> (f.Publish |> List.filter (fun p -> p.Validate)))
+//  |> List.map (fun f -> (f.Publish |> List.filter (fun p -> p |> isAnnotationValidation)))
   |> List.concat
-
 
 let deserializeConfig jsonString =
   JsonConvert.DeserializeObject<ConfigTypes.Config>(jsonString)

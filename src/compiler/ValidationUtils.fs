@@ -87,25 +87,23 @@ let private validateMandatoryAnnotations validations annotations =
                 |> List.map (fun a -> assessTerms a.Terms annotationTerm)
                 |> List.contains true
  
-  let assessValidation validation =
-    let isConditionalValidation validationParts = 
-      match Array.get validationParts 1 with
-      | "Conditional" -> true
-      | _ -> false
-
+  let shouldProcessValidation validation =
     let validationParts = validation.Format.Split [|':'|]
     match validationParts.Length with
-    | 4 -> match isConditionalValidation validationParts with
-           | true -> validation, (assessAnnotations validationParts)
-           | _ -> validation, validation.Required
-    | _ -> validation, validation.Required
+    | 2 -> match Array.get validationParts 1 with
+           | "Required" -> validation, true
+           | _ -> validation, false
+    | 4 -> match Array.get validationParts 1 with
+           | "Conditional" -> validation, (assessAnnotations validationParts)
+           | _ -> validation, false
+    | _ -> validation, false
 
-  let conditionalValidation validation =
+  let activeValidation validation =
     match obj.ReferenceEquals(validation.Format, null) with
-    | false -> assessValidation validation
-    | _ -> validation, validation.Required
+    | false -> shouldProcessValidation validation
+    | _ -> validation, false
 
-  validations |> List.map (fun v -> conditionalValidation v)
+  validations |> List.map (fun v -> activeValidation v)
               |> List.filter (fun t -> snd t)
               |> List.map (fun t -> fst t)
               |> List.map (fun v -> validateAnnotationExists annotations v)

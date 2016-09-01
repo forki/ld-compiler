@@ -12,41 +12,36 @@ let private annotationValidations = [
   {
     Uri= "positionalid"
     Label=null
-    Required= true
-    Format= "PositionalId"
-    OutFormatMask=null
+    Validate= true
+    Format= "PositionalId:Required"
     PropertyPath=[]
   }
   {
     Uri= "required"
     Label=null
-    Required= true
-    Format= null
-    OutFormatMask= null
+    Validate= true
+    Format= "String:Required"
     PropertyPath=[]
   }
   {
     Uri= "notrequireddate"
     Label=null
-    Required= false
+    Validate= true
     Format= "Date"
-    OutFormatMask= null
     PropertyPath=[]
   }
   {
     Uri= "notrequiredyesno"
     Label=null
-    Required= false
+    Validate= true
     Format= "YesNo"
-    OutFormatMask= null
     PropertyPath=[]
   }
   {
     Uri= "conditionallyrequireddate"
     Label=null
-    Required= false
+    Validate = true
     Format= "Date:Conditional:notrequiredyesno:no"
-    OutFormatMask= null
     PropertyPath=[]
   }
 ]

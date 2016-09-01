@@ -1,4 +1,4 @@
-﻿module compiler.Test.ConfigurationFileTests
+﻿module compiler.Test.ConfigUtilsTests
 
 open NUnit.Framework
 open FsUnit
@@ -124,15 +124,14 @@ let private sampleConfig = """
 				},
                 {
 					"Uri": "positionalid",
-					"Required": true,
-					"Format": "PositionalId",
+					"Validate": true,
+					"Format": "PositionalId:Required",
                     "PropertyPath": []
 				},
 				{
 					"Uri": "firstissued",
-					"Required": true,
-					"Format": "Date",
-					"OutFormatMask": "MMMM yyyy",
+					"Validate": true,
+					"Format": "Date:Required",
                     "PropertyPath": []
 				}
 			]
@@ -176,17 +175,15 @@ let private expected_PropertyValidations = [
   {
     Uri= "positionalid"
     Label=null
-    Required= true
-    Format= "PositionalId"
-    OutFormatMask=null
+    Validate= true
+    Format= "PositionalId:Required"
     PropertyPath=[]
   }
   {
     Uri= "firstissued"
     Label=null
-    Required= true
-    Format= "Date"
-    OutFormatMask= "MMMM yyyy"
+    Validate= true
+    Format= "Date:Required"
     PropertyPath=[]
   }
 ]
@@ -194,26 +191,26 @@ let private expected_PropertyValidations = [
 let private expected_BaseUrl = "http://ld.nice.org.uk/resource"
 
 [<Test>]
-let ``Should extract schema base from config`` () =
+let ``ConfigUtilsTests: Should extract schema base from config`` () =
   let config = deserializeConfig sampleConfig
 
   config.SchemaBase |> should equal "http://schema/ns/"
 
 [<Test>]
-let ``Should extract jsonld contexts from config`` () =
+let ``ConfigUtilsTests: Should extract jsonld contexts from config`` () =
   let result:string list = deserializeConfig sampleConfig
                            |> getJsonLdContexts
 
   areListsTheSame expected_Jsonld result
 [<Test>]
-let ``Should extract schema ttls from config`` () =
+let ``ConfigUtilsTests: Should extract schema ttls from config`` () =
   let result = deserializeConfig sampleConfig
                |> getSchemaTtls
 
   areListsTheSame expected_Ttl result
 
 [<Test>]
-let ``Should extract property paths from config`` () =
+let ``ConfigUtilsTests: Should extract property paths from config`` () =
   let result = deserializeConfig sampleConfig
                |> getPropPaths
 
@@ -221,13 +218,13 @@ let ``Should extract property paths from config`` () =
   areListsTheSame expected_PropPaths result
 
 [<Test>]
-let ``Should read the expected BaseUrl from config`` () =
+let ``ConfigUtilsTests: Should read the expected BaseUrl from config`` () =
   deserializeConfig sampleConfig
   |> getBaseUrl
   |> should equal expected_BaseUrl
 
 [<Test>]
-let ``Should read the expected property validations from config`` () =
+let ``ConfigUtilsTests: Should read the expected property validations from config`` () =
   let result = deserializeConfig sampleConfig
                |> getPropertyValidations
 
