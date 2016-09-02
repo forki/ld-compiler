@@ -46,12 +46,21 @@ let private lookupAnnotations vocabMap termMap annotations =
 
 open Assertion
 
-let generateDynamicRdfContent (validations:PublishItem List) (baseUrl:string) (statement:Statement) =
-  
-  ()
+let generateDynamicRdfContent (validations:PublishItem List) (baseUrl:string) (statement:compiler.Domain.Statement) =
+  let getAnnotationTerms label =
+    statement.Annotations
+    |> List.filter (fun a -> a.Vocab = label)
+    |> List.map (fun a -> a.Terms)
+    |> List.concat
+
+  let res = validations
+            |> List.filter (fun v -> v.Validate)
+            |> List.map (fun v -> (sprintf "%s#%s" baseUrl v.Uri), getAnnotationTerms v.Label)
+
+  res
 
 let transformToRDF args validations baseUrl statement =
-
+  let dynamic = generateDynamicRdfContent validations baseUrl statement
   let uri = sprintf "%s/%s" args.BaseUrl statement.Id
   let annotations = lookupAnnotations args.VocabMap args.TermMap statement.Annotations
   let firstIssued = statement.Annotations |> List.find (fun x -> x.Vocab.Replace(" ","").ToLower() = "firstissued") 

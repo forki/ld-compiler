@@ -10,35 +10,35 @@ open compiler.Test.TestUtilities
 
 let private annotationValidations = [
   {
-    Uri= "positionalid"
+    Uri= "hasPositionalId"
     Label="PositionalId"
     Validate= true
     Format= "PositionalId:Required"
     PropertyPath=[]
   }
   {
-    Uri= "required"
+    Uri= "hasRequired"
     Label="Required"
     Validate= true
     Format= "String:Required"
     PropertyPath=[]
   }
   {
-    Uri= "notrequireddate"
+    Uri= "hasNotRequireddate"
     Label="Date Not Required"
     Validate= true
     Format= "Date"
     PropertyPath=[]
   }
   {
-    Uri= "notrequiredyesno"
+    Uri= "hasNotRequiredYesNo"
     Label="YesNo Not Required"
     Validate= true
     Format= "YesNo"
     PropertyPath=[]
   }
   {
-    Uri= "conditionallyrequireddate"
+    Uri= "hasConditionallyRequiredDate"
     Label="Date Conditional"
     Validate = true
     Format= "Date:Conditional:YesNo Not Required:no"
@@ -96,7 +96,7 @@ let ``ValidationUtilsTests: When a statement has an invalid PositionalId then va
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "Invalid value for the PositionalId annotation"
+  res |> should equal "Invalid value for the 'PositionalId' annotation"
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has an blank required annotation then validating the statement will throw a 'missing annotation' exception`` () =
@@ -108,7 +108,7 @@ let ``ValidationUtilsTests: When a statement has an blank required annotation th
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "Missing the required annotation"
+  res |> should equal "Missing the 'Required' annotation"
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement is missing required annotation then validating the statement will throw a 'missing annotation' exception`` () =
@@ -119,7 +119,7 @@ let ``ValidationUtilsTests: When a statement is missing required annotation then
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "Missing the required annotation"
+  res |> should equal "Missing the 'Required' annotation"
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has a date formatted annotation which is not valid (dd-MM-yyyy) then validating the statement will throw a 'missing annotation' exception`` () =
@@ -130,7 +130,7 @@ let ``ValidationUtilsTests: When a statement has a date formatted annotation whi
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "Invalid value for the notrequireddate annotation"
+  res |> should equal "Invalid value for the 'Date Not Required' annotation"
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has a YesNo formatted annotation which is not yes or no then validating the statement will throw a 'missing annotation' exception`` () =
@@ -141,7 +141,7 @@ let ``ValidationUtilsTests: When a statement has a YesNo formatted annotation wh
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "Invalid value for the notrequiredyesno annotation"
+  res |> should equal "Invalid value for the 'YesNo Not Required' annotation"
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has a conditionally required annotation which is not provided then validating the statement will throw a 'missing annotation' exception`` () =
@@ -152,4 +152,4 @@ let ``ValidationUtilsTests: When a statement has a conditionally required annota
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "Missing the Date Conditional annotation"
+  res |> should equal "Missing the 'Date Conditional' annotation"

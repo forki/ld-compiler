@@ -6,10 +6,10 @@ open compiler.ConfigTypes
 
 let private raiseError annotation state =
   match state with
-  | "Invalid" -> sprintf "Invalid value for the %s annotation" annotation
-  | "Blank" -> sprintf "Blank value for the %s annotation" annotation
-  | "Missing" -> sprintf "Missing the %s annotation" annotation
-  | _ -> sprintf "Error (%s) encountered while processing the %s annotation" state annotation
+  | "Invalid" -> sprintf "Invalid value for the '%s' annotation" annotation
+  | "Blank" -> sprintf "Blank value for the '%s' annotation" annotation
+  | "Missing" -> sprintf "Missing the '%s' annotation" annotation
+  | _ -> sprintf "Error (%s) encountered while processing the '%s' annotation" state annotation
   |> failwith
 
 let private processDate name field =
@@ -51,9 +51,9 @@ let private validateYesNo name value =
 let private validateValue validation (value:string) =
   let matchValidationType validation format value =
     match format with
-    | "Date" -> processDate validation.Uri value
+    | "Date" -> processDate validation.Label value
     | "PositionalId" -> validatePositionalId value
-    | "YesNo" -> validateYesNo validation.Uri value
+    | "YesNo" -> validateYesNo validation.Label value
     | _ -> value
 
   let matchValidationHead value (formatOption:string Option) =
@@ -83,7 +83,6 @@ let private validateMandatoryAnnotations validations annotations =
 
     let annotationVocab = Array.get validationParts 2
     let annotationTerm = Array.get validationParts 3
-//    annotations |> List.filter (fun a -> a.Vocab.Replace(" ","").ToLower() = annotationVocab.Replace(" ","").ToLower())
     annotations |> List.filter (fun a -> a.Vocab = annotationVocab)
                 |> List.map (fun a -> assessTerms a.Terms annotationTerm)
                 |> List.contains true

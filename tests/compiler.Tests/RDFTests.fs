@@ -37,21 +37,21 @@ let private validations = [
     PropertyPath=[]
   }
   {
-    Uri= "notrequireddate"
+    Uri= "NotRequiredDate"
     Label=null
     Validate= true
     Format= "Date"
     PropertyPath=[]
   }
   {
-    Uri= "notrequiredyesno"
+    Uri= "NotRequiredYesNo"
     Label=null
     Validate= true
     Format= "YesNo"
     PropertyPath=[]
   }
   {
-    Uri= "conditionallyrequireddate"
+    Uri= "ConditionallyRequiredDate"
     Label=null
     Validate = true
     Format= "Date:Conditional:notrequiredyesno:no"
