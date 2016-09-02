@@ -11,7 +11,7 @@ open compiler.BindDataToHtml
 let ``Should insert data correctly into html `` () =
   let defaultAnnotations = [
     {Vocab = "First issued"
-     Terms = ["2010-10-01"] }   
+     Terms = ["0001-01-01"] }   
   ]
 
   let defaultStatement = {
@@ -27,12 +27,6 @@ let ``Should insert data correctly into html `` () =
 
   let statement = { defaultStatement with Annotations = defaultAnnotations }
   let result = bindDataToHtml statement
+  let firstIssuedDate = "January 0001"
 
-  let expectedHtml = """
-<table>
-<tr>
-<td>First Issued On</td><td>October 2010</td>
-</tr>
-</table>
-"""  
-  result.Html |> should equal expectedHtml
+  result.Html |> should haveSubstring firstIssuedDate
