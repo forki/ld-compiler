@@ -46,7 +46,7 @@ let private lookupAnnotations vocabMap termMap annotations =
 
 open Assertion
 
-let generateDynamicRdfContent (validations:PublishItem List) (baseUrl:string) (statement:compiler.Domain.Statement) =
+let generateDataAnnotations (validations:PublishItem List) (baseUrl:string) (statement:compiler.Domain.Statement) =
   let getAnnotationTerms label =
     statement.DataAnnotations
     |> List.filter (fun a -> a.Vocab = label)
@@ -58,22 +58,21 @@ let generateDynamicRdfContent (validations:PublishItem List) (baseUrl:string) (s
   |> List.map (fun v -> v |> snd
                           |> List.map (fun t -> (fst v), t))
   |> List.concat
+  |> List.map (fun (v,t) -> dataProperty !!v (t^^xsd.string))
 
 let transformToRDF args validations baseUrl statement =
 
-  let dynamic = generateDynamicRdfContent validations baseUrl statement
-                
-                
+  let dataAnnotations = generateDataAnnotations validations baseUrl statement
+                          
   let uri = sprintf "%s/%s" args.BaseUrl statement.Id
-  let annotations = lookupAnnotations args.VocabMap args.TermMap statement.ObjectAnnotations
-//  let firstIssued = statement.ObjectAnnotations |> List.find (fun x -> x.Vocab.Replace(" ","").ToLower() = "firstissued") 
-  resource !! uri
-    ( [a !! "http://ld.nice.org.uk/ns/qualitystandard#QualityStatement"
-       dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#title" (statement.Title^^xsd.string)
-       dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#abstract" (statement.Abstract^^xsd.string)
-       dataProperty !!"http://www.w3.org/2011/content#chars" (statement.Content^^xsd.string)
-       dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#stidentifier" (statement.StatementId^^xsd.integer)
-       dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#qsidentifier" (statement.StandardId^^xsd.integer)
-//       dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#firstissued" (firstIssued.Terms.Head^^xsd.string)
-       ] @ annotations ) 
+  let objectAnnotations = lookupAnnotations args.VocabMap args.TermMap statement.ObjectAnnotations
+  let r = resource !! uri
+            ( [a !! "http://ld.nice.org.uk/ns/qualitystandard#QualityStatement"
+               dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#title" (statement.Title^^xsd.string)
+               dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#abstract" (statement.Abstract^^xsd.string)
+               dataProperty !!"http://www.w3.org/2011/content#chars" (statement.Content^^xsd.string)
+               dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#stidentifier" (statement.StatementId^^xsd.integer)
+               dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#qsidentifier" (statement.StandardId^^xsd.integer)
+               ] @ objectAnnotations @ dataAnnotations) 
   
+  r

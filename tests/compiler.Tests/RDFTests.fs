@@ -33,7 +33,7 @@ let defaultStatement = {
   Html = ""
 }
 
-let private baseUrl = "http://ld.nice.org.uk/resource"
+let private baseUrl = "http://ld.nice.org.uk/ns/qualitystandard"
 
 let private validations = [
   {
