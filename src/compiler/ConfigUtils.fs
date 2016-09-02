@@ -18,16 +18,16 @@ let private getPathWithSubclass urlBase qsBase p =
   |> List.fold concatPropertyPaths ""  
 
 
-let private getGetMmKey s (l:string) =
-    match obj.ReferenceEquals(l, null) with
+let private getPropertyForLabel s (label:string) =
+    match obj.ReferenceEquals(label, null) with
     |true -> s
-    |_ -> l.ToLower().Replace(" ","")
+    |_ -> getProperty label
 
 let private rdf_getVocabMap config =
   let getMmkVocabList p =
     p
     |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
-    |> List.map (fun p -> (getGetMmKey p.Uri p.Label, sprintf "%s%s#%s" config.UrlBase config.QSBase p.Uri))
+    |> List.map (fun p -> (getPropertyForLabel p.Uri p.Label, sprintf "%s%s#%s" config.UrlBase config.QSBase p.Uri))
 
   let getVocabList config =
     config.SchemaDetails
@@ -44,7 +44,7 @@ let private rdf_getTermMap config =
     pl
     |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
     |> List.filter (fun p -> p.PropertyPath.Length > 0)
-    |> List.map (fun p -> (getGetMmKey p.Uri p.Label, sprintf "%s%s" config.SchemaBase schema)) 
+    |> List.map (fun p -> (getPropertyForLabel p.Uri p.Label, sprintf "%s%s" config.SchemaBase schema)) 
  
   let getTermList config =
     config.SchemaDetails

@@ -1,6 +1,8 @@
 module compiler.RDF
 
 open compiler.Domain
+open compiler.Utils
+
 open FSharp.RDF
 open Assertion
 open resource
@@ -13,7 +15,6 @@ type RDFArgs = {
   BaseUrl : string
 }
 
-let private mkKey (x : string) = x.Replace(" ", "").ToLowerInvariant()
 
 ///Load all resources from uri and make a map of rdfs:label -> resource uri
 let vocabLookup uri =
@@ -24,7 +25,7 @@ let vocabLookup uri =
   |> List.map (fun r ->
        match r with
        | FunctionalDataProperty rdfslbl xsd.string x ->
-         Some(mkKey x, Resource.id r)
+         Some(getProperty x, Resource.id r)
        | _ -> None)
   |> onlySome
   |> Map.ofList
@@ -39,8 +40,8 @@ let private lookupAnnotations vocabMap termMap annotations =
 
   let lookupTerms (vocab,term) =
     let termMap = termMap
-    let vocabKey = mkKey vocab
-    let termKey = mkKey term
+    let vocabKey = getProperty vocab
+    let termKey = getProperty term
     match Map.tryFind vocabKey vocabMap with
     | Some vocabUri ->
       match Map.tryFind vocabKey termMap with
