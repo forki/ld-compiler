@@ -76,6 +76,7 @@
     <Compile Include="Pandoc.fs" />
     <Compile Include="Preamble.fs" />
     <Compile Include="Publish.fs" />
+    <Compile Include="extensions/DotLiquidExtensions.fs" />
     <Compile Include="BindDataToHtml.fs" />
     <Compile Include="Compile.fs" />
     <Compile Include="Main.fs" />
