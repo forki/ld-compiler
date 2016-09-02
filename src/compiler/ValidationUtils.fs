@@ -126,10 +126,12 @@ let validateStatement validations (statement:Statement) =
     Abstract = statement.Abstract
     StandardId = statement.StandardId
     StatementId = statement.StatementId
-    Annotations = statement.Annotations
-                    |> List.filter (fun x -> x.Terms.Length > 0)
-                    |> validateMandatoryAnnotations validations
-                    |> validateProvidedAnnotations validations
+    ObjectAnnotations = statement.ObjectAnnotations
+                        |> List.filter (fun x -> x.Terms.Length > 0)
+    DataAnnotations = statement.DataAnnotations
+                      |> List.filter (fun x -> x.Terms.Length > 0)
+                      |> validateMandatoryAnnotations validations
+                      |> validateProvidedAnnotations validations
     Content = statement.Content
     Html = statement.Html
   }

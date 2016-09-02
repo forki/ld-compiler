@@ -48,22 +48,25 @@ open Assertion
 
 let generateDynamicRdfContent (validations:PublishItem List) (baseUrl:string) (statement:compiler.Domain.Statement) =
   let getAnnotationTerms label =
-    statement.Annotations
+    statement.DataAnnotations
     |> List.filter (fun a -> a.Vocab = label)
     |> List.map (fun a -> a.Terms)
     |> List.concat
 
-  let res = validations
-            |> List.filter (fun v -> v.Validate)
-            |> List.map (fun v -> (sprintf "%s#%s" baseUrl v.Uri), getAnnotationTerms v.Label)
-
-  res
+  validations
+  |> List.map (fun v -> (sprintf "%s#%s" baseUrl v.Uri), getAnnotationTerms v.Label)
+  |> List.map (fun v -> v |> snd
+                          |> List.map (fun t -> (fst v), t))
+  |> List.concat
 
 let transformToRDF args validations baseUrl statement =
+
   let dynamic = generateDynamicRdfContent validations baseUrl statement
+                
+                
   let uri = sprintf "%s/%s" args.BaseUrl statement.Id
-  let annotations = lookupAnnotations args.VocabMap args.TermMap statement.Annotations
-  let firstIssued = statement.Annotations |> List.find (fun x -> x.Vocab.Replace(" ","").ToLower() = "firstissued") 
+  let annotations = lookupAnnotations args.VocabMap args.TermMap statement.ObjectAnnotations
+//  let firstIssued = statement.ObjectAnnotations |> List.find (fun x -> x.Vocab.Replace(" ","").ToLower() = "firstissued") 
   resource !! uri
     ( [a !! "http://ld.nice.org.uk/ns/qualitystandard#QualityStatement"
        dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#title" (statement.Title^^xsd.string)
@@ -71,6 +74,6 @@ let transformToRDF args validations baseUrl statement =
        dataProperty !!"http://www.w3.org/2011/content#chars" (statement.Content^^xsd.string)
        dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#stidentifier" (statement.StatementId^^xsd.integer)
        dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#qsidentifier" (statement.StandardId^^xsd.integer)
-       dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#firstissued" (firstIssued.Terms.Head^^xsd.string)
+//       dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#firstissued" (firstIssued.Terms.Head^^xsd.string)
        ] @ annotations ) 
   

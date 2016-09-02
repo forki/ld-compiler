@@ -37,7 +37,7 @@ let compile config extractor items outputDir dbName =
   let compileItem =
     extractor.readContentForItem
     >> convertMarkdownToHtml 
-    >> extractStatement
+    >> extractStatement validations
     >> validateStatement validations
     >> writeHtml outputDir
     >> transformToRDF rdfArgs validations baseUrl

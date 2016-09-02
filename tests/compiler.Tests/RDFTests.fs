@@ -11,8 +11,14 @@ open FsUnit
 
 
 let defaultAnnotations = [
-  {Vocab = "First issued"
-   Terms = ["2010-10-01"] }   
+  { Vocab = "PositionalId"
+    Terms = ["qs1-st1"] }
+  { Vocab = "National priority"
+    Terms = ["yes"] }
+  { Vocab = "Changed Priority On"
+    Terms = ["2012-06-01"] }
+  { Vocab = "First issued"
+    Terms = ["2010-10-01"] }   
 ]
 
 let defaultStatement = {
@@ -21,7 +27,8 @@ let defaultStatement = {
   Abstract = ""
   StandardId = 0
   StatementId = 0
-  Annotations = defaultAnnotations
+  ObjectAnnotations = []
+  DataAnnotations = defaultAnnotations
   Content = ""
   Html = ""
 }
@@ -30,31 +37,31 @@ let private baseUrl = "http://ld.nice.org.uk/resource"
 
 let private validations = [
   {
-    Uri= "required"
-    Label=null
-    Validate= true
-    Format= "String:Required"
-    PropertyPath=[]
-  }
-  {
-    Uri= "NotRequiredDate"
-    Label=null
-    Validate= true
-    Format= "Date"
-    PropertyPath=[]
-  }
-  {
-    Uri= "NotRequiredYesNo"
-    Label=null
-    Validate= true
-    Format= "YesNo"
-    PropertyPath=[]
-  }
-  {
-    Uri= "ConditionallyRequiredDate"
-    Label=null
+    Uri = "hasPositionalId"
+    Label = "PositionalId"
     Validate = true
-    Format= "Date:Conditional:notrequiredyesno:no"
+    Format = "PositionalId:Required"
+    PropertyPath=[]
+  }
+  {
+    Uri = "isNationalPriority"
+    Label = "National priority"
+    Validate = true
+    Format = "YesNo:Required"
+    PropertyPath=[]
+  }
+  {
+    Uri = "changedPriorityOn"
+    Label = "Changed Priority On"
+    Validate = true
+    Format = "Date:Conditional:National priority:no"
+    PropertyPath=[]
+  }
+  {
+    Uri = "wasFirstIssuedOn"
+    Label = "First issued"
+    Validate = true
+    Format = "Date:Required"
     PropertyPath=[]
   }
 ]
@@ -119,7 +126,7 @@ let ``Should create title dataproperty for resource``() =
 
 [<Test>]
 let ``Should convert a single annotated term into an objectproperty``() =
-  let statement = {defaultStatement with Annotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1" ] }]}
+  let statement = {defaultStatement with ObjectAnnotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1" ] }]}
   let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"] |> Map.ofList ] |> Map.ofList}
   let property = 
@@ -133,7 +140,7 @@ let ``Should convert a single annotated term into an objectproperty``() =
 
 [<Test>]
 let ``Should convert multiple annotated terms from one vocab as objectproperties``() =
-  let statement = {defaultStatement with Annotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1"; "Term2" ] }]}
+  let statement = {defaultStatement with ObjectAnnotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1"; "Term2" ] }]}
   let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"
                                                      "term2", Uri.from "http://someuri.com/Vocab1#Term2"] |> Map.ofList ] |> Map.ofList}
@@ -149,8 +156,8 @@ let ``Should convert multiple annotated terms from one vocab as objectproperties
 
 [<Test>]
 let ``Should convert annotated terms from multiple vocabs as objectproperties``() =
-  let statement = {defaultStatement with Annotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1"] }
-                                                                             {Vocab="Vocab2"; Terms=[ "Term1"] }]}
+  let statement = {defaultStatement with ObjectAnnotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1"] }
+                                                                                   {Vocab="Vocab2"; Terms=[ "Term1"] }]}
   let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"
                                            "vocab2", Uri.from "http://someuri.com/Vocab2"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"] |> Map.ofList 

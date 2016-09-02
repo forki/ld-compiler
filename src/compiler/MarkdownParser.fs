@@ -3,6 +3,7 @@ module compiler.Markdown
 open compiler.Domain
 open compiler.ContentHandle
 open compiler.YamlParser
+open compiler.ConfigTypes
 open System.Text.RegularExpressions
 open FSharp.Markdown
 open FSharp.Data
@@ -56,7 +57,14 @@ let private standardAndStatementNumbers id =
   | "" -> [|"0";"0"|]
   | _ -> id |> removeText |> splitPositionalId
 
-let extractStatement (contentHandle, html) =
+let extractStatement (validations:PublishItem List) (contentHandle, html) =
+  let isDataAnnotation (annotation:Annotation) =
+    match validations
+          |> List.tryFind (fun v -> (v.Validate && v.Label = annotation.Vocab))
+          with
+          | Some PublishItem -> true
+          | _ -> false
+
   let markdown = Markdown.Parse(contentHandle.Content)
 
   let abs = extractAbstract html
@@ -72,13 +80,19 @@ let extractStatement (contentHandle, html) =
   let standardId = (standardAndStatementNumbers id).[0] |> System.Int32.Parse
   let statementId = (standardAndStatementNumbers id).[1] |> System.Int32.Parse 
 
+  let dataAnnotations = annotations |> List.filter (fun a -> isDataAnnotation a)
+  let objectAnnotations = annotations |> List.filter (fun a -> (isDataAnnotation a)=false)
+
   let title = sprintf "Quality statement %d from quality standard %d" statementId standardId
 
-  {Id = contentHandle.Thing
-   Title = title 
-   Abstract = abs 
-   StandardId = standardId
-   StatementId = statementId
-   Annotations = annotations
-   Content = contentHandle.Content
-   Html = html}
+  {
+    Id = contentHandle.Thing
+    Title = title 
+    Abstract = abs 
+    StandardId = standardId
+    StatementId = statementId
+    ObjectAnnotations = objectAnnotations
+    DataAnnotations = dataAnnotations
+    Content = contentHandle.Content
+    Html = html
+  }
