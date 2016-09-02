@@ -6,28 +6,43 @@ open System.IO
 open compiler.Domain
 open compiler.DotLiquidExtensions
 
-type MetadataViewModel =
-  {
+type MetadataItem = {
     Label: string 
     Value: string
+    IsDate: bool
   }
+
+type MetadataViewModel = {
+  MetadataItems : MetadataItem list
+}
 
 let private mapMetadataFrom statement =
-  let firstIssued = statement.Annotations |> List.find (fun x -> x.Vocab.Replace(" ","").ToLower() = "firstissued") 
-  {
-    Label="First issued on"
-    Value=firstIssued.Terms.Head
-  }
+  statement.Annotations 
+  |> List.filter (fun x -> x.IsDisplayed) 
+  |> List.map (fun x -> 
+    {
+      Label=x.Vocab
+      Value=x.Terms.Head
+      IsDate=true
+    })
 
 let bindDataToHtml statement =
-  let metadata = mapMetadataFrom statement 
+  let metadata = { MetadataItems = mapMetadataFrom statement }
 
   let text = 
     """
     <table id="metadata">
+    {% for item in metadata.MetadataItems %}
     <tr>
-      <td>{{metadata.Label }}</td><td>{{metadata.Value |  date: "MMMM yyyy" }}</td>
+      <td class="col1">{{item.Label }}</td>
+      <td>{% if item.IsDate  %} 
+          {{item.Value |  date: "MMMM yyyy" }}
+          {% else %}
+          {{item.Value}}
+          {% endif %}
+      </td>
     </tr>
+     {% endfor %}
     </table>
     """ + statement.Html
 

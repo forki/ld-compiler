@@ -100,8 +100,8 @@ let ``Should extract the annotations from code block`` () =
   let statement = extractStatement (sampleMarkdownContent, "")
 
   statement.Annotations |> should equal [
-                                          { Property = "positionalid"; Vocab = "PositionalId";Terms = ["qs1-st2"];};
-                                          {Property = "vocab"; Vocab = "Vocab";Terms = ["Term"];}
+                                          {annotation with Property = "positionalid"; Vocab = "PositionalId";Terms = ["qs1-st2"];};
+                                          {annotation with Property = "vocab"; Vocab = "Vocab";Terms = ["Term"];}
   ]
 
 [<Test>]

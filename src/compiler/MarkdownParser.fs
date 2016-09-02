@@ -35,8 +35,18 @@ let private extractAnnotations (markdown:MarkdownDocument) =
     | CodeBlock (text,_,_) -> text
     | _ -> ""
 
+let private shouldDisplayProperty name =
+  name.Equals("firstissued")
+
+let private isDate name =
+  name.Equals("firstissued")
+
 let private convertToVocab {Name = name; Fields = fields} = 
-  {Property = getProperty name; Vocab = name; Terms = fields}
+  {Property = getProperty name
+   Vocab = name
+   Terms = fields 
+   IsDisplayed = name |> getProperty |> shouldDisplayProperty 
+   IsDate = name |> getProperty |> isDate }
 
 let private HandleNoPositionalIdAnnotationError =
   printfn "[Error] A statement was missing the PositionalId annotation"
