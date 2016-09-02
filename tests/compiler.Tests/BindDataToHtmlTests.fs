@@ -10,8 +10,11 @@ open compiler.BindDataToHtml
 [<Test>]
 let ``Should insert data correctly into html `` () =
   let defaultAnnotations = [
-    {Vocab = "First issued"
-     Terms = ["0001-01-01"] }   
+    {
+      Vocab = "First issued"
+      Property = "wasFirstIssued"
+      Terms = ["0001-01-01"]
+    }   
   ]
 
   let defaultStatement = {

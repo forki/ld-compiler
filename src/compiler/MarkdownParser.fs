@@ -3,6 +3,7 @@ module compiler.Markdown
 open compiler.Domain
 open compiler.ContentHandle
 open compiler.YamlParser
+open compiler.Utils
 open System.Text.RegularExpressions
 open FSharp.Markdown
 open FSharp.Data
@@ -34,7 +35,8 @@ let private extractAnnotations (markdown:MarkdownDocument) =
     | CodeBlock (text,_,_) -> text
     | _ -> ""
 
-let private convertToVocab {Name = name; Fields = fields} = {Vocab = name; Terms = fields}
+let private convertToVocab {Name = name; Fields = fields} = 
+  {Property = getProperty name; Vocab = name; Terms = fields}
 
 let private HandleNoPositionalIdAnnotationError =
   printfn "[Error] A statement was missing the PositionalId annotation"

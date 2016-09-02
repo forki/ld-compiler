@@ -35,3 +35,5 @@ let tryClean dir =
     Directory.Delete(dir, true)
   with ex -> ()
   Directory.CreateDirectory dir |> ignore
+
+let getProperty (x : string) = x.Replace(" ", "").ToLowerInvariant()

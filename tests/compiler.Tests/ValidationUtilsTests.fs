@@ -43,8 +43,8 @@ let private validStatement = {
   StandardId = 1
   StatementId = 1
   Annotations = 
-    [{Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-     {Vocab = "Required"; Terms = ["A value"] }]
+    [{annotation with Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+     {annotation with Vocab = "Required"; Terms = ["A value"] }]
   Content = "Content"
   Html = "HTML"
 }
@@ -56,9 +56,9 @@ let private validStatement_WithDate = {
   StandardId = 1
   StatementId = 1
   Annotations = 
-    [{Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-     {Vocab = "Required"; Terms = ["A value"] }
-     {Vocab = "Not Required Date"; Terms = ["01-10-2010"] }]
+    [{annotation with Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+     {annotation with Vocab = "Required"; Terms = ["A value"] }
+     {annotation with Vocab = "Not Required Date"; Terms = ["01-10-2010"] }]
   Content = "Content"
   Html = "HTML"
 }
@@ -70,9 +70,9 @@ let private validStatement_WithDate_Transformed = {
   StandardId = 1
   StatementId = 1
   Annotations = 
-    [{Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-     {Vocab = "Required"; Terms = ["A value"] }
-     {Vocab = "Not Required Date"; Terms = ["October 2010"] }]
+    [{annotation with Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+     {annotation with Vocab = "Required"; Terms = ["A value"] }
+     {annotation with Vocab = "Not Required Date"; Terms = ["October 2010"] }]
   Content = "Content"
   Html = "HTML"
 }
@@ -84,8 +84,8 @@ let private invalidStatemen_BadPositionalId = {
   StandardId = 1
   StatementId = 1
   Annotations = 
-    [{Vocab = "PositionalId"; Terms = ["st1-qs1"] }
-     {Vocab = "Required"; Terms = ["A value"] }] 
+    [{annotation with Vocab = "PositionalId"; Terms = ["st1-qs1"] }
+     {annotation with Vocab = "Required"; Terms = ["A value"] }] 
   Content = "Content"
   Html = "HTML"
 }
@@ -97,8 +97,8 @@ let private invalidStatemen_RequiredBlank = {
   StandardId = 1
   StatementId = 1
   Annotations = 
-    [{Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-     {Vocab = "Required"; Terms = [] }]
+    [{annotation with Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+     {annotation with Vocab = "Required"; Terms = [] }]
   Content = "Content"
   Html = "HTML"
 }
@@ -110,8 +110,8 @@ let private invalidStatemen_RequiredMissing = {
   StandardId = 1
   StatementId = 1
   Annotations = 
-    [{Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-     {Vocab = "Not Required Date"; Terms = ["01-10-2010"] }]
+    [{annotation with Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+     {annotation with Vocab = "Not Required Date"; Terms = ["01-10-2010"] }]
   Content = "Content"
   Html = "HTML"
 }
@@ -123,9 +123,9 @@ let private invalidStatemen_BadDate = {
   StandardId = 1
   StatementId = 1
   Annotations = 
-    [{Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-     {Vocab = "Required"; Terms = ["A value"] }
-     {Vocab = "Not Required Date"; Terms = ["01 October 2010"] }]
+    [{annotation with Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+     {annotation with Vocab = "Required"; Terms = ["A value"] }
+     {annotation with Vocab = "Not Required Date"; Terms = ["01 October 2010"] }]
   Content = "Content"
   Html = "HTML"
 }

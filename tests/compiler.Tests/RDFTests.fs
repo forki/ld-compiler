@@ -7,10 +7,12 @@ open resource
 open NUnit.Framework
 open FsUnit
 
-
 let defaultAnnotations = [
-  {Vocab = "First issued"
-   Terms = ["2010-10-01"] }   
+  {
+    Property = "wasFirstIssued"
+    Vocab = "First issued"
+    Terms = ["2010-10-01"]
+  }   
 ]
 
 let defaultStatement = {
@@ -86,7 +88,9 @@ let ``Should create title dataproperty for resource``() =
 
 [<Test>]
 let ``Should convert a single annotated term into an objectproperty``() =
-  let statement = {defaultStatement with Annotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1" ] }]}
+  let statement = 
+    {defaultStatement with Annotations = defaultAnnotations @ 
+                                         [{ annotation with Vocab="Vocab1"; Terms=[ "Term1" ] }]}
   let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"] |> Map.ofList ] |> Map.ofList}
   let property = 
@@ -100,7 +104,7 @@ let ``Should convert a single annotated term into an objectproperty``() =
 
 [<Test>]
 let ``Should convert multiple annotated terms from one vocab as objectproperties``() =
-  let statement = {defaultStatement with Annotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1"; "Term2" ] }]}
+  let statement = {defaultStatement with Annotations = defaultAnnotations @ [{Property="Term1"; Vocab="Vocab1"; Terms=[ "Term1"; "Term2" ] }]}
   let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"
                                                      "term2", Uri.from "http://someuri.com/Vocab1#Term2"] |> Map.ofList ] |> Map.ofList}
@@ -116,8 +120,10 @@ let ``Should convert multiple annotated terms from one vocab as objectproperties
 
 [<Test>]
 let ``Should convert annotated terms from multiple vocabs as objectproperties``() =
-  let statement = {defaultStatement with Annotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1"] }
-                                                                             {Vocab="Vocab2"; Terms=[ "Term1"] }]}
+  let statement = 
+    {defaultStatement with Annotations = defaultAnnotations @
+                                         [{ annotation with Vocab="Vocab1"; Terms=[ "Term1"] }
+                                          { annotation with Vocab="Vocab2"; Terms=[ "Term1"] }]}
   let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"
                                            "vocab2", Uri.from "http://someuri.com/Vocab2"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"] |> Map.ofList 

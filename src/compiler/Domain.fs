@@ -1,6 +1,7 @@
 module compiler.Domain
 
 type Annotation = {
+  Property : string
   Vocab : string
   Terms : string list
 }
@@ -17,3 +18,8 @@ type Statement = {
 }
 
 
+let annotation = {
+  Property = ""
+  Vocab = ""
+  Terms = []
+}

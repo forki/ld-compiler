@@ -99,9 +99,10 @@ let ``Should extract the statement number from file path`` () =
 let ``Should extract the annotations from code block`` () =
   let statement = extractStatement (sampleMarkdownContent, "")
 
-  statement.Annotations |> should equal [{Vocab = "PositionalId";
-                                          Terms = ["qs1-st2"];}; {Vocab = "Vocab";
-                                                                  Terms = ["Term"];}]
+  statement.Annotations |> should equal [
+                                          { Property = "positionalid"; Vocab = "PositionalId";Terms = ["qs1-st2"];};
+                                          {Property = "vocab"; Vocab = "Vocab";Terms = ["Term"];}
+  ]
 
 [<Test>]
 let ``removeAnchors should remove multiple anchor tags on one line`` () =
