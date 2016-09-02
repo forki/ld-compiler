@@ -8,25 +8,30 @@ open compiler.DotLiquidExtensions
 
 type MetadataViewModel =
   {
-    FirstIssued: string 
+    Label: string 
+    Value: string
   }
 
 let private mapMetadataFrom statement =
   let firstIssued = statement.Annotations |> List.find (fun x -> x.Vocab.Replace(" ","").ToLower() = "firstissued") 
   {
-    FirstIssued=firstIssued.Terms.Head
+    Label="First issued on"
+    Value=firstIssued.Terms.Head
   }
 
 let bindDataToHtml statement =
   let metadata = mapMetadataFrom statement 
 
-  let metadataTable = parseTemplate<MetadataViewModel> """
-<table id="metadata">
-<tr>
-<td>First issued on</td><td>{{metadata.first_issued |  date: "MMMM yyyy" }}</td>
-</tr>
-</table>
-"""
+  let text = 
+    """
+    <table id="metadata">
+    <tr>
+      <td>{{metadata.Label }}</td><td>{{metadata.Value |  date: "MMMM yyyy" }}</td>
+    </tr>
+    </table>
+    """ + statement.Html
+
+  let metadataTable = parseTemplate<MetadataViewModel> text 
 
   let newHtml = metadataTable  "metadata" metadata
   { statement with Html = newHtml }
