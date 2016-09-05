@@ -7,13 +7,13 @@ open compiler.Domain
 open compiler.DotLiquidExtensions
 
 type MetadataItem = {
-    Label: string 
-    Value: string
-    IsDate: bool
+    label: string 
+    value: string
+    is_date: bool
   }
 
 type MetadataViewModel = {
-  MetadataItems : MetadataItem list
+  Metadata_items : MetadataItem list
 }
 
 let private mapMetadataFrom statement =
@@ -21,24 +21,24 @@ let private mapMetadataFrom statement =
   |> List.filter (fun x -> x.IsDisplayed) 
   |> List.map (fun x -> 
     {
-      Label=x.Vocab
-      Value=x.Terms.Head
-      IsDate=true
+      label=x.Vocab
+      value=x.Terms.Head
+      is_date=true
     })
 
 let bindDataToHtml statement =
-  let metadata = { MetadataItems = mapMetadataFrom statement }
+  let metadata = { Metadata_items = mapMetadataFrom statement }
 
   let text = 
     """
     <table id="metadata">
-    {% for item in metadata.MetadataItems %}
+    {% for item in metadata.Metadata_items %}
     <tr>
-      <td class="col1">{{item.Label }}</td>
-      <td>{% if item.IsDate  %} 
-          {{item.Value |  date: "MMMM yyyy" }}
+      <td class="col1">{{item.label }}</td>
+      <td>{% if item.is_date  %} 
+          {{item.value |  date: "MMMM yyyy" }}
           {% else %}
-          {{item.Value}}
+          {{item.value}}
           {% endif %}
       </td>
     </tr>
