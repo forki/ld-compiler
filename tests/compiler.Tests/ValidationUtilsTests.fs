@@ -46,8 +46,8 @@ let private annotationValidations = [
   }
 ]
 
-let validRequiredAnnotations = [ { Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-                                 { Vocab = "Required"; Terms = ["A value"] } ]
+let validRequiredAnnotations = [ { annotation with Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+                                 { annotation with Vocab = "Required"; Terms = ["A value"] } ]
 
 let defaultStatement = {
   Id = System.Guid.NewGuid().ToString()
@@ -63,11 +63,11 @@ let defaultStatement = {
 
 [<Test>]
 let ``ValidationUtilsTests: When all statement annotations are valid (no conditionally required) then validating the statement will return a statement that is identical but with processed dates`` () =
-  let data = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { Vocab = "Date Not Required"; Terms = ["01-10-2010"] }
-                                                                                   { Vocab = "YesNo Not Required"; Terms = ["yes"] } ] }
+  let data = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { annotation with Vocab = "Date Not Required"; Terms = ["01-10-2010"] }
+                                                                                   { annotation with Vocab = "YesNo Not Required"; Terms = ["yes"] } ] }
   
-  let dataTransformed = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { Vocab = "Date Not Required"; Terms = ["2010-10-01"] }
-                                                                                              { Vocab = "YesNo Not Required"; Terms = ["yes"] } ] }
+  let dataTransformed = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { annotation with Vocab = "Date Not Required"; Terms = ["2010-10-01"] }
+                                                                                              { annotation with Vocab = "YesNo Not Required"; Terms = ["yes"] } ] }
   let resultStatement = validateStatement annotationValidations data
 
   areListsTheSame dataTransformed.DataAnnotations resultStatement.DataAnnotations
@@ -75,22 +75,22 @@ let ``ValidationUtilsTests: When all statement annotations are valid (no conditi
 
 [<Test>]
 let ``ValidationUtilsTests: When all statement annotations are valid (with conditionally required) then validating the statement will return a statement that is identical but with processed dates`` () =
-  let data = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { Vocab = "Date Not Required"; Terms = ["01-10-2010"] }
-                                                                                   { Vocab = "YesNo Not Required"; Terms = ["no"] }
-                                                                                   { Vocab = "Date Conditional"; Terms = ["01-08-2016"] } ] }
+  let data = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { annotation with Vocab = "Date Not Required"; Terms = ["01-10-2010"] }
+                                                                                   { annotation with Vocab = "YesNo Not Required"; Terms = ["no"] }
+                                                                                   { annotation with Vocab = "Date Conditional"; Terms = ["01-08-2016"] } ] }
 
   
-  let dataTransformed = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { Vocab = "Date Not Required"; Terms = ["2010-10-01"] }
-                                                                                              { Vocab = "YesNo Not Required"; Terms = ["no"] }
-                                                                                              { Vocab = "Date Conditional"; Terms = ["2016-08-01"] } ] }
+  let dataTransformed = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { annotation with Vocab = "Date Not Required"; Terms = ["2010-10-01"] }
+                                                                                              { annotation with Vocab = "YesNo Not Required"; Terms = ["no"] }
+                                                                                              { annotation with Vocab = "Date Conditional"; Terms = ["2016-08-01"] } ] }
   let resultStatement = validateStatement annotationValidations data
 
   areListsTheSame dataTransformed.DataAnnotations resultStatement.DataAnnotations
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has an invalid PositionalId then validating the statement will throw an 'invalid annotation' exception`` () =
-  let data = {defaultStatement with DataAnnotations = [ { Vocab = "PositionalId"; Terms = ["st1-qs1"] }
-                                                        { Vocab = "Required"; Terms = ["A value"] } ] }
+  let data = {defaultStatement with DataAnnotations = [ { annotation with Vocab = "PositionalId"; Terms = ["st1-qs1"] }
+                                                        { annotation with Vocab = "Required"; Terms = ["A value"] } ] }
 
   let res = try
               validateStatement annotationValidations data |> ignore
@@ -101,8 +101,8 @@ let ``ValidationUtilsTests: When a statement has an invalid PositionalId then va
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has an blank required annotation then validating the statement will throw a 'missing annotation' exception`` () =
-  let data = {defaultStatement with DataAnnotations = [ { Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-                                                        { Vocab = "Required"; Terms = [] } ] }
+  let data = {defaultStatement with DataAnnotations = [ { annotation with Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+                                                        { annotation with Vocab = "Required"; Terms = [] } ] }
 
   let res = try
               validateStatement annotationValidations data |> ignore
@@ -113,7 +113,7 @@ let ``ValidationUtilsTests: When a statement has an blank required annotation th
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement is missing required annotation then validating the statement will throw a 'missing annotation' exception`` () =
-  let data = {defaultStatement with DataAnnotations = [ { Vocab = "PositionalId"; Terms = ["qs1-st1"] } ] }
+  let data = {defaultStatement with DataAnnotations = [ { annotation with Vocab = "PositionalId"; Terms = ["qs1-st1"] } ] }
   
   let res = try
               validateStatement annotationValidations data |> ignore
@@ -124,7 +124,7 @@ let ``ValidationUtilsTests: When a statement is missing required annotation then
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has a date formatted annotation which is not valid (dd-MM-yyyy) then validating the statement will throw a 'missing annotation' exception`` () =
-  let data = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { Vocab = "Date Not Required"; Terms = ["01 October 2010"] } ] }
+  let data = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { annotation with Vocab = "Date Not Required"; Terms = ["01 October 2010"] } ] }
 
   let res = try
               validateStatement annotationValidations data |> ignore
@@ -135,7 +135,7 @@ let ``ValidationUtilsTests: When a statement has a date formatted annotation whi
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has a YesNo formatted annotation which is not yes or no then validating the statement will throw a 'missing annotation' exception`` () =
-  let data = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { Vocab = "YesNo Not Required"; Terms = ["Some Other Value"] } ] }
+  let data = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { annotation with Vocab = "YesNo Not Required"; Terms = ["Some Other Value"] } ] }
 
   let res = try
               validateStatement annotationValidations data |> ignore
@@ -146,7 +146,7 @@ let ``ValidationUtilsTests: When a statement has a YesNo formatted annotation wh
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has a conditionally required annotation which is not provided then validating the statement will throw a 'missing annotation' exception`` () =
-  let data = {defaultStatement with DataAnnotations = validRequiredAnnotations @  [ { Vocab = "YesNo Not Required"; Terms = ["no"] } ] }
+  let data = {defaultStatement with DataAnnotations = validRequiredAnnotations @  [ { annotation with Vocab = "YesNo Not Required"; Terms = ["no"] } ] }
 
   let res = try
               validateStatement annotationValidations data |> ignore

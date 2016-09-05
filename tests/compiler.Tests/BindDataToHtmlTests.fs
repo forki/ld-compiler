@@ -14,7 +14,7 @@ let ``When IsDisplayed is false do not template properties`` () =
                       Vocab = "DontDisplayThis" }   
   ]
 
-  let statement = { statement with Annotations = defaultAnnotations }
+  let statement = { statement with DataAnnotations = defaultAnnotations }
   let result = bindDataToHtml statement
 
   result.Html |> should not' (haveSubstring "DontDisplayThis")
@@ -26,7 +26,7 @@ let ``When IsDisplayed is true insert date type annotation correctly into html``
                       IsDate = true
                       Terms = ["0001-01-01"] }]
 
-  let statement = { statement with Annotations = defaultAnnotations }
+  let statement = { statement with DataAnnotations = defaultAnnotations }
   let result = bindDataToHtml statement
   let firstIssuedDate = "January 0001"
 
@@ -39,7 +39,7 @@ let ``When IsDisplayed is true insert non-date type annotation correctly into ht
                       IsDate = false
                       Terms = ["non date value"] }]
 
-  let statement = { statement with Annotations = defaultAnnotations }
+  let statement = { statement with DataAnnotations = defaultAnnotations }
   let result = bindDataToHtml statement
 
   result.Html |> should haveSubstring "non date value"

@@ -10,14 +10,10 @@ open NUnit.Framework
 open FsUnit
 
 let defaultAnnotations = [
-  { Vocab = "PositionalId"
-    Terms = ["qs1-st1"] }
-  { Vocab = "National priority"
-    Terms = ["yes"] }
-  { Vocab = "Changed Priority On"
-    Terms = ["2012-10-01"] }
-  { Vocab = "First issued"
-    Terms = ["2010-10-01"] }   
+  { annotation with Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+  { annotation with Vocab = "National priority"; Terms = ["yes"] }
+  { annotation with Vocab = "Changed Priority On"; Terms = ["2012-10-01"] }
+  { annotation with Vocab = "First issued"; Terms = ["2010-10-01"] }   
 ]
 
 let defaultStatement = {
@@ -101,7 +97,7 @@ let ``RDFTests: Should create a resource with data property wasFirstIssuedOn``()
   |> FindDataProperty "http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn" 
   |> Seq.map (fun p -> p.ToString())
   |> Seq.head
-  |> should equal "2010-06-01"
+  |> should equal "2010-10-01"
   
 [<Test>]
 let ``RDFTests: Should create resource with subject uri as id``() =
@@ -125,7 +121,7 @@ let ``RDFTests: Should create title dataproperty for resource``() =
 
 [<Test>]
 let ``RDFTests: Should convert a single annotated term into an objectproperty``() =
-  let statement = {defaultStatement with ObjectAnnotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1" ] }]}
+  let statement = {defaultStatement with ObjectAnnotations = defaultAnnotations @ [{ annotation with Vocab="Vocab1"; Terms=[ "Term1" ] }]}
   let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"] |> Map.ofList ] |> Map.ofList}
   let property = 
@@ -139,7 +135,7 @@ let ``RDFTests: Should convert a single annotated term into an objectproperty``(
 
 [<Test>]
 let ``RDFTests: Should convert multiple annotated terms from one vocab as objectproperties``() =
-  let statement = {defaultStatement with ObjectAnnotations = defaultAnnotations @ [{Vocab="Vocab 1"; Terms=[ "Term1"; "Term2" ] }]}
+  let statement = {defaultStatement with ObjectAnnotations = defaultAnnotations @ [{ annotation with Vocab="Vocab 1"; Terms=[ "Term1"; "Term2" ] }]}
   let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"
                                                      "term2", Uri.from "http://someuri.com/Vocab1#Term2"] |> Map.ofList ] |> Map.ofList}
@@ -155,8 +151,8 @@ let ``RDFTests: Should convert multiple annotated terms from one vocab as object
 
 [<Test>]
 let ``RDFTests: Should convert annotated terms from multiple vocabs as objectproperties``() =
-  let statement = {defaultStatement with ObjectAnnotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1"] }
-                                                                                   {Vocab="Vocab2"; Terms=[ "Term1"] }]}
+  let statement = {defaultStatement with ObjectAnnotations = defaultAnnotations @ [{ annotation with Vocab="Vocab1"; Terms=[ "Term1"] }
+                                                                                   { annotation with Vocab="Vocab2"; Terms=[ "Term1"] }]}
   let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"
                                            "vocab2", Uri.from "http://someuri.com/Vocab2"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"] |> Map.ofList 
