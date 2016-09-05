@@ -3,9 +3,8 @@
 type PublishItem = {
     Uri: string
     Label: string
-    Required: bool
+    Validate: bool
     Format: string
-    OutFormatMask: string
     PropertyPath: string list
 }
 

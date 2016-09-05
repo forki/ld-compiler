@@ -6,23 +6,23 @@ open compiler.ConfigTypes
 
 let private raiseError annotation state =
   match state with
-  | "Invalid" -> sprintf "Invalid value for the %s annotation" annotation
-  | "Blank" -> sprintf "Blank value for the %s annotation" annotation
-  | "Missing" -> sprintf "Missing the %s annotation" annotation
-  | _ -> sprintf "Error (%s) encountered while processing the %s annotation" state annotation
+  | "Invalid" -> sprintf "Invalid value for the '%s' annotation" annotation
+  | "Blank" -> sprintf "Blank value for the '%s' annotation" annotation
+  | "Missing" -> sprintf "Missing the '%s' annotation" annotation
+  | _ -> sprintf "Error (%s) encountered while processing the '%s' annotation" state annotation
   |> failwith
 
-let private processDate name field outFormat =
-  let validateDate (date:string) (inFormat:string) (outFormat:string) (raiseError:string -> string) =
+let private processDate name field =
+  let validateDate (date:string) (raiseError:string -> string) =
     if (obj.ReferenceEquals(date, null)=false && date.Length > 0) then
-      match System.DateTime.TryParseExact(date, inFormat, System.Globalization.CultureInfo.InvariantCulture,System.Globalization.DateTimeStyles.None) with
-      | true, x -> x.ToString(outFormat)
+      match System.DateTime.TryParseExact(date, "dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture,System.Globalization.DateTimeStyles.None) with
+      | true, x -> x.ToString("yyyy-MM-dd")
       | _ ->  raiseError "Invalid"
     else
       raiseError "Missing"
   let raiseDateError = raiseError name
 
-  validateDate (field) "dd-MM-yyyy" outFormat raiseDateError
+  validateDate field raiseDateError
 
 let private validatePositionalId (posnId:string) =
   let posnIdError = raiseError "PositionalId"
@@ -42,30 +42,77 @@ let private validatePositionalId (posnId:string) =
   | 2 -> validateParts (idParts |> List.head) (idParts |> List.tail |> List.head)
   | _ -> posnIdError "Invalid"
 
-let private validateValue validation value =
-  match validation.Format with
-  | "Date" -> processDate validation.Uri value validation.OutFormatMask
-  | "PositionalId" -> validatePositionalId value
-  | _ -> value
+let private validateYesNo name value =
+  match value with
+  | "yes"
+  | "no" -> value
+  | _ -> raiseError name "Invalid"
+
+let private validateValue validation (value:string) =
+  let matchValidationType validation format value =
+    match format with
+    | "Date" -> processDate validation.Label value
+    | "PositionalId" -> validatePositionalId value
+    | "YesNo" -> validateYesNo validation.Label value
+    | _ -> value
+
+  let matchValidationHead value (formatOption:string Option) =
+      match formatOption.IsNone with
+      | true -> value
+      | false -> matchValidationType validation formatOption.Value value
+
+  match obj.ReferenceEquals(validation.Format, null) with
+  | true -> value
+  | _ ->  validation.Format.Split [|':'|] |> Array.tryHead |> matchValidationHead value
 
 let private validateMandatoryAnnotations validations annotations = 
   let validateAnnotationExists annotations mandatoryValidation =
-    let a = annotations |> List.filter (fun a -> a.Vocab.ToLower().Replace(" ","") = mandatoryValidation.Uri.ToLower().Replace(" ",""))
+
+    let a = annotations |> List.filter (fun a -> a.Vocab = mandatoryValidation.Label)
       
     match a.Length with
-    | 0 -> raiseError mandatoryValidation.Uri "Missing"
+    | 0 -> raiseError mandatoryValidation.Label "Missing"
     | _ -> match a.Head.Vocab.Length with
-           | 0 -> raiseError mandatoryValidation.Uri "Blank"
+           | 0 -> raiseError mandatoryValidation.Label "Blank"
            | _ -> ()
+ 
+  let assessAnnotations (validationParts:string array) =
+    let assessTerms annotationTerms thisTerm =
+      annotationTerms |> List.filter (fun t -> t = thisTerm)
+                      |> List.length > 0
 
-  validations |> List.filter (fun v -> v.Required)
+    let annotationVocab = Array.get validationParts 2
+    let annotationTerm = Array.get validationParts 3
+    annotations |> List.filter (fun a -> a.Vocab = annotationVocab)
+                |> List.map (fun a -> assessTerms a.Terms annotationTerm)
+                |> List.contains true
+ 
+  let shouldProcessValidation validation =
+    let validationParts = validation.Format.Split [|':'|]
+    match validationParts.Length with
+    | 2 -> match Array.get validationParts 1 with
+           | "Required" -> validation, true
+           | _ -> validation, false
+    | 4 -> match Array.get validationParts 1 with
+           | "Conditional" -> validation, (assessAnnotations validationParts)
+           | _ -> validation, false
+    | _ -> validation, false
+
+  let activeValidation validation =
+    match obj.ReferenceEquals(validation.Format, null) with
+    | false -> shouldProcessValidation validation
+    | _ -> validation, false
+
+  validations |> List.map (fun v -> activeValidation v)
+              |> List.filter (fun t -> snd t)
+              |> List.map (fun t -> fst t)
               |> List.map (fun v -> validateAnnotationExists annotations v)
               |> ignore
   annotations
 
 let private validateProvidedAnnotations validations annotations =
   let validateAnnotation validations (annotation:Annotation) =
-    let relevantValidation = validations |> List.filter (fun v -> v.Uri.ToLower().Replace(" ","") = annotation.Vocab.ToLower().Replace(" ",""))
+    let relevantValidation = validations |> List.filter (fun v -> v.Label = annotation.Vocab)
     match relevantValidation.Length with
     | 0 -> annotation
     | _ -> { annotation with Property = ""; Vocab = annotation.Vocab; Terms = annotation.Terms |> List.map (fun t -> validateValue relevantValidation.Head t) }
@@ -79,10 +126,13 @@ let validateStatement validations (statement:Statement) =
     Abstract = statement.Abstract
     StandardId = statement.StandardId
     StatementId = statement.StatementId
-    Annotations = statement.Annotations
-                    |> List.filter (fun x -> x.Terms.Length > 0)
-                    |> validateMandatoryAnnotations validations
-                    |> validateProvidedAnnotations validations
+    ObjectAnnotations = statement.ObjectAnnotations
+                        |> List.filter (fun x -> x.Terms.Length > 0)
+    DataAnnotations = statement.DataAnnotations
+                      |> List.filter (fun x -> x.Terms.Length > 0)
+                      |> validateMandatoryAnnotations validations
+                      |> validateProvidedAnnotations validations
     Content = statement.Content
     Html = statement.Html
   }
+

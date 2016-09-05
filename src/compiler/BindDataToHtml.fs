@@ -17,7 +17,7 @@ type MetadataViewModel = {
 }
 
 let private mapMetadataFrom statement =
-  statement.Annotations 
+  statement.DataAnnotations 
   |> List.filter (fun x -> x.IsDisplayed) 
   |> List.map (fun x -> 
     {
