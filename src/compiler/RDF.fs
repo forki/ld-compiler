@@ -9,11 +9,7 @@ open resource
 open rdf
 open FSharp.RDF
 
-
-
-
 ///Load all resources from uri and make a map of rdfs:label -> resource uri
-
 
 let private warn msg x = printf "[WARNING] %s\n" msg; x
 let private info msg x = printf "%s\n" msg; x

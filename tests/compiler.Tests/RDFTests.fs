@@ -16,9 +16,9 @@ let defaultAnnotations = [
   { Vocab = "National priority"
     Terms = ["yes"] }
   { Vocab = "Changed Priority On"
-    Terms = ["2012-06-01"] }
+    Terms = ["2012-10-01"] }
   { Vocab = "First issued"
-    Terms = ["2010-10-01"] }   
+    Terms = ["2010-06-01"] }   
 ]
 
 let defaultStatement = {
@@ -84,7 +84,7 @@ let private FindObjectProperty (uri:string) resource =
 
 
 [<Test>]
-let ``Should create resource with type of qualitystatement``() =
+let ``RDFTests: Should create resource with type of qualitystatement``() =
 
   defaultStatement
   |> transformToRDF defaultArgs validations baseUrl
@@ -95,27 +95,27 @@ let ``Should create resource with type of qualitystatement``() =
   
 
 [<Test>]
-let ``Should create a resource with data property wasFirstIssuedOn``() =
+let ``RDFTests: Should create a resource with data property wasFirstIssuedOn``() =
 
   defaultStatement
   |> transformToRDF defaultArgs validations baseUrl
   |> FindDataProperty "http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn" 
   |> Seq.map (fun p -> p.ToString())
   |> Seq.head
-  |> should equal "2010-10-01"
+  |> should equal "2010-06-01"
   
 [<Test>]
-let ``Should create resource with subject uri as id``() =
+let ``RDFTests: Should create resource with subject uri as id``() =
   let statement = {defaultStatement with Id = "id_goes_here" }
 
   let id = statement 
            |> transformToRDF defaultArgs validations baseUrl
            |> Resource.id 
    
-  id.ToString() |> should equal "http://ld.nice.org.uk/resource/id_goes_here"
+  id.ToString() |> should equal "http://ld.nice.org.uk/ns/qualitystandard/id_goes_here"
 
 [<Test>]
-let ``Should create title dataproperty for resource``() =
+let ``RDFTests: Should create title dataproperty for resource``() =
   let statement = {defaultStatement with Title = "This is the title" }
 
   let title = statement
@@ -125,7 +125,7 @@ let ``Should create title dataproperty for resource``() =
   title |> should equal ["This is the title"]
 
 [<Test>]
-let ``Should convert a single annotated term into an objectproperty``() =
+let ``RDFTests: Should convert a single annotated term into an objectproperty``() =
   let statement = {defaultStatement with ObjectAnnotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1" ] }]}
   let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"] |> Map.ofList ] |> Map.ofList}
@@ -139,8 +139,8 @@ let ``Should convert a single annotated term into an objectproperty``() =
   property |> should equal "http://someuri.com/Vocab1#Term1"
 
 [<Test>]
-let ``Should convert multiple annotated terms from one vocab as objectproperties``() =
-  let statement = {defaultStatement with ObjectAnnotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1"; "Term2" ] }]}
+let ``RDFTests: Should convert multiple annotated terms from one vocab as objectproperties``() =
+  let statement = {defaultStatement with ObjectAnnotations = defaultAnnotations @ [{Vocab="Vocab 1"; Terms=[ "Term1"; "Term2" ] }]}
   let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"
                                                      "term2", Uri.from "http://someuri.com/Vocab1#Term2"] |> Map.ofList ] |> Map.ofList}
@@ -155,7 +155,7 @@ let ``Should convert multiple annotated terms from one vocab as objectproperties
                               "http://someuri.com/Vocab1#Term2"]
 
 [<Test>]
-let ``Should convert annotated terms from multiple vocabs as objectproperties``() =
+let ``RDFTests: Should convert annotated terms from multiple vocabs as objectproperties``() =
   let statement = {defaultStatement with ObjectAnnotations = defaultAnnotations @ [{Vocab="Vocab1"; Terms=[ "Term1"] }
                                                                                    {Vocab="Vocab2"; Terms=[ "Term1"] }]}
   let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"

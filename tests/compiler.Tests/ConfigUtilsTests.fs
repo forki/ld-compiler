@@ -247,7 +247,6 @@ let ``ConfigUtilsTests: Should extract schema ttls from config`` () =
 let ``ConfigUtilsTests: Should extract property paths from config`` () =
   let result = deserializeConfig sampleConfig
                |> getPropPaths
-
   
   areListsTheSame expected_PropPaths result
 
@@ -263,4 +262,3 @@ let ``ConfigUtilsTests: Should read the expected property validations from confi
                |> getPropertyValidations
 
   areListsTheSame expected_PropertyValidations result
-
