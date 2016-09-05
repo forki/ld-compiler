@@ -11,7 +11,8 @@ type Statement = {
   Abstract : string
   StandardId : int
   StatementId : int
-  Annotations : Annotation list
+  ObjectAnnotations : Annotation list
+  DataAnnotations : Annotation list
   Content : string
   Html : string
 }

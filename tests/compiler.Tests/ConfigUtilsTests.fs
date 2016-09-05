@@ -1,4 +1,4 @@
-﻿module compiler.Test.ConfigurationFileTests
+﻿module compiler.Test.ConfigUtilsTests
 
 open NUnit.Framework
 open FsUnit
@@ -21,6 +21,21 @@ let private sampleConfig = """
 	"TypeName": "qualitystatement",
 	"SchemaDetails":
 	[
+		{
+			"Schema": "qualitystandard/setting.ttl",
+			"JsonLD": "qualitystandard/setting.jsonld ",
+			"Map": true,
+			"Publish":
+			[
+				{
+					"Uri": "setting",
+					"PropertyPath":
+					[
+						"^rdfs:subClassOf*"
+					]
+				}
+			]
+		},
 		{
 			"Schema": "qualitystandard/agegroup.ttl",
 			"JsonLD": "qualitystandard/agegroup.jsonld ",
@@ -56,21 +71,6 @@ let private sampleConfig = """
 				}
 			]
 			
-		},
-        {
-			"Schema": "qualitystandard/setting.ttl",
-			"JsonLD": "qualitystandard/setting.jsonld ",
-			"Map": true,
-			"Publish":
-			[
-				{
-					"Uri": "setting",
-					"PropertyPath":
-					[
-						"^rdfs:subClassOf*"
-					]
-				}
-			]
 		},
 		{
 			"Schema": "qualitystandard/servicearea.ttl",
@@ -122,17 +122,32 @@ let private sampleConfig = """
 				{
 					"Uri": "stidentifier"
 				},
-                {
-					"Uri": "positionalid",
-					"Required": true,
-					"Format": "PositionalId",
+				{
+					"Uri": "hasPositionalId",
+					"Label": "PositionalId",
+					"Validate": true,
+					"Format": "PositionalId:Required",
                     "PropertyPath": []
 				},
 				{
-					"Uri": "firstissued",
-					"Required": true,
-					"Format": "Date",
-					"OutFormatMask": "MMMM yyyy",
+					"Uri": "isNationalPriority",
+					"Label": "National priority",
+					"Validate": true,
+					"Format": "YesNo:Required",
+                    "PropertyPath": []
+				},
+				{
+					"Uri": "changedPriorityOn",
+					"Label": "Changed Priority On",
+					"Validate": true,
+					"Format": "Date:Conditional:National priority:no",
+                    "PropertyPath": []
+				},
+				{
+					"Uri": "wasFirstIssuedOn",
+					"Label": "First issued",
+					"Validate": true,
+					"Format": "Date:Required",
                     "PropertyPath": []
 				}
 			]
@@ -143,50 +158,66 @@ let private sampleConfig = """
 """
 
 let private expected_Jsonld = [
+  "http://schema/ns/qualitystandard/setting.jsonld "
   "http://schema/ns/qualitystandard/agegroup.jsonld "
   "http://schema/ns/qualitystandard/conditionordisease.jsonld "
-  "http://schema/ns/qualitystandard/setting.jsonld "
   "http://schema/ns/qualitystandard/servicearea.jsonld "
   "http://schema/ns/qualitystandard/lifestylecondition.jsonld "
   "http://schema/ns/qualitystandard.jsonld "
 ]
 
 let private expected_Ttl = [
+  "http://schema/ns/qualitystandard/setting.ttl"
   "http://schema/ns/qualitystandard/agegroup.ttl"
   "http://schema/ns/qualitystandard/conditionordisease.ttl"
-  "http://schema/ns/qualitystandard/setting.ttl"
   "http://schema/ns/qualitystandard/servicearea.ttl"
   "http://schema/ns/qualitystandard/lifestylecondition.ttl"
   "http://schema/ns/qualitystandard.ttl"
 ]
 
 let private expected_PropPaths = [ 
+  "<http://ld.nice.org.uk/ns/qualitystandard#setting>/^rdfs:subClassOf*" 
   "<http://ld.nice.org.uk/ns/qualitystandard#age>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#age>/rdfs:subClassOf*" 
   "<http://ld.nice.org.uk/ns/qualitystandard#condition>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#condition>/rdfs:subClassOf*" 
-  "<http://ld.nice.org.uk/ns/qualitystandard#setting>/^rdfs:subClassOf*" 
   "<http://ld.nice.org.uk/ns/qualitystandard#servicearea>/^rdfs:subClassOf*" 
   "<http://ld.nice.org.uk/ns/qualitystandard#lifestylecondition>/^rdfs:subClassOf*" 
   "<http://ld.nice.org.uk/ns/qualitystandard#title>" 
   "<http://ld.nice.org.uk/ns/qualitystandard#abstract>" 
   "<http://ld.nice.org.uk/ns/qualitystandard#qsidentifier>" 
   "<http://ld.nice.org.uk/ns/qualitystandard#stidentifier>"
+  "<http://ld.nice.org.uk/ns/qualitystandard#hasPositionalId>"
+  "<http://ld.nice.org.uk/ns/qualitystandard#isNationalPriority>"
+  "<http://ld.nice.org.uk/ns/qualitystandard#changedPriorityOn>"
+  "<http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn>"
 ]
 
 let private expected_PropertyValidations = [
   {
-    Uri= "positionalid"
-    Label=null
-    Required= true
-    Format= "PositionalId"
-    OutFormatMask=null
+    Uri = "hasPositionalId"
+    Label = "PositionalId"
+    Validate = true
+    Format = "PositionalId:Required"
     PropertyPath=[]
   }
   {
-    Uri= "firstissued"
-    Label=null
-    Required= true
-    Format= "Date"
-    OutFormatMask= "MMMM yyyy"
+    Uri = "isNationalPriority"
+    Label = "National priority"
+    Validate = true
+    Format = "YesNo:Required"
+    PropertyPath=[]
+  }
+  {
+    Uri = "changedPriorityOn"
+    Label = "Changed Priority On"
+    Validate = true
+    Format = "Date:Conditional:National priority:no"
+    PropertyPath=[]
+  }
+  {
+    Uri = "wasFirstIssuedOn"
+    Label = "First issued"
+    Validate = true
+    Format = "Date:Required"
     PropertyPath=[]
   }
 ]
@@ -194,42 +225,40 @@ let private expected_PropertyValidations = [
 let private expected_BaseUrl = "http://ld.nice.org.uk/resource"
 
 [<Test>]
-let ``Should extract schema base from config`` () =
+let ``ConfigUtilsTests: Should extract schema base from config`` () =
   let config = deserializeConfig sampleConfig
 
   config.SchemaBase |> should equal "http://schema/ns/"
 
 [<Test>]
-let ``Should extract jsonld contexts from config`` () =
+let ``ConfigUtilsTests: Should extract jsonld contexts from config`` () =
   let result:string list = deserializeConfig sampleConfig
                            |> getJsonLdContexts
 
   areListsTheSame expected_Jsonld result
 [<Test>]
-let ``Should extract schema ttls from config`` () =
+let ``ConfigUtilsTests: Should extract schema ttls from config`` () =
   let result = deserializeConfig sampleConfig
                |> getSchemaTtls
 
   areListsTheSame expected_Ttl result
 
 [<Test>]
-let ``Should extract property paths from config`` () =
+let ``ConfigUtilsTests: Should extract property paths from config`` () =
   let result = deserializeConfig sampleConfig
                |> getPropPaths
-
   
   areListsTheSame expected_PropPaths result
 
 [<Test>]
-let ``Should read the expected BaseUrl from config`` () =
+let ``ConfigUtilsTests: Should read the expected BaseUrl from config`` () =
   deserializeConfig sampleConfig
   |> getBaseUrl
   |> should equal expected_BaseUrl
 
 [<Test>]
-let ``Should read the expected property validations from config`` () =
+let ``ConfigUtilsTests: Should read the expected property validations from config`` () =
   let result = deserializeConfig sampleConfig
                |> getPropertyValidations
 
   areListsTheSame expected_PropertyValidations result
-

@@ -204,8 +204,8 @@
     <Compile Include="ContentExtractor.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="YamlParser.fs" />
-    <Compile Include="RDF.fs" />
     <Compile Include="ConfigUtils.fs" />
+    <Compile Include="RDF.fs" />
     <Compile Include="Git.fs" />
     <Compile Include="MarkdownParser.fs" />
     <Compile Include="ValidationUtils.fs" />

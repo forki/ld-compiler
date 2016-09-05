@@ -4,8 +4,13 @@ open FSharp.Data
 open compiler.ConfigTypes
 open Newtonsoft.Json
 open FSharp.RDF
-open compiler.RDF
 open compiler.Utils
+
+type RDFArgs = {
+  VocabMap : Map<string, Uri>     
+  TermMap : Map<string, Map<string, Uri>>
+  BaseUrl : string
+}
 
 let private getPathWithSubclass urlBase qsBase p =
   let delimiter = "|"
@@ -17,17 +22,30 @@ let private getPathWithSubclass urlBase qsBase p =
   |> List.map buildPropertyPathUri
   |> List.fold concatPropertyPaths ""  
 
+let mkKey (x : string) = x.Replace(" ", "").ToLowerInvariant()
+let mkKey2 (x:string) (y:string) =
+  match obj.ReferenceEquals(x, null) with
+  | true -> mkKey y
+  | _ -> mkKey x
 
-let private getGetMmKey s (l:string) =
-    match obj.ReferenceEquals(l, null) with
-    |true -> s
-    |_ -> l.ToLower().Replace(" ","")
+let private vocabLookup uri =
+  let rdfslbl = Uri.from "http://www.w3.org/2000/01/rdf-schema#label"
+  let gcd = Graph.loadFrom uri
+  let onlySome = List.choose id
+  Resource.fromPredicate rdfslbl gcd
+  |> List.map (fun r ->
+       match r with
+       | FunctionalDataProperty rdfslbl xsd.string x ->
+         Some(mkKey x, Resource.id r)
+       | _ -> None)
+  |> onlySome
+  |> Map.ofList
 
 let private rdf_getVocabMap config =
   let getMmkVocabList p =
     p
     |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
-    |> List.map (fun p -> (getGetMmKey p.Uri p.Label, sprintf "%s%s#%s" config.UrlBase config.QSBase p.Uri))
+    |> List.map (fun p -> (mkKey2 p.Label p.Uri, sprintf "%s%s#%s" config.UrlBase config.QSBase p.Uri))
 
   let getVocabList config =
     config.SchemaDetails
@@ -44,7 +62,7 @@ let private rdf_getTermMap config =
     pl
     |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
     |> List.filter (fun p -> p.PropertyPath.Length > 0)
-    |> List.map (fun p -> (getGetMmKey p.Uri p.Label, sprintf "%s%s" config.SchemaBase schema)) 
+    |> List.map (fun p -> (mkKey2 p.Label p.Uri, sprintf "%s%s" config.SchemaBase schema)) 
  
   let getTermList config =
     config.SchemaDetails
@@ -59,6 +77,9 @@ let private rdf_getTermMap config =
 let getBaseUrl config =
   sprintf "%s%s" config.UrlBase config.ThingBase
 
+let getPropertyBaseUrl config =
+  sprintf "%s%s" config.UrlBase config.QSBase
+
 let getRdfArgs config =
   {
     BaseUrl = getBaseUrl config
@@ -69,9 +90,8 @@ let getRdfArgs config =
 let getPropertyValidations config =
   config.SchemaDetails
   |> List.filter (fun x -> x.Map=false)
-  |> List.map (fun f -> (f.Publish |> List.filter (fun p -> p.Required=true)))
+  |> List.map (fun f -> (f.Publish |> List.filter (fun p -> p.Validate)))
   |> List.concat
-
 
 let deserializeConfig jsonString =
   JsonConvert.DeserializeObject<ConfigTypes.Config>(jsonString)
@@ -85,9 +105,16 @@ let getSchemaTtls config =
   |> List.map (fun f -> (sprintf "%s%s" config.SchemaBase f.Schema))
 
 let getPropPaths config =
-  let buildSchemaDetails p = match obj.ReferenceEquals(p.PropertyPath, null) with
-                             | true ->  sprintf "<%s%s#%s>" config.UrlBase config.QSBase p.Uri
-                             | _ -> getPathWithSubclass config.UrlBase config.QSBase p
+  let isEmptyPropertyPathSet p =
+    match obj.ReferenceEquals(p.PropertyPath, null) with
+    | true -> true
+    | _ -> p.PropertyPath.IsEmpty 
+    
+  let buildSchemaDetails p =
+    match isEmptyPropertyPathSet p with
+    | true ->  sprintf "<%s%s#%s>" config.UrlBase config.QSBase p.Uri
+    | _ -> getPathWithSubclass config.UrlBase config.QSBase p
+
   config.SchemaDetails
   |> List.map (fun f -> f.Publish 
                         |> List.map (fun p -> buildSchemaDetails p))
