@@ -28,7 +28,7 @@ type ElasticResponse = JsonProvider<"""
           "http://ld.nice.org.uk/ns/qualitystandard#abstract":"",
           "http://ld.nice.org.uk/ns/qualitystandard#qsidentifier":"",
           "http://ld.nice.org.uk/ns/qualitystandard#stidentifier":"",
-          "http://ld.nice.org.uk/ns/qualitystandard#firstissued":"",
+          "http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn":"",
           "_id":"",
           "_type":"",
           "qualitystandard:age":[""]
@@ -79,7 +79,7 @@ let ``When publishing a statement it should apply structured data annotations th
 
   let doc = (Seq.head response.Hits.Hits).Source
 
-  let firstIssued = doc.HttpLdNiceOrgUkNsQualitystandardFirstissued
+  let firstIssued = doc.HttpLdNiceOrgUkNsQualitystandardWasFirstIssuedOn
   firstIssued.JsonValue.AsString() |> should equal "2010-06-01"
 
 [<Test>]
