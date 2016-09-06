@@ -64,6 +64,7 @@
     <Compile Include="JsonLdTests.fs" />
     <Compile Include="ElasticTests.fs" />
     <Compile Include="PublishTests.fs" />
+    <Compile Include="BindDataToHtmlTests.fs" />
     <None Include="paket.references" />
     <None Include="app.config" />
   </ItemGroup>

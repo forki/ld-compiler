@@ -12,6 +12,8 @@ type RDFArgs = {
   BaseUrl : string
 }
 
+let mkKey (x : string) = x.Replace(" ", "").ToLowerInvariant()
+
 let private getPathWithSubclass urlBase qsBase p =
   let delimiter = "|"
   let buildPropertyPathUri pp = sprintf "<%s%s#%s>/%s" urlBase qsBase p.Uri pp 
@@ -22,11 +24,11 @@ let private getPathWithSubclass urlBase qsBase p =
   |> List.map buildPropertyPathUri
   |> List.fold concatPropertyPaths ""  
 
-let mkKey (x : string) = x.Replace(" ", "").ToLowerInvariant()
-let mkKey2 (x:string) (y:string) =
-  match obj.ReferenceEquals(x, null) with
-  | true -> mkKey y
-  | _ -> mkKey x
+
+let private getPropertyForLabel s (label:string) =
+    match obj.ReferenceEquals(label, null) with
+    |true -> s
+    |_ -> getProperty label
 
 let private vocabLookup uri =
   let rdfslbl = Uri.from "http://www.w3.org/2000/01/rdf-schema#label"
@@ -45,7 +47,7 @@ let private rdf_getVocabMap config =
   let getMmkVocabList p =
     p
     |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
-    |> List.map (fun p -> (mkKey2 p.Label p.Uri, sprintf "%s%s#%s" config.UrlBase config.QSBase p.Uri))
+    |> List.map (fun p -> (getPropertyForLabel p.Uri p.Label, sprintf "%s%s#%s" config.UrlBase config.QSBase p.Uri))
 
   let getVocabList config =
     config.SchemaDetails
@@ -62,8 +64,8 @@ let private rdf_getTermMap config =
     pl
     |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
     |> List.filter (fun p -> p.PropertyPath.Length > 0)
-    |> List.map (fun p -> (mkKey2 p.Label p.Uri, sprintf "%s%s" config.SchemaBase schema)) 
- 
+    |> List.map (fun p -> (getPropertyForLabel p.Uri p.Label, sprintf "%s%s" config.SchemaBase schema)) 
+
   let getTermList config =
     config.SchemaDetails
     |> List.filter (fun x -> x.Map)

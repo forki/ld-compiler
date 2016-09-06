@@ -111,14 +111,14 @@ let ``Should extract the data annotations from code block`` () =
   let statement = extractStatement annotationValidations (sampleMarkdownContent, "")
   printfn "%A" statement.DataAnnotations
 
-  statement.DataAnnotations |> should equal [{Vocab = "PositionalId"; Terms = ["qs1-st2"]; } ]
+  statement.DataAnnotations |> should equal [ { annotation with Property = "positionalid"; Vocab = "PositionalId"; Terms = ["qs1-st2"]; } ]
 
 [<Test>]
 let ``Should extract the object annotations from code block`` () =
   let statement = extractStatement annotationValidations (sampleMarkdownContent, "")
   printfn "%A" statement.DataAnnotations
 
-  statement.ObjectAnnotations |> should equal [ {Vocab = "Vocab"; Terms = ["Term"]; } ]
+  statement.ObjectAnnotations |> should equal [ { annotation with Property = "vocab"; Vocab = "Vocab"; Terms = ["Term"]; } ]
 [<Test>]
 let ``removeAnchors should remove multiple anchor tags on one line`` () =
   let html = "<a one>one</a> <a two>two</a>"

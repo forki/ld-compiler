@@ -1,6 +1,7 @@
 module compiler.RDF
 
 open compiler.Domain
+open compiler.Utils
 open compiler.ConfigTypes
 open compiler.ConfigUtils
 open FSharp.RDF
@@ -21,8 +22,8 @@ let private lookupAnnotations vocabMap termMap annotations =
 
   let lookupTerms (vocab,term) =
     let termMap = termMap
-    let vocabKey = mkKey vocab
-    let termKey = mkKey term
+    let vocabKey = getProperty vocab
+    let termKey = getProperty term
     match Map.tryFind vocabKey vocabMap with
     | Some vocabUri ->
       match Map.tryFind vocabKey termMap with

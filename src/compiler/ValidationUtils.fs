@@ -115,7 +115,7 @@ let private validateProvidedAnnotations validations annotations =
     let relevantValidation = validations |> List.filter (fun v -> v.Label = annotation.Vocab)
     match relevantValidation.Length with
     | 0 -> annotation
-    | _ -> { Vocab = annotation.Vocab; Terms = annotation.Terms |> List.map (fun t -> validateValue relevantValidation.Head t) }
+    | _ -> { annotation with Property = ""; Vocab = annotation.Vocab; Terms = annotation.Terms |> List.map (fun t -> validateValue relevantValidation.Head t) }
 
   annotations |> List.map (fun a -> validateAnnotation validations a)
 
