@@ -34,16 +34,16 @@ let compile config extractor items outputDir dbName =
   let rdfArgs = config |> getRdfArgs
   let baseUrl = config |> getBaseUrl
   let propertyBaseUrl = config |> getPropertyBaseUrl
-  let validations = config |> getPropertyValidations
+  let annotationConfig = config |> getAnnotationConfig
 
   let compileItem =
     extractor.readContentForItem
     >> convertMarkdownToHtml 
-    >> extractStatement validations
-    >> validateStatement validations
+    >> extractStatement annotationConfig
+    >> validateStatement annotationConfig
     >> bindDataToHtml
     >> writeHtml outputDir
-    >> transformToRDF rdfArgs validations propertyBaseUrl
+    >> transformToRDF rdfArgs annotationConfig propertyBaseUrl
     >> transformToTurtle
     >> prepareAsFile baseUrl outputDir ".ttl"
     >> writeFile 

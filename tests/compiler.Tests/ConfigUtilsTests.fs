@@ -127,6 +127,8 @@ let private sampleConfig = """
 					"Label": "PositionalId",
 					"Validate": true,
 					"Format": "PositionalId:Required",
+                    "Display": false,
+                    "DataAnnotation": true,
                     "PropertyPath": []
 				},
 				{
@@ -134,6 +136,8 @@ let private sampleConfig = """
 					"Label": "National priority",
 					"Validate": true,
 					"Format": "YesNo:Required",
+                    "Display": false,
+                    "DataAnnotation": true,
                     "PropertyPath": []
 				},
 				{
@@ -141,6 +145,8 @@ let private sampleConfig = """
 					"Label": "Changed Priority On",
 					"Validate": true,
 					"Format": "Date:Conditional:National priority:no",
+                    "Display": false,
+                    "DataAnnotation": true,
                     "PropertyPath": []
 				},
 				{
@@ -148,6 +154,8 @@ let private sampleConfig = """
 					"Label": "First issued",
 					"Validate": true,
 					"Format": "Date:Required",
+                    "Display": true,
+                    "DataAnnotation": true,
                     "PropertyPath": []
 				}
 			]
@@ -197,6 +205,8 @@ let private expected_PropertyValidations = [
     Label = "PositionalId"
     Validate = true
     Format = "PositionalId:Required"
+    Display = false
+    DataAnnotation = true
     PropertyPath=[]
   }
   {
@@ -204,6 +214,8 @@ let private expected_PropertyValidations = [
     Label = "National priority"
     Validate = true
     Format = "YesNo:Required"
+    Display = false
+    DataAnnotation = true
     PropertyPath=[]
   }
   {
@@ -211,6 +223,8 @@ let private expected_PropertyValidations = [
     Label = "Changed Priority On"
     Validate = true
     Format = "Date:Conditional:National priority:no"
+    Display = false
+    DataAnnotation = true
     PropertyPath=[]
   }
   {
@@ -218,6 +232,8 @@ let private expected_PropertyValidations = [
     Label = "First issued"
     Validate = true
     Format = "Date:Required"
+    Display = true
+    DataAnnotation = true
     PropertyPath=[]
   }
 ]
@@ -259,6 +275,6 @@ let ``ConfigUtilsTests: Should read the expected BaseUrl from config`` () =
 [<Test>]
 let ``ConfigUtilsTests: Should read the expected property validations from config`` () =
   let result = deserializeConfig sampleConfig
-               |> getPropertyValidations
+               |> getAnnotationConfig
 
   areListsTheSame expected_PropertyValidations result

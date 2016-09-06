@@ -5,22 +5,22 @@ open FsUnit
 open compiler.YamlParser
 
 [<Test>]
-let ``Should handle no empty string`` () =
+let ``YamlParserTests: Should handle no empty string`` () =
   parseYaml "" |> should equal []
 
 [<Test>]
-let ``Should extract single section with single field`` () =
+let ``YamlParserTests: Should extract single section with single field`` () =
   let yaml = """
-Section:
+This Section:
   - "Field"
 """
 
-  let expected = [{Name = "Section"; Fields = ["Field"]}]
+  let expected = [{Name = "This Section"; Fields = ["Field"]}]
   let actual = parseYaml yaml
   expected |> should equal actual
 
 [<Test>]
-let ``Should extract single section with multiple fields`` () =
+let ``YamlParserTests: Should extract single section with multiple fields`` () =
   let yaml = """
 Section:
     - "Field1"
@@ -32,7 +32,7 @@ Section:
   expected |> should equal actual
 
 [<Test>]
-let ``Should extract multiple sections`` () =
+let ``YamlParserTests: Should extract multiple sections`` () =
   let yaml = """
 Section1:
     - "Field"

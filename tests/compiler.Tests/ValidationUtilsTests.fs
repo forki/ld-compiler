@@ -14,6 +14,8 @@ let private annotationValidations = [
     Label="PositionalId"
     Validate= true
     Format= "PositionalId:Required"
+    Display = false
+    DataAnnotation = true
     PropertyPath=[]
   }
   {
@@ -21,6 +23,8 @@ let private annotationValidations = [
     Label="Required"
     Validate= true
     Format= "String:Required"
+    Display = false
+    DataAnnotation = true
     PropertyPath=[]
   }
   {
@@ -28,6 +32,8 @@ let private annotationValidations = [
     Label="Date Not Required"
     Validate= true
     Format= "Date"
+    Display = false
+    DataAnnotation = true
     PropertyPath=[]
   }
   {
@@ -35,6 +41,8 @@ let private annotationValidations = [
     Label="YesNo Not Required"
     Validate= true
     Format= "YesNo"
+    Display = false
+    DataAnnotation = true
     PropertyPath=[]
   }
   {
@@ -42,6 +50,8 @@ let private annotationValidations = [
     Label="Date Conditional"
     Validate = true
     Format= "Date:Conditional:YesNo Not Required:no"
+    Display = false
+    DataAnnotation = true
     PropertyPath=[]
   }
 ]

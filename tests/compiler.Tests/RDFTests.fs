@@ -36,6 +36,8 @@ let private validations = [
     Label = "PositionalId"
     Validate = true
     Format = "PositionalId:Required"
+    Display = false
+    DataAnnotation = true
     PropertyPath=[]
   }
   {
@@ -43,6 +45,8 @@ let private validations = [
     Label = "National priority"
     Validate = true
     Format = "YesNo:Required"
+    Display = false
+    DataAnnotation = true
     PropertyPath=[]
   }
   {
@@ -50,6 +54,8 @@ let private validations = [
     Label = "Changed Priority On"
     Validate = true
     Format = "Date:Conditional:National priority:no"
+    Display = false
+    DataAnnotation = true
     PropertyPath=[]
   }
   {
@@ -57,6 +63,8 @@ let private validations = [
     Label = "First issued"
     Validate = true
     Format = "Date:Required"
+    Display = true
+    DataAnnotation = true
     PropertyPath=[]
   }
 ]

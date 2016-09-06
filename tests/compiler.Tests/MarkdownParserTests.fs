@@ -16,6 +16,8 @@ let private annotationValidations = [
     Validate= true
     Format= "PositionalId:Required"
     PropertyPath=[]
+    Display = false
+    DataAnnotation = true
   }
 ]
 

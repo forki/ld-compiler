@@ -5,6 +5,7 @@ open compiler.ContentHandle
 open compiler.YamlParser
 open compiler.Utils
 open compiler.ConfigTypes
+open compiler.ConfigUtils
 open System.Text.RegularExpressions
 open FSharp.Markdown
 open FSharp.Data
@@ -42,15 +43,16 @@ let private shouldDisplayProperty name =
 let private isDate name =
   name.Equals("firstissued")
 
-let private convertToVocab {Name = name; Fields = fields} = {
+let private convertToAnnotation {Name = name; Fields = fields} = {
   Property = getProperty name
   Vocab = name
   Terms = fields
   IsDisplayed = name |> getProperty |> shouldDisplayProperty 
   IsDate = name |> getProperty |> isDate
-  Validate = false
+  IsValidated = false
   Format = null
   Uri = null
+  IsDataAnnotation = false
 }
 
 let private HandleNoPositionalIdAnnotationError =
@@ -72,10 +74,10 @@ let private standardAndStatementNumbers id =
   match id with
   | "" -> [|"0";"0"|]
   | _ -> id |> removeText |> splitPositionalId
-
-let extractStatement (validations:PublishItem List) (contentHandle, html) =
+  
+let extractStatement (annotationConfig:PublishItem List) (contentHandle, html) =
   let isDataAnnotation (annotation:Annotation) =
-    match validations
+    match annotationConfig
           |> List.tryFind (fun v -> (v.Validate && v.Label = annotation.Vocab))
           with
           | Some PublishItem -> true
@@ -87,7 +89,8 @@ let extractStatement (validations:PublishItem List) (contentHandle, html) =
   let annotations = markdown
                     |> extractAnnotations 
                     |> parseYaml
-                    |> List.map convertToVocab
+                    |> List.map convertToAnnotation
+                    |> List.map (addConfigToAnnotation annotationConfig)
   
   let id = annotations
             |> List.tryFind (fun x -> x.Vocab.Equals("PositionalId"))

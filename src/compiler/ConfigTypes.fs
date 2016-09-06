@@ -4,6 +4,8 @@ type PublishItem = {
     Uri: string
     Label: string
     Validate: bool
+    DataAnnotation: bool
+    Display: bool
     Format: string
     PropertyPath: string list
 }

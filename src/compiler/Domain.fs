@@ -6,9 +6,10 @@ type Annotation = {
   Terms : string list
   IsDisplayed : bool
   IsDate : bool
-  Validate: bool
+  IsValidated: bool
   Format: string
   Uri: string
+  IsDataAnnotation: bool
 }
 
 type Statement = {
@@ -30,9 +31,10 @@ let annotation = {
   Terms = []
   IsDisplayed = false
   IsDate = false
-  Validate = false
-  Format = ""
-  Uri = ""
+  IsValidated = false
+  Format = null
+  Uri = null
+  IsDataAnnotation = false
 }
 
 let statement = {

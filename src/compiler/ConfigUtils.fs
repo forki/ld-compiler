@@ -5,6 +5,7 @@ open compiler.ConfigTypes
 open Newtonsoft.Json
 open FSharp.RDF
 open compiler.Utils
+open Domain
 
 type RDFArgs = {
   VocabMap : Map<string, Uri>     
@@ -14,7 +15,7 @@ type RDFArgs = {
 
 let mkKey (x : string) = x.Replace(" ", "").ToLowerInvariant()
 
-let private getPathWithSubclass urlBase qsBase p =
+let private getPathWithSubclass urlBase qsBase (p:PublishItem) =
   let delimiter = "|"
   let buildPropertyPathUri pp = sprintf "<%s%s#%s>/%s" urlBase qsBase p.Uri pp 
   let concatPropertyPaths acc prop = match acc with
@@ -89,7 +90,7 @@ let getRdfArgs config =
     TermMap = rdf_getTermMap config
   }
 
-let getPropertyValidations config =
+let getAnnotationConfig config =
   config.SchemaDetails
   |> List.filter (fun x -> x.Map=false)
   |> List.map (fun f -> (f.Publish |> List.filter (fun p -> p.Validate)))
@@ -122,3 +123,11 @@ let getPropPaths config =
                         |> List.map (fun p -> buildSchemaDetails p))
   |> List.concat
   |> List.filter (fun f -> f <> "")
+
+let addConfigToAnnotation (annotationConfig:PublishItem List) (thisAnnotation:Annotation) =
+  let thisAnnotationConfig = annotationConfig
+                             |> List.filter (fun c -> c.Label = annotation.Vocab)
+                             |> List.tryHead
+  match thisAnnotationConfig.IsSome with
+  | false -> thisAnnotation
+  | _ -> { thisAnnotation with Format = thisAnnotationConfig.Value.Format; Uri = thisAnnotationConfig.Value.Uri; }
