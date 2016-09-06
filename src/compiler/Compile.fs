@@ -39,7 +39,7 @@ let compile config extractor items outputDir dbName =
   let compileItem =
     extractor.readContentForItem
     >> convertMarkdownToHtml 
-    >> extractStatement annotationConfig
+    >> extractStatement config
     >> validateStatement annotationConfig
     >> bindDataToHtml
     >> writeHtml outputDir

@@ -9,17 +9,33 @@ open compiler.Domain
 open compiler.Markdown
 open compiler.ConfigTypes
 
-let private annotationValidations = [
-  {
-    Uri= "hasPositionalId"
-    Label="PositionalId"
-    Validate= true
-    Format= "PositionalId:Required"
-    PropertyPath=[]
-    Display = false
-    DataAnnotation = true
-  }
-]
+let private annotationValidation = {
+  Uri= "hasPositionalId"
+  Label="PositionalId"
+  Validate= true
+  Format= "PositionalId:Required"
+  PropertyPath=[]
+  Display = false
+  DataAnnotation = true
+}
+
+let private configItem = {
+  Schema = "schema.ttl"
+  JsonLD = "schema.jsonld"
+  Map = false
+  Publish = [ annotationValidation ]
+}
+
+let private config = {
+  SchemaBase = "schemabase"
+  UrlBase = "urlbase"
+  QSBase ="QSBase"
+  ThingBase = "thingbase"
+  IndexName = "kb"
+  TypeName = "typename"
+  SchemaDetails = [configItem]
+}
+
 
 let nl:string = System.Environment.NewLine
 let content = """
@@ -73,52 +89,65 @@ let sampleMarkdownWithoutPositionalId = {
 
 [<Test>]
 let ``Should extract the id from the markdown filename`` () =
-  let statement = extractStatement annotationValidations (sampleMarkdownContent, "")
+  let statement = extractStatement config (sampleMarkdownContent, "")
 
   statement.Id |> should equal "b17964c7-50d8-4f9d-b7b2-1ec0c039de77"
 
 [<Test>]
 let ``Should build the title from the positionalid field in metadata`` () =
-  let statement = extractStatement annotationValidations (sampleMarkdownContent, "")
+  let statement = extractStatement config (sampleMarkdownContent, "")
   
   statement.Title |> should equal "Quality statement 2 from quality standard 1"
 
 [<Test>]
 let ``Should extract the abstract from the converted html and remove anchoring the links but keep text`` () =
   let html = """<p>This is the abstract with a <a href="http://somewhere.com">Link</a>.</p>"""
-  let statement = extractStatement annotationValidations (sampleMarkdownContent, html)
+  let statement = extractStatement config (sampleMarkdownContent, html)
   
   statement.Abstract.Replace(nl, "\n") |> should equal "<p>\n  This is the abstract with a Link.\n</p>"
 
 [<Test>]
 let ``Should extract the content from whole markdown file`` () =
-  let statement = extractStatement annotationValidations (sampleMarkdownContent, "")
+  let statement = extractStatement config (sampleMarkdownContent, "")
 
   statement.Content |> should equal sampleMarkdownContent.Content
 
 [<Test>]
 let ``Should extract the standard number from file path`` () =
-  let statement = extractStatement annotationValidations (sampleMarkdownContent, "")
+  let statement = extractStatement config (sampleMarkdownContent, "")
 
   statement.StandardId |> should equal 1
 
 [<Test>]
 let ``Should extract the statement number from file path`` () =
-  let statement = extractStatement annotationValidations (sampleMarkdownContent, "")
+  let statement = extractStatement config (sampleMarkdownContent, "")
 
   statement.StatementId |> should equal 2
 
 [<Test>]
 let ``Should extract the data annotations from code block`` () =
-  let statement = extractStatement annotationValidations (sampleMarkdownContent, "")
+  let statement = extractStatement config (sampleMarkdownContent, "")
   printfn "%A" statement.DataAnnotations
+  let resultAnnotations = [
+    {
+      Property = "positionalid"
+      Vocab = "PositionalId"
+      Terms = ["qs1-st2"]
+      IsDisplayed = false
+      IsDate = false
+      IsValidated = true
+      Format = "PositionalId:Required"
+      Uri = "urlbaseQSBase#hasPositionalId"
+      IsDataAnnotation = true
+    }
+  ]
 
-  statement.DataAnnotations |> should equal [ { annotation with Property = "positionalid"; Vocab = "PositionalId"; Terms = ["qs1-st2"]; } ]
+  statement.DataAnnotations |> should equal resultAnnotations
 
 [<Test>]
 let ``Should extract the object annotations from code block`` () =
-  let statement = extractStatement annotationValidations (sampleMarkdownContent, "")
-  printfn "%A" statement.DataAnnotations
+  let statement = extractStatement config (sampleMarkdownContent, "")
+  printfn "%A" statement.ObjectAnnotations
 
   statement.ObjectAnnotations |> should equal [ { annotation with Property = "vocab"; Vocab = "Vocab"; Terms = ["Term"]; } ]
 [<Test>]

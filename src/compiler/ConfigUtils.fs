@@ -124,10 +124,15 @@ let getPropPaths config =
   |> List.concat
   |> List.filter (fun f -> f <> "")
 
-let addConfigToAnnotation (annotationConfig:PublishItem List) (thisAnnotation:Annotation) =
+let addConfigToAnnotation annotationConfig thisAnnotation =
   let thisAnnotationConfig = annotationConfig
-                             |> List.filter (fun c -> c.Label = annotation.Vocab)
+                             |> List.filter (fun c -> c.Label = thisAnnotation.Vocab)
                              |> List.tryHead
   match thisAnnotationConfig.IsSome with
   | false -> thisAnnotation
-  | _ -> { thisAnnotation with Format = thisAnnotationConfig.Value.Format; Uri = thisAnnotationConfig.Value.Uri; }
+  | _ -> { thisAnnotation with Format = thisAnnotationConfig.Value.Format; Uri = thisAnnotationConfig.Value.Uri; IsDataAnnotation = thisAnnotationConfig.Value.DataAnnotation; IsValidated = thisAnnotationConfig.Value.Validate}
+
+let addUriToAnnotation propertyBaseUrl thisAnnotation =
+  match thisAnnotation.IsValidated with
+  | true -> { thisAnnotation with Uri = sprintf "%s#%s" propertyBaseUrl thisAnnotation.Uri }
+  | _ -> thisAnnotation
