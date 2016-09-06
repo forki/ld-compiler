@@ -9,11 +9,17 @@ open resource
 open NUnit.Framework
 open FsUnit
 
-let defaultAnnotations = [
-  { annotation with Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-  { annotation with Vocab = "National priority"; Terms = ["yes"] }
-  { annotation with Vocab = "Changed Priority On"; Terms = ["2012-10-01"] }
-  { annotation with Vocab = "First issued"; Terms = ["2010-10-01"] }   
+let dataAnnotations = [
+  { annotation with
+      Property = "firstissued"
+      Vocab = "First issued"
+      Terms = ["2010-10-01"]
+      IsDisplayed = false
+      IsDate = false
+      IsValidated = false
+      Format = null
+      Uri = "http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn"
+  }   
 ]
 
 let defaultStatement = {
@@ -23,51 +29,12 @@ let defaultStatement = {
   StandardId = 0
   StatementId = 0
   ObjectAnnotations = []
-  DataAnnotations = defaultAnnotations
+  DataAnnotations = []
   Content = ""
   Html = ""
 }
 
 let private baseUrl = "http://ld.nice.org.uk/ns/qualitystandard"
-
-let private validations = [
-  {
-    Uri = "hasPositionalId"
-    Label = "PositionalId"
-    Validate = true
-    Format = "PositionalId:Required"
-    Display = false
-    DataAnnotation = true
-    PropertyPath=[]
-  }
-  {
-    Uri = "isNationalPriority"
-    Label = "National priority"
-    Validate = true
-    Format = "YesNo:Required"
-    Display = false
-    DataAnnotation = true
-    PropertyPath=[]
-  }
-  {
-    Uri = "changedPriorityOn"
-    Label = "Changed Priority On"
-    Validate = true
-    Format = "Date:Conditional:National priority:no"
-    Display = false
-    DataAnnotation = true
-    PropertyPath=[]
-  }
-  {
-    Uri = "wasFirstIssuedOn"
-    Label = "First issued"
-    Validate = true
-    Format = "Date:Required"
-    Display = true
-    DataAnnotation = true
-    PropertyPath=[]
-  }
-]
 
 let defaultArgs = {
   VocabMap = Map.ofList []
@@ -90,7 +57,7 @@ let private FindObjectProperty (uri:string) resource =
 let ``RDFTests: Should create resource with type of qualitystatement``() =
 
   defaultStatement
-  |> transformToRDF defaultArgs validations baseUrl
+  |> transformToRDF defaultArgs
   |> FindObjectProperty "rdf:type" 
   |> Seq.map (fun p -> p.ToString())
   |> Seq.head
@@ -100,8 +67,8 @@ let ``RDFTests: Should create resource with type of qualitystatement``() =
 [<Test>]
 let ``RDFTests: Should create a resource with data property wasFirstIssuedOn``() =
 
-  defaultStatement
-  |> transformToRDF defaultArgs validations baseUrl
+  { defaultStatement with DataAnnotations = dataAnnotations }
+  |> transformToRDF defaultArgs
   |> FindDataProperty "http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn" 
   |> Seq.map (fun p -> p.ToString())
   |> Seq.head
@@ -112,7 +79,7 @@ let ``RDFTests: Should create resource with subject uri as id``() =
   let statement = {defaultStatement with Id = "id_goes_here" }
 
   let id = statement 
-           |> transformToRDF defaultArgs validations baseUrl
+           |> transformToRDF defaultArgs
            |> Resource.id 
    
   id.ToString() |> should equal "http://ld.nice.org.uk/ns/qualitystandard/id_goes_here"
@@ -122,19 +89,19 @@ let ``RDFTests: Should create title dataproperty for resource``() =
   let statement = {defaultStatement with Title = "This is the title" }
 
   let title = statement
-              |> transformToRDF defaultArgs validations baseUrl
+              |> transformToRDF defaultArgs
               |> FindDataProperty "http://ld.nice.org.uk/ns/qualitystandard#title" 
 
   title |> should equal ["This is the title"]
 
 [<Test>]
 let ``RDFTests: Should convert a single annotated term into an objectproperty``() =
-  let statement = {defaultStatement with ObjectAnnotations = defaultAnnotations @ [{ annotation with Vocab="Vocab1"; Terms=[ "Term1" ] }]}
+  let statement = {defaultStatement with ObjectAnnotations = [{ annotation with Vocab="Vocab1"; Terms=[ "Term1" ] }]}
   let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"] |> Map.ofList ] |> Map.ofList}
   let property = 
     statement
-    |> transformToRDF args validations baseUrl
+    |> transformToRDF args
     |> FindObjectProperty "http://someuri.com/Vocab1" 
     |> Seq.map (fun p -> p.ToString())
     |> Seq.head
@@ -143,13 +110,13 @@ let ``RDFTests: Should convert a single annotated term into an objectproperty``(
 
 [<Test>]
 let ``RDFTests: Should convert multiple annotated terms from one vocab as objectproperties``() =
-  let statement = {defaultStatement with ObjectAnnotations = defaultAnnotations @ [{ annotation with Vocab="Vocab 1"; Terms=[ "Term1"; "Term2" ] }]}
+  let statement = {defaultStatement with ObjectAnnotations = [{ annotation with Vocab="Vocab 1"; Terms=[ "Term1"; "Term2" ] }]}
   let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"
                                                      "term2", Uri.from "http://someuri.com/Vocab1#Term2"] |> Map.ofList ] |> Map.ofList}
   let properties = 
     statement
-    |> transformToRDF args validations baseUrl
+    |> transformToRDF args
     |> FindObjectProperty "http://someuri.com/Vocab1" 
     |> Seq.map (fun p -> p.ToString())
     |> Seq.toList
@@ -159,13 +126,13 @@ let ``RDFTests: Should convert multiple annotated terms from one vocab as object
 
 [<Test>]
 let ``RDFTests: Should convert annotated terms from multiple vocabs as objectproperties``() =
-  let statement = {defaultStatement with ObjectAnnotations = defaultAnnotations @ [{ annotation with Vocab="Vocab1"; Terms=[ "Term1"] }
-                                                                                   { annotation with Vocab="Vocab2"; Terms=[ "Term1"] }]}
+  let statement = {defaultStatement with ObjectAnnotations = [{ annotation with Vocab="Vocab1"; Terms=[ "Term1"] }
+                                                              { annotation with Vocab="Vocab2"; Terms=[ "Term1"] }]}
   let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"
                                            "vocab2", Uri.from "http://someuri.com/Vocab2"] |> Map.ofList
                                TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"] |> Map.ofList 
                                           "vocab2", ["term1", Uri.from "http://someuri.com/Vocab2#Term1"] |> Map.ofList ] |> Map.ofList}
-  let rdf = statement |> transformToRDF args validations baseUrl
+  let rdf = statement |> transformToRDF args
 
   rdf
   |> FindObjectProperty "http://someuri.com/Vocab1" 

@@ -33,7 +33,6 @@ let writeHtml outputDir statement =
 let compile config extractor items outputDir dbName = 
   let rdfArgs = config |> getRdfArgs
   let baseUrl = config |> getBaseUrl
-  let propertyBaseUrl = config |> getPropertyBaseUrl
   let annotationConfig = config |> getAnnotationConfig
 
   let compileItem =
@@ -43,7 +42,7 @@ let compile config extractor items outputDir dbName =
     >> validateStatement annotationConfig
     >> bindDataToHtml
     >> writeHtml outputDir
-    >> transformToRDF rdfArgs annotationConfig propertyBaseUrl
+    >> transformToRDF rdfArgs
     >> transformToTurtle
     >> prepareAsFile baseUrl outputDir ".ttl"
     >> writeFile 
