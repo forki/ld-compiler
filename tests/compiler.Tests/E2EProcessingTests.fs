@@ -1,0 +1,205 @@
+﻿module compiler.Test.E2EProcessingTests
+
+open NUnit.Framework
+open FsUnit
+open compiler.ContentHandle
+open compiler.ConfigUtils
+open compiler.ConfigTypes
+open compiler.ValidationUtils
+open compiler.Markdown
+
+let configString = """
+{
+	"SchemaBase": "http://schema/ns/",
+	"UrlBase": "http://ld.nice.org.uk/",
+	"QSBase": "ns/qualitystandard",
+	"ThingBase": "resource",
+	"IndexName": "kb",
+	"TypeName": "qualitystatement",
+	"SchemaDetails":
+	[
+		{
+			"Schema": "qualitystandard/setting.ttl",
+			"JsonLD": "qualitystandard/setting.jsonld ",
+			"Map": true,
+			"Publish":
+			[
+				{
+					"Uri": "setting",
+					"PropertyPath":
+					[
+						"^rdfs:subClassOf*"
+					]
+				}
+			]
+		},
+		{
+			"Schema": "qualitystandard/agegroup.ttl",
+			"JsonLD": "qualitystandard/agegroup.jsonld ",
+			"Map": true,
+			"Publish":
+			[
+				{
+					"Uri": "age",
+					"Label": "Age Group",
+					"PropertyPath":
+					[
+						"^rdfs:subClassOf*",
+						"rdfs:subClassOf*"
+					]
+				}
+			]
+			
+		},
+		{
+			"Schema": "qualitystandard/conditionordisease.ttl",
+			"JsonLD": "qualitystandard/conditionordisease.jsonld ",
+			"Map": true,
+			"Publish":
+			[
+				{
+					"Uri": "condition",
+					"Label": "Condition Or Disease",
+					"PropertyPath": 
+					[
+						"^rdfs:subClassOf*",
+						"rdfs:subClassOf*"
+					]
+				}
+			]
+			
+		},
+		{
+			"Schema": "qualitystandard/servicearea.ttl",
+			"JsonLD": "qualitystandard/servicearea.jsonld ",
+			"Map": true,
+			"Publish":
+			[
+				{
+					"Uri": "servicearea",
+					"PropertyPath": 
+					[
+						"^rdfs:subClassOf*"
+					]
+				}
+			]
+			
+		},
+		{
+			"Schema": "qualitystandard/lifestylecondition.ttl",
+			"JsonLD": "qualitystandard/lifestylecondition.jsonld ",
+			"Map": true,
+			"Publish":
+			[
+				{
+					"Uri": "lifestylecondition",
+					"PropertyPath":
+					[
+						"^rdfs:subClassOf*"
+					]
+				}
+			]
+			
+		},
+		{
+			"Schema": "qualitystandard.ttl",
+			"JsonLD": "qualitystandard.jsonld ",
+			"Map": false,
+			"Publish":
+			[
+				{
+					"Uri": "title"
+				},
+				{
+					"Uri": "abstract"
+				},
+				{
+					"Uri": "qsidentifier"
+				},
+				{
+					"Uri": "stidentifier"
+				},
+				{
+					"Uri": "hasPositionalId",
+					"Label": "PositionalId",
+					"Validate": true,
+					"Format": "PositionalId:Required",
+                    "Display": false,
+                    "DataAnnotation": true,
+                    "PropertyPath": []
+				},
+				{
+					"Uri": "isNationalPriority",
+					"Label": "National priority",
+					"Validate": true,
+					"Format": "YesNo:Required",
+					"Display": false,
+					"DataAnnotation": true,
+					"PropertyPath": []
+				},
+				{
+					"Uri": "changedPriorityOn",
+					"Label": "Changed Priority On",
+					"Validate": true,
+					"Format": "Date:Conditional:National priority:no",
+					"Display": false,
+					"DataAnnotation": true,
+					"PropertyPath": []
+				},
+				{
+					"Uri": "wasFirstIssuedOn",
+					"Label": "First issued",
+					"Validate": true,
+					"Format": "Date:Required",
+					"Display": true,
+					"DataAnnotation": true,
+					"PropertyPath": []
+				}
+			]
+			
+		}
+	]
+}
+"""
+let content = """
+```
+PositionalId:
+  - "qs1-st1"
+National priority:
+  - "yes"
+First issued:
+  - "01-06-2010"
+Age group:
+  - "Adults"
+Setting:
+  - "Care home"
+Service area:
+  - "Community health care"
+Condition or disease:
+  - "Mental health and behavioural conditions"
+```
+This is the title 
+----------------------------------------------
+
+### Abstract 
+
+This is the abstract.
+
+This is some dodgily‑encoded content.
+"""
+let markdown = { Thing = "8422158b-302e-4be2-9a19-9085fc09dfe7"
+                 Content = content.Replace(System.Environment.NewLine, "\n")}
+
+[<Test>]
+let ``E2EProcessingTests: Should process the loaded file without error``() =
+
+  let config = deserializeConfig configString
+
+  let res = try
+               extractStatement config (markdown, content)
+               |> validateStatement
+               |> ignore
+               "No exception caught"
+            with
+            | Failure msg -> msg
+  res |> should equal "No exception caught"

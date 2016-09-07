@@ -24,6 +24,7 @@ let verifyRequiredAnnotationsExist theseValidations theseAnnotations =
     theseAnnotations
     |> List.filter (fun a -> a.Vocab = condVocab)
     |> List.map (fun a -> a.Terms |> List.filter (fun t -> t = condTerm))
+    |> List.concat
     |> fun al -> match al.Length with
                  | 0 -> false
                  | _ -> true
