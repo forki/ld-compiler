@@ -182,9 +182,72 @@ let verifyRequiredAnnotationsExist (theseValidations:PublishItem List) (theseAnn
 
   theseAnnotations
 
-let validateProvidedDataAnnotations (theseAnnotations:Annotation List) =
+//  let private processDate name field =
+//  let validateDate (date:string) (raiseError:string -> string) =
+//    if (obj.ReferenceEquals(date, null)=false && date.Length > 0) then
+//      match System.DateTime.TryParseExact(date, "dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture,System.Globalization.DateTimeStyles.None) with
+//      | true, x -> x.ToString("yyyy-MM-dd")
+//      | _ ->  raiseError "Invalid"
+//    else
+//      raiseError "Missing"
+//  let raiseDateError = raiseError name
+//  validateDate field raiseDateError
+let private validateDataAnnotation (thisAnnotation:Annotation) =
+  let processDates () =
+    let tryparseDate (date:string) = 
+      match System.DateTime.TryParseExact(date, "dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture,System.Globalization.DateTimeStyles.None) with
+      | true, x -> x.ToString("yyyy-MM-dd")
+      | _ ->  raiseError thisAnnotation.Vocab "Invalid"
+    
+    let processedTerms = thisAnnotation.Terms
+                         |> List.map (fun t -> tryparseDate t)
+    { thisAnnotation with Terms = processedTerms}
+ 
+  let processPositionalId () =
+    let posnIdError = raiseError "PositionalId"
 
-  theseAnnotations
+    let valid (prefix:string) (part:string) =
+      let compare = sprintf "%s%s" prefix (part.Replace(prefix,""))
+      System.String.Equals(compare, part)
+
+    let validateParts qs st =
+      match (valid "qs" qs) && (valid "st" st) with
+      | true -> ()
+      | _ -> posnIdError "Invalid"
+
+    let splitAndProcessPositionalId (positionalId:string) =
+      let idParts = positionalId.Split [|'-'|] |> Array.toList
+
+      match idParts.Length with
+      | 2 -> validateParts (idParts |> List.head) (idParts |> List.tail |> List.head)
+      | _ -> posnIdError "Invalid"
+         
+    match thisAnnotation.Terms.Length with
+    | 1 -> thisAnnotation.Terms.Head |> splitAndProcessPositionalId
+    | _ -> posnIdError "Invalid"
+    
+    thisAnnotation
+
+  let processYesNo () =
+    let assessTerm (term:string) =
+      match term with
+      | "yes"
+      | "no" -> ()
+      | _ -> raiseError thisAnnotation.Vocab "Invalid"
+
+    thisAnnotation.Terms
+    |> List.map (fun t -> assessTerm t)
+
+    thisAnnotation
+
+  let validationParts = thisAnnotation.Format.Split [|':'|]   
+  match validationParts.Length with
+    | 0 -> thisAnnotation
+    | _ -> match Array.get validationParts 0 with
+           | "Date" -> processDates ()
+           | "PositionalId" -> processPositionalId () 
+           | "YesNo" -> processYesNo ()
+           | _ -> thisAnnotation
 
 let validateStatement (statement:Statement) =
   {
@@ -196,7 +259,7 @@ let validateStatement (statement:Statement) =
     ObjectAnnotations = statement.ObjectAnnotations
                         |> List.filter (fun x -> x.Terms.Length > 0)
     DataAnnotations = statement.DataAnnotations
-                      |> validateProvidedDataAnnotations
+                      |> List.map validateDataAnnotation
     Content = statement.Content
     Html = statement.Html
   }
