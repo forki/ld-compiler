@@ -288,10 +288,6 @@ let ``ConfigUtilsTests: Should read the expected property validations from confi
 
   areListsTheSame expected_PropertyValidations result
 
-
-// ()
-// (addUriToAnnotation propertyBaseUrl)
-
 [<Test>]
 let ``ValidationUtilsTests: When the config file data is added to the read annotations that is complete`` () =
   let annotationConfig = deserializeConfig sampleConfig
