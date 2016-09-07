@@ -111,11 +111,11 @@ let private validateMandatoryAnnotations validations annotations =
   annotations
 
 let private validateProvidedAnnotations validations annotations =
-  let validateAnnotation validations (annotation:Annotation) =
-    let relevantValidation = validations |> List.filter (fun v -> v.Label = annotation.Vocab)
+  let validateAnnotation validations (thisAnnotation:Annotation) =
+    let relevantValidation = validations |> List.filter (fun v -> v.Label = thisAnnotation.Vocab)
     match relevantValidation.Length with
-    | 0 -> annotation
-    | _ -> { annotation with Property = ""; Vocab = annotation.Vocab; Terms = annotation.Terms |> List.map (fun t -> validateValue relevantValidation.Head t) }
+    | 0 -> thisAnnotation
+    | _ -> { thisAnnotation with Terms = thisAnnotation.Terms |> List.map (fun t -> validateValue relevantValidation.Head t) }
 
   annotations |> List.map (fun a -> validateAnnotation validations a)
 
@@ -136,3 +136,35 @@ let validateStatement validations (statement:Statement) =
     Html = statement.Html
   }
 
+///////////////////////////////// this is the new shit //////////////////////////////////////////////
+
+let verifyMandatoryAnnotationsExist (theseValidations:PublishItem List) (theseAnnotations:Annotation List) =
+  let validationHasFormat thisValidation =
+    match obj.ReferenceEquals(thisValidation.Format, null) with
+    | false -> thisValidation, true
+    | _ -> thisValidation, false
+
+  let isValidationRequired (thisValidation:PublishItem) =
+    let validationParts = thisValidation.Format.Split [|':'|]
+    match validationParts.Length with
+    | 0 
+    | 1 -> thisValidation, false
+    | _ -> match Array.get validationParts 1 with
+           | "Required" -> thisValidation, true
+           | _ -> thisValidation, false
+
+  let isRequiresAnnotationInList (thisValidation:PublishItem) =
+    let foundAnnotations = theseAnnotations |> List.filter (fun a -> a.Vocab = thisValidation.Label)
+    match foundAnnotations.Length with
+    | 0 -> raiseError thisValidation.Label "Missing"
+    | _ -> ()
+
+  theseValidations
+  |> List.map validationHasFormat
+  |> List.filter (fun v -> snd v )
+  |> List.map (fun v -> isValidationRequired (fst v))
+  |> List.filter (fun v -> snd v )
+  |> List.map (fun v -> isRequiresAnnotationInList (fst v))
+  |> ignore
+
+  theseAnnotations

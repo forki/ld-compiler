@@ -130,7 +130,13 @@ let addConfigToAnnotation annotationConfig thisAnnotation =
                              |> List.tryHead
   match thisAnnotationConfig.IsSome with
   | false -> thisAnnotation
-  | _ -> { thisAnnotation with Format = thisAnnotationConfig.Value.Format; Uri = thisAnnotationConfig.Value.Uri; IsDataAnnotation = thisAnnotationConfig.Value.DataAnnotation; IsValidated = thisAnnotationConfig.Value.Validate}
+  | _ -> { thisAnnotation with
+             Format = thisAnnotationConfig.Value.Format
+             Uri = thisAnnotationConfig.Value.Uri
+             IsDataAnnotation = thisAnnotationConfig.Value.DataAnnotation
+             IsValidated = thisAnnotationConfig.Value.Validate
+             IsDisplayed = thisAnnotationConfig.Value.Display
+           }
 
 let addUriToAnnotation propertyBaseUrl thisAnnotation =
   match thisAnnotation.IsValidated with

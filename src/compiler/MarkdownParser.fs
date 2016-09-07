@@ -6,6 +6,7 @@ open compiler.YamlParser
 open compiler.Utils
 open compiler.ConfigTypes
 open compiler.ConfigUtils
+open compiler.ValidationUtils
 open System.Text.RegularExpressions
 open FSharp.Markdown
 open FSharp.Data
@@ -37,9 +38,6 @@ let private extractAnnotations (markdown:MarkdownDocument) =
     | CodeBlock (text,_,_) -> text
     | _ -> ""
 
-let private shouldDisplayProperty name =
-  name.Equals("firstissued")
-
 let private isDate name =
   name.Equals("firstissued")
 
@@ -47,7 +45,7 @@ let private convertToAnnotation {Name = name; Fields = fields} = {
   Property = getProperty name
   Vocab = name
   Terms = fields
-  IsDisplayed = name |> getProperty |> shouldDisplayProperty 
+  IsDisplayed = false 
   IsDate = name |> getProperty |> isDate
   IsValidated = false
   Format = null
@@ -95,6 +93,8 @@ let extractStatement config (contentHandle, html) =
                     |> List.map convertToAnnotation
                     |> List.map (addConfigToAnnotation annotationConfig)
                     |> List.map (addUriToAnnotation propertyBaseUrl)
+  
+  verifyMandatoryAnnotationsExist annotationConfig annotations |> ignore
   
   let id = annotations
             |> List.tryFind (fun x -> x.Vocab.Equals("PositionalId"))
