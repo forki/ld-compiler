@@ -62,11 +62,7 @@ let a_datenotrequired = { annotation with Property = "datenotrequired"; Vocab = 
 let a_yesnonotrequired = { annotation with Property = "yesnonotrequired"; Vocab = "YesNo Not Required"; Terms = ["yes"]; Format = "YesNo"; Uri = "hasNotRequiredYesNo"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true  }
 let a_dateconditional = { annotation with Property = "dateconditional"; Vocab = "Date Conditional"; Terms = ["01-08-2010"]; Format = "Date:Conditional:YesNo Not Required:no"; Uri = "hasConditionallyRequiredDate"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
 
-
-
 let validRequiredAnnotations = [ a_positionalId; a_required ]
-
-
 
 let defaultStatement = {
   Id = System.Guid.NewGuid().ToString()
@@ -165,3 +161,5 @@ let ``ValidationUtilsTests: When a statement has a conditionally required annota
             with
             | Failure msg -> msg
   res |> should equal "Missing the 'Date Conditional' annotation"
+
+
