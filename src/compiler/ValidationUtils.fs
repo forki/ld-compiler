@@ -64,7 +64,7 @@ let private processDates thisAnnotation =
     
   let processedTerms = thisAnnotation.Terms
                          |> List.map (fun t -> tryparseDate t)
-  { thisAnnotation with Terms = processedTerms}
+  { thisAnnotation with Terms = processedTerms; IsDate = true}
  
 let private processPositionalId thisAnnotation =
   let posnIdError = raiseError "PositionalId"

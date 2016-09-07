@@ -80,7 +80,7 @@ let defaultStatement = {
 let ``ValidationUtilsTests: When all statement annotations are valid (no conditionally required) then validating the statement will return a statement that is identical but with processed dates`` () =
   let data = {defaultStatement with DataAnnotations = [ a_positionalId; a_required; a_datenotrequired; a_yesnonotrequired ] }
   
-  let dataTransformed = { defaultStatement with DataAnnotations = [ a_positionalId; a_required; { a_datenotrequired with Terms = ["2010-10-01"] }; a_yesnonotrequired ] }
+  let dataTransformed = { defaultStatement with DataAnnotations = [ a_positionalId; a_required; { a_datenotrequired with Terms = ["2010-10-01"]; IsDate = true }; a_yesnonotrequired ] }
   let resultStatement = validateStatement data
 
   areListsTheSame dataTransformed.DataAnnotations resultStatement.DataAnnotations
@@ -91,7 +91,7 @@ let ``ValidationUtilsTests: When all statement annotations are valid (with condi
   let data = {defaultStatement with DataAnnotations = [ a_positionalId; a_required; a_datenotrequired; { a_yesnonotrequired with Terms = ["no"] }; a_dateconditional ] }
 
   
-  let dataTransformed = {defaultStatement with DataAnnotations = [a_positionalId; a_required; { a_datenotrequired with Terms = ["2010-10-01"] }; { a_yesnonotrequired with Terms = ["no"] }; { a_dateconditional with Terms = ["2010-08-01"] } ] }
+  let dataTransformed = {defaultStatement with DataAnnotations = [a_positionalId; a_required; { a_datenotrequired with Terms = ["2010-10-01"]; IsDate = true }; { a_yesnonotrequired with Terms = ["no"] }; { a_dateconditional with Terms = ["2010-08-01"]; IsDate = true} ] }
   let resultStatement = validateStatement data
 
   areListsTheSame dataTransformed.DataAnnotations resultStatement.DataAnnotations

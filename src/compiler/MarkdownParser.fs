@@ -38,15 +38,12 @@ let private extractAnnotations (markdown:MarkdownDocument) =
     | CodeBlock (text,_,_) -> text
     | _ -> ""
 
-let private isDate name =
-  name.Equals("firstissued")
-
 let private convertToAnnotation {Name = name; Fields = fields} = {
   Property = getProperty name
   Vocab = name
   Terms = fields
   IsDisplayed = false 
-  IsDate = name |> getProperty |> isDate
+  IsDate = false
   IsValidated = false
   Format = null
   Uri = null
