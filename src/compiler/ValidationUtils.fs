@@ -7,7 +7,7 @@ open compiler.ConfigTypes
 let private raiseError annotation state =
   match state with
   | "Invalid" -> sprintf "Invalid value for the '%s' annotation" annotation
-  | "Blank" -> sprintf "Blank value for the '%s' annotation" annotation
+  | "Blank" -> sprintf "No value provided for the '%s' annotation" annotation
   | "Missing" -> sprintf "Missing the '%s' annotation" annotation
   | _ -> sprintf "Error (%s) encountered while processing the '%s' annotation" state annotation
   |> failwith
@@ -119,7 +119,74 @@ let private validateProvidedAnnotations validations annotations =
 
   annotations |> List.map (fun a -> validateAnnotation validations a)
 
-let validateStatement validations (statement:Statement) =
+//let validateStatement validations (statement:Statement) =
+//  {
+//    Id = statement.Id
+//    Title = statement.Title
+//    Abstract = statement.Abstract
+//    StandardId = statement.StandardId
+//    StatementId = statement.StatementId
+//    ObjectAnnotations = statement.ObjectAnnotations
+//                        |> List.filter (fun x -> x.Terms.Length > 0)
+//    DataAnnotations = statement.DataAnnotations
+//                      |> List.filter (fun x -> x.Terms.Length > 0)
+//                      |> validateMandatoryAnnotations validations
+//                      |> validateProvidedAnnotations validations
+//    Content = statement.Content
+//    Html = statement.Html
+//  }
+
+///////////////////////////////// this is the new shit //////////////////////////////////////////////
+
+let verifyRequiredAnnotationsExist (theseValidations:PublishItem List) (theseAnnotations:Annotation List) =
+  let validationHasFormat thisValidation =
+    match obj.ReferenceEquals(thisValidation.Format, null) with
+    | false -> thisValidation, true
+    | _ -> thisValidation, false
+
+  let isConditionalReqires (validationParts:string array) = 
+    let condVocab = Array.get validationParts 2
+    let condTerm = Array.get validationParts 3
+    theseAnnotations
+    |> List.filter (fun a -> a.Vocab = condVocab)
+    |> List.map (fun a -> a.Terms |> List.filter (fun t -> t = condTerm))
+    |> fun al -> match al.Length with
+                 | 0 -> false
+                 | _ -> true
+
+  let isValidationRequired (thisValidation:PublishItem) =
+    let validationParts = thisValidation.Format.Split [|':'|]
+    match validationParts.Length with
+    | 0 
+    | 1 -> thisValidation, false
+    | _ -> match Array.get validationParts 1 with
+           | "Required" -> thisValidation, true
+           | "Conditional" -> thisValidation, (isConditionalReqires validationParts)
+           | _ -> thisValidation, false
+
+  let isRequiresAnnotationInList (thisValidation:PublishItem) =
+    let foundAnnotations = theseAnnotations |> List.filter (fun a -> a.Vocab = thisValidation.Label)
+    match foundAnnotations.Length with
+    | 0 -> raiseError thisValidation.Label "Missing"
+    | _ -> match foundAnnotations.Head.Terms.Length with
+           | 0 -> raiseError thisValidation.Label "Blank"
+           | _ -> ()
+
+  theseValidations
+  |> List.map validationHasFormat
+  |> List.filter (fun v -> snd v )
+  |> List.map (fun v -> v |> fst |> isValidationRequired)
+  |> List.filter (fun v -> snd v )
+  |> List.map (fun v -> v |> fst |> isRequiresAnnotationInList)
+  |> ignore
+
+  theseAnnotations
+
+let validateProvidedDataAnnotations (theseAnnotations:Annotation List) =
+
+  theseAnnotations
+
+let validateStatement (statement:Statement) =
   {
     Id = statement.Id
     Title = statement.Title
@@ -129,42 +196,7 @@ let validateStatement validations (statement:Statement) =
     ObjectAnnotations = statement.ObjectAnnotations
                         |> List.filter (fun x -> x.Terms.Length > 0)
     DataAnnotations = statement.DataAnnotations
-                      |> List.filter (fun x -> x.Terms.Length > 0)
-                      |> validateMandatoryAnnotations validations
-                      |> validateProvidedAnnotations validations
+                      |> validateProvidedDataAnnotations
     Content = statement.Content
     Html = statement.Html
   }
-
-///////////////////////////////// this is the new shit //////////////////////////////////////////////
-
-let verifyMandatoryAnnotationsExist (theseValidations:PublishItem List) (theseAnnotations:Annotation List) =
-  let validationHasFormat thisValidation =
-    match obj.ReferenceEquals(thisValidation.Format, null) with
-    | false -> thisValidation, true
-    | _ -> thisValidation, false
-
-  let isValidationRequired (thisValidation:PublishItem) =
-    let validationParts = thisValidation.Format.Split [|':'|]
-    match validationParts.Length with
-    | 0 
-    | 1 -> thisValidation, false
-    | _ -> match Array.get validationParts 1 with
-           | "Required" -> thisValidation, true
-           | _ -> thisValidation, false
-
-  let isRequiresAnnotationInList (thisValidation:PublishItem) =
-    let foundAnnotations = theseAnnotations |> List.filter (fun a -> a.Vocab = thisValidation.Label)
-    match foundAnnotations.Length with
-    | 0 -> raiseError thisValidation.Label "Missing"
-    | _ -> ()
-
-  theseValidations
-  |> List.map validationHasFormat
-  |> List.filter (fun v -> snd v )
-  |> List.map (fun v -> isValidationRequired (fst v))
-  |> List.filter (fun v -> snd v )
-  |> List.map (fun v -> isRequiresAnnotationInList (fst v))
-  |> ignore
-
-  theseAnnotations

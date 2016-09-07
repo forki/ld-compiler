@@ -33,13 +33,12 @@ let writeHtml outputDir statement =
 let compile config extractor items outputDir dbName = 
   let rdfArgs = config |> getRdfArgs
   let baseUrl = config |> getBaseUrl
-  let annotationConfig = config |> getAnnotationConfig
 
   let compileItem =
     extractor.readContentForItem
     >> convertMarkdownToHtml 
     >> extractStatement config
-    >> validateStatement annotationConfig
+    >> validateStatement
     >> bindDataToHtml
     >> writeHtml outputDir
     >> transformToRDF rdfArgs

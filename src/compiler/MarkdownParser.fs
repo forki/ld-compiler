@@ -94,7 +94,7 @@ let extractStatement config (contentHandle, html) =
                     |> List.map (addConfigToAnnotation annotationConfig)
                     |> List.map (addUriToAnnotation propertyBaseUrl)
   
-  verifyMandatoryAnnotationsExist annotationConfig annotations |> ignore
+  verifyRequiredAnnotationsExist annotationConfig annotations |> ignore
   
   let id = annotations
             |> List.tryFind (fun x -> x.Vocab.Equals("PositionalId"))
