@@ -8,9 +8,11 @@ open System.IO
 open System.Web
 open System.Net
 
-let runCompileAndWaitTillFinished gitRepoUrl =
+let runCompileAndWaitTillFinished () =
+//  let myGitRepoUrl = "https://github.com/nhsevidence/ld-dummy-content"
+  let myGitRepoUrl = "https://github.com/sainsworth/ld-dummy-content"
   let res = Http.RequestString("http://compiler:8081/compile",
-                               query=["repoUrl", gitRepoUrl],
+                               query=["repoUrl", myGitRepoUrl],
                                httpMethod="POST")
   res |> should equal "Started"
   let mutable finished = false
@@ -51,10 +53,12 @@ let Teardown () =
   printf "Deleting all static html resources\n"
   try Http.RequestString("http://resourceapi:8082/resource/8422158b-302e-4be2-9a19-9085fc09dfe7", httpMethod="DELETE") |> ignore with _ -> ()
 
-[<Test>]
-let ``When publishing a statement it should have added a statement to elastic search index`` () =
+/// Tests constructed on the presumption that there are 2 statements in the content being deployed, which are similar in annotations, but only one is discoverable
 
-  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
+[<Test>]
+let ``When publishing a discoverable statement it should have added a statement to elastic search index`` () =
+
+  runCompileAndWaitTillFinished ()
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -67,9 +71,9 @@ let ``When publishing a statement it should have added a statement to elastic se
   doc.Id.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/8422158b-302e-4be2-9a19-9085fc09dfe7"   
 
 [<Test>]
-let ``When publishing a statement it should apply structured data annotations that exist in metadata`` () =
+let ``When publishing a discoverable statement it should apply structured data annotations that exist in metadata`` () =
 
-  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
+  runCompileAndWaitTillFinished ()
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -83,9 +87,9 @@ let ``When publishing a statement it should apply structured data annotations th
   firstIssued.JsonValue.AsString() |> should equal "2010-06-01"
 
 [<Test>]
-let ``When publishing a statement it should apply annotations that exist in metadata`` () =
+let ``When publishing a discoverable statement it should apply annotations that exist in metadata`` () =
 
-  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
+  runCompileAndWaitTillFinished ()
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -100,8 +104,8 @@ let ``When publishing a statement it should apply annotations that exist in meta
 
 
 [<Test>]
-let ``When publishing a statement it should apply supertype and subtype inferred annotations`` () =
-  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
+let ``When publishing a discoverable statement it should apply supertype and subtype inferred annotations`` () =
+  runCompileAndWaitTillFinished ()
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -122,11 +126,21 @@ let ``When publishing a statement it should apply supertype and subtype inferred
        
 
 [<Test>]
-let ``When publishing a statement it should generate static html and post to resource api`` () =
+let ``When publishing a discoverable statement it should generate static html and post to resource api`` () =
 
-  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
+  runCompileAndWaitTillFinished ()
 
   let response = Http.Request("http://resourceapi:8082/resource/8422158b-302e-4be2-9a19-9085fc09dfe7",
+                          headers = [ "Content-Type", "text/plain;charset=utf-8" ])
+
+  response.StatusCode |> should equal 200
+
+[<Test>]
+let ``When publishing an undiscoverable statement it should generate static html and post to resource api`` () =
+
+  runCompileAndWaitTillFinished ()
+
+  let response = Http.Request("http://resourceapi:8082/resource/54c3178f-f004-4caf-b1a8-582133bea26d",
                           headers = [ "Content-Type", "text/plain;charset=utf-8" ])
 
   response.StatusCode |> should equal 200
