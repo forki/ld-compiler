@@ -71,6 +71,7 @@ let private config = {
   IndexName = "kb"
   TypeName = "qualitystatement"
   SchemaDetails = [configItem]
+  Undiscoverables = []
 }
 
 let a_positionalId = { annotation with Property = "positionalid"; Vocab = "PositionalId"; Terms = ["qs1-st1"]; Format = "PositionalId:Required"; Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasPositionalId"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }

@@ -78,6 +78,7 @@
     <Compile Include="Publish.fs" />
     <Compile Include="extensions/DotLiquidExtensions.fs" />
     <Compile Include="BindDataToHtml.fs" />
+    <Compile Include="FilteringUtils.fs" />
     <Compile Include="Compile.fs" />
     <Compile Include="Main.fs" />
     <None Include="Publish.fsx" />

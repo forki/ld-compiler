@@ -17,6 +17,11 @@ type ConfigItem = {
     Publish: PublishItem list
 }
 
+type UndiscoverableItem = {
+    UndiscoverableLabel: string
+    AnnotationValue: string
+}
+
 type Config = {
     SchemaBase: string
     UrlBase: string
@@ -25,4 +30,5 @@ type Config = {
     IndexName: string
     TypeName: string
     SchemaDetails: ConfigItem list
+    Undiscoverables: UndiscoverableItem list
 }

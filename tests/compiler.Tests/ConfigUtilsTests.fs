@@ -162,7 +162,15 @@ let private sampleConfig = """
 			]
 			
 		}
-	]
+	],
+    "Undiscoverables":
+    [
+        {
+            "UndiscoverableLabel": "National priority",
+            "AnnotationValue": "no"
+        }
+    ]
+
 }
 """
 
@@ -249,6 +257,8 @@ let a_firstissued = { annotation with Property = "firstissued"; Vocab = "First i
 
 let private expected_BaseUrl = "http://ld.nice.org.uk/resource"
 
+let private expected_undiscoverables = [ { UndiscoverableLabel = "National priority"; AnnotationValue = "no"} ]
+
 [<Test>]
 let ``ConfigUtilsTests: Should extract schema base from config`` () =
   let config = deserializeConfig sampleConfig
@@ -308,3 +318,9 @@ let ``ValidationUtilsTests: When the uri is appended with the annotations that i
   
   areListsTheSame [ { a_positionalid with Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasPositionalId" }; { a_nationalpriority with Uri = "http://ld.nice.org.uk/ns/qualitystandard#isNationalPriority" }; { a_firstissued with Uri = "http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn" } ] result
 
+  
+[<Test>]
+let ``ValidationUtilsTests: the list of undiscoverable annotation labels and values are retrieved from the config file`` () =
+  let config = deserializeConfig sampleConfig
+
+  areListsTheSame expected_undiscoverables config.Undiscoverables
