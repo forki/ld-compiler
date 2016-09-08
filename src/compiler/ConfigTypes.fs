@@ -4,6 +4,8 @@ type PublishItem = {
     Uri: string
     Label: string
     Validate: bool
+    DataAnnotation: bool
+    Display: bool
     Format: string
     PropertyPath: string list
 }
@@ -13,7 +15,6 @@ type ConfigItem = {
     JsonLD: string
     Map: bool
     Publish: PublishItem list
-
 }
 
 type Config = {

@@ -5,6 +5,8 @@ open compiler.ContentHandle
 open compiler.YamlParser
 open compiler.Utils
 open compiler.ConfigTypes
+open compiler.ConfigUtils
+open compiler.ValidationUtils
 open System.Text.RegularExpressions
 open FSharp.Markdown
 open FSharp.Data
@@ -36,18 +38,17 @@ let private extractAnnotations (markdown:MarkdownDocument) =
     | CodeBlock (text,_,_) -> text
     | _ -> ""
 
-let private shouldDisplayProperty name =
-  name.Equals("firstissued")
-
-let private isDate name =
-  name.Equals("firstissued")
-
-let private convertToVocab {Name = name; Fields = fields} = 
-  {Property = getProperty name
-   Vocab = name
-   Terms = fields 
-   IsDisplayed = name |> getProperty |> shouldDisplayProperty 
-   IsDate = name |> getProperty |> isDate }
+let private convertToAnnotation {Name = name; Fields = fields} = {
+  Property = getProperty name
+  Vocab = name
+  Terms = fields
+  IsDisplayed = false 
+  IsDate = false
+  IsValidated = false
+  Format = null
+  Uri = null
+  IsDataAnnotation = false
+}
 
 let private HandleNoPositionalIdAnnotationError =
   printfn "[Error] A statement was missing the PositionalId annotation"
@@ -68,14 +69,8 @@ let private standardAndStatementNumbers id =
   match id with
   | "" -> [|"0";"0"|]
   | _ -> id |> removeText |> splitPositionalId
-
-let extractStatement (validations:PublishItem List) (contentHandle, html) =
-  let isDataAnnotation (annotation:Annotation) =
-    match validations
-          |> List.tryFind (fun v -> (v.Validate && v.Label = annotation.Vocab))
-          with
-          | Some PublishItem -> true
-          | _ -> false
+  
+let extractStatement (contentHandle, html) =
 
   let markdown = Markdown.Parse(contentHandle.Content)
 
@@ -83,7 +78,7 @@ let extractStatement (validations:PublishItem List) (contentHandle, html) =
   let annotations = markdown
                     |> extractAnnotations 
                     |> parseYaml
-                    |> List.map convertToVocab
+                    |> List.map convertToAnnotation
   
   let id = annotations
             |> List.tryFind (fun x -> x.Vocab.Equals("PositionalId"))
@@ -91,9 +86,6 @@ let extractStatement (validations:PublishItem List) (contentHandle, html) =
 
   let standardId = (standardAndStatementNumbers id).[0] |> System.Int32.Parse
   let statementId = (standardAndStatementNumbers id).[1] |> System.Int32.Parse 
-
-  let dataAnnotations = annotations |> List.filter (fun a -> isDataAnnotation a)
-  let objectAnnotations = annotations |> List.filter (fun a -> (isDataAnnotation a)=false)
 
   let title = sprintf "Quality statement %d from quality standard %d" statementId standardId
 
@@ -103,8 +95,7 @@ let extractStatement (validations:PublishItem List) (contentHandle, html) =
     Abstract = abs 
     StandardId = standardId
     StatementId = statementId
-    ObjectAnnotations = objectAnnotations
-    DataAnnotations = dataAnnotations
+    Annotations = annotations
     Content = contentHandle.Content
     Html = html
   }

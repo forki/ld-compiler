@@ -3,6 +3,7 @@
 open NUnit.Framework
 open FsUnit
 
+open compiler.Domain
 open compiler.Utils
 open compiler.ConfigTypes
 open compiler.ConfigUtils
@@ -127,6 +128,8 @@ let private sampleConfig = """
 					"Label": "PositionalId",
 					"Validate": true,
 					"Format": "PositionalId:Required",
+                    "Display": false,
+                    "DataAnnotation": true,
                     "PropertyPath": []
 				},
 				{
@@ -134,6 +137,8 @@ let private sampleConfig = """
 					"Label": "National priority",
 					"Validate": true,
 					"Format": "YesNo:Required",
+                    "Display": false,
+                    "DataAnnotation": true,
                     "PropertyPath": []
 				},
 				{
@@ -141,6 +146,8 @@ let private sampleConfig = """
 					"Label": "Changed Priority On",
 					"Validate": true,
 					"Format": "Date:Conditional:National priority:no",
+                    "Display": false,
+                    "DataAnnotation": true,
                     "PropertyPath": []
 				},
 				{
@@ -148,6 +155,8 @@ let private sampleConfig = """
 					"Label": "First issued",
 					"Validate": true,
 					"Format": "Date:Required",
+                    "Display": true,
+                    "DataAnnotation": true,
                     "PropertyPath": []
 				}
 			]
@@ -197,6 +206,8 @@ let private expected_PropertyValidations = [
     Label = "PositionalId"
     Validate = true
     Format = "PositionalId:Required"
+    Display = false
+    DataAnnotation = true
     PropertyPath=[]
   }
   {
@@ -204,6 +215,8 @@ let private expected_PropertyValidations = [
     Label = "National priority"
     Validate = true
     Format = "YesNo:Required"
+    Display = false
+    DataAnnotation = true
     PropertyPath=[]
   }
   {
@@ -211,6 +224,8 @@ let private expected_PropertyValidations = [
     Label = "Changed Priority On"
     Validate = true
     Format = "Date:Conditional:National priority:no"
+    Display = false
+    DataAnnotation = true
     PropertyPath=[]
   }
   {
@@ -218,9 +233,19 @@ let private expected_PropertyValidations = [
     Label = "First issued"
     Validate = true
     Format = "Date:Required"
+    Display = true
+    DataAnnotation = true
     PropertyPath=[]
   }
 ]
+
+let baseAnnotations = [ { annotation with Property = "positionalid"; Vocab = "PositionalId"; Terms = ["qs1-st1"] }
+                        { annotation with Property = "nationalpriority";Vocab = "National priority"; Terms = ["yes"] }
+                        { annotation with Property = "firstissued";Vocab = "First issued"; Terms = ["01-10-2000"] } ]
+
+let a_positionalid = { annotation with Property = "positionalid"; Vocab = "PositionalId"; Terms = ["qs1-st1"]; Format = "PositionalId:Required"; Uri= "hasPositionalId"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }
+let a_nationalpriority = { annotation with Property = "nationalpriority"; Vocab = "National priority"; Terms = ["yes"]; Format = "YesNo:Required"; Uri = "isNationalPriority"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
+let a_firstissued = { annotation with Property = "firstissued"; Vocab = "First issued"; Terms = ["01-10-2000"]; Format = "Date:Required"; Uri = "wasFirstIssuedOn"; IsValidated= true; IsDisplayed = true; IsDataAnnotation = true }
 
 let private expected_BaseUrl = "http://ld.nice.org.uk/resource"
 
@@ -259,6 +284,27 @@ let ``ConfigUtilsTests: Should read the expected BaseUrl from config`` () =
 [<Test>]
 let ``ConfigUtilsTests: Should read the expected property validations from config`` () =
   let result = deserializeConfig sampleConfig
-               |> getPropertyValidations
+               |> getAnnotationConfig
 
   areListsTheSame expected_PropertyValidations result
+
+[<Test>]
+let ``ValidationUtilsTests: When the config file data is added to the read annotations that is complete`` () =
+  let annotationConfig = deserializeConfig sampleConfig
+                         |> getAnnotationConfig
+
+  let result = baseAnnotations
+               |> List.map (addConfigToAnnotation annotationConfig)
+ 
+  areListsTheSame [ a_positionalid; a_nationalpriority; a_firstissued ] result
+
+[<Test>]
+let ``ValidationUtilsTests: When the uri is appended with the annotations that is as expected`` () =
+  let propertyBaseUrl = deserializeConfig sampleConfig
+                        |> getPropertyBaseUrl
+
+  let result = [ a_positionalid; a_nationalpriority; a_firstissued ]
+               |> List.map (addUriToAnnotation propertyBaseUrl)
+  
+  areListsTheSame [ { a_positionalid with Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasPositionalId" }; { a_nationalpriority with Uri = "http://ld.nice.org.uk/ns/qualitystandard#isNationalPriority" }; { a_firstissued with Uri = "http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn" } ] result
+
