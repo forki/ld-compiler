@@ -70,16 +70,7 @@ let private standardAndStatementNumbers id =
   | "" -> [|"0";"0"|]
   | _ -> id |> removeText |> splitPositionalId
   
-let extractStatement config (contentHandle, html) =
-  let propertyBaseUrl = config |> getPropertyBaseUrl
-  let annotationConfig = config |> getAnnotationConfig
-
-//  let isDataAnnotation (annotation:Annotation) =
-//    match annotationConfig
-//          |> List.tryFind (fun v -> (v.Validate && v.Label = annotation.Vocab))
-//          with
-//          | Some PublishItem -> true
-//          | _ -> false
+let extractStatement (contentHandle, html) =
 
   let markdown = Markdown.Parse(contentHandle.Content)
 
@@ -88,13 +79,6 @@ let extractStatement config (contentHandle, html) =
                     |> extractAnnotations 
                     |> parseYaml
                     |> List.map convertToAnnotation
-                    |> List.map (addConfigToAnnotation annotationConfig)
-                    |> List.map (addUriToAnnotation propertyBaseUrl)
-  
-  annotations
-  |> List.filter (fun a -> a.IsDataAnnotation)
-  |> verifyRequiredAnnotationsExist annotationConfig
-  |> ignore
   
   let id = annotations
             |> List.tryFind (fun x -> x.Vocab.Equals("PositionalId"))
@@ -102,9 +86,6 @@ let extractStatement config (contentHandle, html) =
 
   let standardId = (standardAndStatementNumbers id).[0] |> System.Int32.Parse
   let statementId = (standardAndStatementNumbers id).[1] |> System.Int32.Parse 
-
-  let dataAnnotations = annotations |> List.filter (fun a -> a.IsDataAnnotation)
-  let objectAnnotations = annotations |> List.filter (fun a -> a.IsDataAnnotation = false)
 
   let title = sprintf "Quality statement %d from quality standard %d" statementId standardId
 
@@ -114,8 +95,7 @@ let extractStatement config (contentHandle, html) =
     Abstract = abs 
     StandardId = standardId
     StatementId = statementId
-    ObjectAnnotations = objectAnnotations
-    DataAnnotations = dataAnnotations
+    Annotations = annotations
     Content = contentHandle.Content
     Html = html
   }

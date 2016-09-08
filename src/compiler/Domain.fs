@@ -18,8 +18,7 @@ type Statement = {
   Abstract : string
   StandardId : int
   StatementId : int
-  ObjectAnnotations : Annotation list
-  DataAnnotations : Annotation list
+  Annotations : Annotation list
   Content : string
   Html : string
 }
@@ -43,8 +42,7 @@ let statement = {
   Abstract = ""
   StandardId = 0
   StatementId = 0
-  ObjectAnnotations = []
-  DataAnnotations = []
+  Annotations = []
   Content = ""
   Html = ""
 }

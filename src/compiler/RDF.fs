@@ -53,10 +53,16 @@ let private generateDataAnnotations (dataAnnotations:Annotation List) =
 
 let transformToRDF args statement =
 
-  let dataAnnotations = generateDataAnnotations statement.DataAnnotations
+  let dataAnnotations = statement.Annotations
+                        |> List.filter (fun a -> a.IsDataAnnotation)
+                        |> generateDataAnnotations 
                           
+  let objectAnnotations = statement.Annotations
+                          |> List.filter (fun a -> a.IsDataAnnotation = false)
+                          |> lookupAnnotations args.VocabMap args.TermMap
+  
   let uri = sprintf "%s/%s" args.BaseUrl statement.Id
-  let objectAnnotations = lookupAnnotations args.VocabMap args.TermMap statement.ObjectAnnotations
+ 
   let r = resource !! uri
             ( [a !! "http://ld.nice.org.uk/ns/qualitystandard#QualityStatement"
                dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#title" (statement.Title^^xsd.string)

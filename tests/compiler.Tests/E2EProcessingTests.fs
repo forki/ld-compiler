@@ -196,8 +196,8 @@ let ``E2EProcessingTests: Should process the loaded file without error``() =
   let config = deserializeConfig configString
 
   let res = try
-               extractStatement config (markdown, content)
-               |> validateStatement
+               extractStatement (markdown, content)
+               |> validateStatement config
                |> ignore
                "No exception caught"
             with

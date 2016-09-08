@@ -115,17 +115,30 @@ let private validateDataAnnotation (thisAnnotation:Annotation) =
            | "YesNo" -> processYesNo thisAnnotation
            | _ -> thisAnnotation
 
-let validateStatement (statement:Statement) =
+let private validateAnnotation (thisAnnotation:Annotation) =
+  match thisAnnotation.IsDataAnnotation with
+  | true -> validateDataAnnotation thisAnnotation
+  | _ -> thisAnnotation
+
+let validateStatement (config:Config) (statement:Statement) =
+  let propertyBaseUrl = config |> getPropertyBaseUrl
+  let annotationConfig = config |> getAnnotationConfig
+
+  statement.Annotations
+  |> verifyRequiredAnnotationsExist annotationConfig
+  |> ignore
+
   {
     Id = statement.Id
     Title = statement.Title
     Abstract = statement.Abstract
     StandardId = statement.StandardId
     StatementId = statement.StatementId
-    ObjectAnnotations = statement.ObjectAnnotations
-                        |> List.filter (fun x -> x.Terms.Length > 0)
-    DataAnnotations = statement.DataAnnotations
-                      |> List.map validateDataAnnotation
+    Annotations = statement.Annotations
+                  |> List.map (addConfigToAnnotation annotationConfig)
+                  |> List.map (addUriToAnnotation propertyBaseUrl)
+                  |> List.map validateAnnotation
+                  |> List.filter (fun x -> x.Terms.Length > 0)
     Content = statement.Content
     Html = statement.Html
   }
