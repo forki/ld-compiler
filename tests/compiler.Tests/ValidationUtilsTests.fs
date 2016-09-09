@@ -9,50 +9,48 @@ open compiler.ValidationUtils
 open compiler.Test.TestUtilities
 
 let private annotationValidations = [
-  {
-    Uri= "hasPositionalId"
-    Label="PositionalId"
-    Validate= true
-    Format= "PositionalId:Required"
-    Display = false
-    DataAnnotation = true
-    PropertyPath=[]
+  { t_publishItem with
+      Uri= "hasPositionalId"
+      Label="PositionalId"
+      Validate= true
+      Format= "PositionalId:Required"
+      DataAnnotation = true
   }
-  {
-    Uri= "hasRequired"
-    Label="Required"
-    Validate= true
-    Format= "String:Required"
-    Display = false
-    DataAnnotation = true
-    PropertyPath=[]
+  { t_publishItem with
+      Uri= "hasRequired"
+      Label="Required"
+      Validate= true
+      Format= "String:Required"
+      DataAnnotation = true
   }
-  {
-    Uri= "hasNotRequireddate"
-    Label="Date Not Required"
-    Validate= true
-    Format= "Date"
-    Display = false
-    DataAnnotation = true
-    PropertyPath=[]
+  { t_publishItem with
+      Uri= "hasNotRequireddate"
+      Label="Date Not Required"
+      Validate= true
+      Format= "Date"
+      DataAnnotation = true
   }
-  {
-    Uri= "hasNotRequiredYesNo"
-    Label="YesNo Not Required"
-    Validate= true
-    Format= "YesNo"
-    Display = false
-    DataAnnotation = true
-    PropertyPath=[]
+  { t_publishItem with
+      Uri= "hasNotRequiredYesNo"
+      Label="YesNo Not Required"
+      Validate= true
+      Format= "YesNo"
+      DataAnnotation = true
   }
-  {
-    Uri= "hasConditionallyRequiredDate"
-    Label="Date Conditional"
-    Validate = true
-    Format= "Date:Conditional:YesNo Not Required:no"
-    Display = false
-    DataAnnotation = true
-    PropertyPath=[]
+  { t_publishItem with
+      Uri= "hasConditionallyRequiredDate"
+      Label="Date Conditional"
+      Validate = true
+      Format= "Date:Conditional:YesNo Not Required:no"
+      DataAnnotation = true
+  }
+  { t_publishItem with
+      Uri= "affectsdiscoverability"
+      Label="Affects If Discoverable"
+      Validate = true
+      Format= "YesNo"
+      DataAnnotation = true
+      UndiscoverableWhen = "no"
   }
 ]
 
@@ -64,14 +62,14 @@ let private configItem = {
 }
 
 let private config = {
-  SchemaBase = "http://schema/ns/"
-  UrlBase = "http://ld.nice.org.uk/"
-  QSBase ="ns/qualitystandard"
-  ThingBase = "resource"
-  IndexName = "kb"
-  TypeName = "qualitystatement"
-  SchemaDetails = [configItem]
-  Undiscoverables = []
+  t_config with
+    SchemaBase = "http://schema/ns/"
+    UrlBase = "http://ld.nice.org.uk/"
+    QSBase ="ns/qualitystandard"
+    ThingBase = "resource"
+    IndexName = "kb"
+    TypeName = "qualitystatement"
+    SchemaDetails = [configItem]
 }
 
 let a_positionalId = { annotation with Property = "positionalid"; Vocab = "PositionalId"; Terms = ["qs1-st1"]; Format = "PositionalId:Required"; Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasPositionalId"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }
@@ -80,7 +78,6 @@ let a_datenotrequired = { annotation with Property = "datenotrequired"; Vocab = 
 let a_yesnonotrequired = { annotation with Property = "yesnonotrequired"; Vocab = "YesNo Not Required"; Terms = ["yes"]; Format = "YesNo"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasNotRequiredYesNo"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true  }
 let a_dateconditional = { annotation with Property = "dateconditional"; Vocab = "Date Conditional"; Terms = ["01-08-2010"]; Format = "Date:Conditional:YesNo Not Required:no"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasConditionallyRequiredDate"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
 
-//let validRequiredAnnotations = [ a_positionalId; a_required ]
 
 let defaultStatement = {
   statement with
@@ -177,4 +174,22 @@ let ``ValidationUtilsTests: When a statement has a conditionally required annota
             | Failure msg -> msg
   res |> should equal "Missing the 'Date Conditional' annotation"
 
-
+//let a_discoverable = { annotation with Property = "affectsdiscoverability"; Vocab = "Affects If Discoverable"; Terms = ["yes"]; Format = "YesNo"; Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasThingThatAffectsDiscoverability"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }
+//let a_undiscoverable = { a_discoverable with Terms = ["no"]; }
+//
+//[<Test>]
+//let ``FilteringUtilsTests: An undiscoverable statement should not be discoverable`` () =
+//
+//  let result = defaultStatement
+//               |> validateStatement config
+//
+//  result.IsUndiscoverable |> should equal true
+//
+//
+//[<Test>]
+//let ``FilteringUtilsTests: A discoverable statement should  be discoverable`` () =
+//
+//  let result = defaultStatement
+//               |> validateStatement config
+//
+//  result.IsUndiscoverable |> should equal false

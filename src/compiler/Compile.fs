@@ -15,7 +15,6 @@ open compiler.Domain
 open compiler.ValidationUtils
 open compiler.ConfigUtils
 open compiler.BindDataToHtml
-open compiler.FilteringUtils
 open compiler
 
 let private addGraphs outputDir dbName = 
@@ -42,7 +41,6 @@ let compile config extractor items outputDir dbName =
     >> validateStatement config
     >> bindDataToHtml
     >> writeHtml outputDir
-    >> isStatementUndiscoverable config.Undiscoverables
 
   let processRdfTtl =
     transformToRDF rdfArgs
@@ -50,8 +48,8 @@ let compile config extractor items outputDir dbName =
     >> prepareAsFile baseUrl outputDir ".ttl"
     >> writeFile
 
-  let processIfDiscoverable (thisStatement, undiscoverable) =
-    match undiscoverable with
+  let processIfDiscoverable thisStatement =
+    match thisStatement.IsUndiscoverable with
     | true -> ()
     | _ -> processRdfTtl thisStatement
 

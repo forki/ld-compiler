@@ -120,25 +120,44 @@ let private validateAnnotation (thisAnnotation:Annotation) =
   | true -> validateDataAnnotation thisAnnotation
   | _ -> thisAnnotation
 
-let validateStatement (config:Config) (statement:Statement) =
+let private hasUndiscoverableTerms thisAnnotation =
+  thisAnnotation.Terms |> List.contains thisAnnotation.UndiscoverableWhen
+
+let private isAnnotationUndiscoverable (thisAnnotation:Annotation) =
+  match obj.ReferenceEquals(thisAnnotation.UndiscoverableWhen, null) with
+  | true -> false
+  | _ -> match thisAnnotation.UndiscoverableWhen with
+         | "" -> false
+         | _ -> hasUndiscoverableTerms thisAnnotation
+
+let private hasUndiscoverableAnnotations theseAnnotations =
+  theseAnnotations
+  |> List.map isAnnotationUndiscoverable
+  |> List.contains true
+
+let private addIsUndiscoverable thisStatement =
+  let isUndiscoverable = thisStatement.Annotations |> hasUndiscoverableAnnotations
+  { thisStatement with IsUndiscoverable = isUndiscoverable}
+
+let validateStatement (config:Config) (thisStatement:Statement) =
   let propertyBaseUrl = config |> getPropertyBaseUrl
   let annotationConfig = config |> getAnnotationConfig
 
-  statement.Annotations
+  thisStatement.Annotations
   |> verifyRequiredAnnotationsExist annotationConfig
   |> ignore
 
-  { statement with 
-      Id = statement.Id
-      Title = statement.Title
-      Abstract = statement.Abstract
-      StandardId = statement.StandardId
-      StatementId = statement.StatementId
-      Annotations = statement.Annotations
+  { thisStatement with 
+      Id = thisStatement.Id
+      Title = thisStatement.Title
+      Abstract = thisStatement.Abstract
+      StandardId = thisStatement.StandardId
+      StatementId = thisStatement.StatementId
+      Annotations = thisStatement.Annotations
                       |> List.map (addConfigToAnnotation annotationConfig)
                       |> List.map (addUriToAnnotation propertyBaseUrl)
                       |> List.map validateAnnotation
                       |> List.filter (fun x -> x.Terms.Length > 0)
-      Content = statement.Content
-      Html = statement.Html
-  }
+      Content = thisStatement.Content
+      Html = thisStatement.Html
+  } |> addIsUndiscoverable
