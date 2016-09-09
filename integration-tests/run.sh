@@ -9,5 +9,5 @@ if [ $result -ne 0 ]; then
    echo "Tests failed, showing logs from compiler container"
    docker-compose logs compiler
 fi
-docker-compose rm -vf
+docker-compose rm -f
 exit $result

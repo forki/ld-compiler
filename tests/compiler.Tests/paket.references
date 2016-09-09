@@ -1,6 +1,5 @@
 FSharp.RDF
 FSharp.Data
 FsUnit
-group Test
 NUnit
 NUnit.Runners
