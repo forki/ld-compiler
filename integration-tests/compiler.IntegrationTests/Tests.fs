@@ -31,7 +31,11 @@ type ElasticResponse = JsonProvider<"""
           "http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn":"",
           "_id":"",
           "_type":"",
-          "qualitystandard:age":[""]
+          "qualitystandard:age":[],
+          "qualitystandard:setting":[],
+          "qualitystandard:serviceArea":[],
+          "qualitystandard:lifestyleCondition":[],
+          "qualitystandard:condition":[]
         }
       }
     ],
@@ -42,7 +46,32 @@ type ElasticResponse = JsonProvider<"""
 let private queryElastic indexName typeName =
   let url = sprintf "http://elastic:9200/%s/%s/_search" indexName typeName
   let json = Http.RequestString(url, httpMethod="GET")
+
+  printf "%A" json
   ElasticResponse.Parse(json)
+
+let private queryElasticViaJsonParser indexName typeName =
+  let url = sprintf "http://elastic:9200/%s/%s/_search" indexName typeName
+  let json = Http.RequestString(url, httpMethod="GET")
+
+  JsonValue.Parse(json)
+
+type Result<'TSuccess,'TFailure> = 
+| Success of 'TSuccess
+| Failed of string
+
+let bind switchFunction twoTrackInput = 
+    match twoTrackInput with
+    | Success s -> switchFunction s
+    | Failed f -> Failed f
+
+let (>>=) twoTrackInput switchFunction = 
+    bind switchFunction twoTrackInput 
+
+// convert a normal function into a switch
+let switch f x = 
+    f x |> Success
+
 
 [<TearDown>]
 let Teardown () =
@@ -51,10 +80,11 @@ let Teardown () =
   printf "Deleting all static html resources\n"
   try Http.RequestString("http://resourceapi:8082/resource/8422158b-302e-4be2-9a19-9085fc09dfe7", httpMethod="DELETE") |> ignore with _ -> ()
 
+
 [<Test>]
 let ``When publishing a statement it should have added a statement to elastic search index`` () =
 
-  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
+  runCompileAndWaitTillFinished "https://github.com/dcmwong/ld-dummy-content"
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -69,7 +99,7 @@ let ``When publishing a statement it should have added a statement to elastic se
 [<Test>]
 let ``When publishing a statement it should apply structured data annotations that exist in metadata`` () =
 
-  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
+  runCompileAndWaitTillFinished "https://github.com/dcmwong/ld-dummy-content"
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -82,26 +112,63 @@ let ``When publishing a statement it should apply structured data annotations th
   let firstIssued = doc.HttpLdNiceOrgUkNsQualitystandardWasFirstIssuedOn
   firstIssued.JsonValue.AsString() |> should equal "2010-06-01"
 
+
 [<Test>]
 let ``When publishing a statement it should apply annotations that exist in metadata`` () =
 
-  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
+  runCompileAndWaitTillFinished "https://github.com/dcmwong/ld-dummy-content"
+  //runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
 
   let indexName = "kb"
   let typeName = "qualitystatement"
-  let response = queryElastic indexName typeName
+  let response = queryElasticViaJsonParser indexName typeName
+  
+  printf "%A" response
 
-  response.Hits.Total |> should equal 1 
+  let getProperty (propertyName:string) (root:JsonValue) =
+    let a = root.TryGetProperty(propertyName)
 
-  let doc = (Seq.head response.Hits.Hits).Source
+    match a with
+    | Some (a) -> Success a 
+    | None -> sprintf "Couldn't find the property: %s" propertyName |> Failed
 
-  let agegroups = doc.QualitystandardAge |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
-  agegroups |> should contain "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults\""
+  let checkValueIsAnArrayOrString response =
+    match response with
+    | JsonValue.Array a -> a |> Array.head |> Success  
+    | JsonValue.String a -> response |> Success 
+    | _ -> Failed "The type you are accesing is not an array or a string"
+    
+  let checkValueIsAString (response:JsonValue) =
+    match response with
+    | JsonValue.String _ -> Success true
+    | _ -> Failed "Array doesn't contain strings" 
+
+  let getRootProperty response =
+    Success response?hits?hits.[0]?_source
+     
+  let checkPropertyExistsAndIsValid propertyName =
+    let result =
+      response
+      |> (fun r -> Success r)
+      >>= getRootProperty
+      >>= getProperty propertyName
+      >>= checkValueIsAnArrayOrString
+      >>= checkValueIsAString
+
+    match result with
+    | Success a -> a |> should equal true
+    | Failed x -> sprintf "Test failed with error message: %A" x |> failwith
+
+  checkPropertyExistsAndIsValid "qualitystandard:hasAgeGroup"
+  checkPropertyExistsAndIsValid "qualitystandard:hasConditionOrDisease"
+  checkPropertyExistsAndIsValid "qualitystandard:hasServiceArea"
+  checkPropertyExistsAndIsValid "qualitystandard:hasSetting"
+  checkPropertyExistsAndIsValid "qualitystandard:hasFactorAffectingHealthAndWellbeing"
 
 
 [<Test>]
 let ``When publishing a statement it should apply supertype and subtype inferred annotations`` () =
-  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
+  runCompileAndWaitTillFinished "https://github.com/dcmwong/ld-dummy-content"
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -124,7 +191,7 @@ let ``When publishing a statement it should apply supertype and subtype inferred
 [<Test>]
 let ``When publishing a statement it should generate static html and post to resource api`` () =
 
-  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
+  runCompileAndWaitTillFinished "https://github.com/dcmwong/ld-dummy-content"
 
   let response = Http.Request("http://resourceapi:8082/resource/8422158b-302e-4be2-9a19-9085fc09dfe7",
                           headers = [ "Content-Type", "text/plain;charset=utf-8" ])
@@ -137,9 +204,10 @@ let ``When I post a markdown file to the convert end point it should generate ht
   let markdown = """### Abstract"""
 
   let html = Http.RequestString("http://compiler:8081/convert",
-    headers = [ "Content-Type", "text/plain;charset=utf-8" ], 
-    body = FormValues ["markdown", markdown])
+                                  headers = [ "Content-Type", "text/plain;charset=utf-8" ], 
+                                  body = FormValues ["markdown", markdown])
 
   let expectedHtml = """<h3 id="abstract">Abstract</h3>""" + System.Environment.NewLine
 
   html |> should equal expectedHtml
+
