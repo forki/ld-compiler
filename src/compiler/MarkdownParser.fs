@@ -38,17 +38,8 @@ let private extractAnnotations (markdown:MarkdownDocument) =
     | CodeBlock (text,_,_) -> text
     | _ -> ""
 
-let private convertToAnnotation {Name = name; Fields = fields} = {
-  Property = getProperty name
-  Vocab = name
-  Terms = fields
-  IsDisplayed = false 
-  IsDate = false
-  IsValidated = false
-  Format = null
-  Uri = null
-  IsDataAnnotation = false
-}
+let private convertToAnnotation {Name = name; Fields = fields} =
+  { annotation with Property = getProperty name; Vocab = name; Terms = fields }
 
 let private HandleNoPositionalIdAnnotationError =
   printfn "[Error] A statement was missing the PositionalId annotation"
@@ -89,13 +80,13 @@ let extractStatement (contentHandle, html) =
 
   let title = sprintf "Quality statement %d from quality standard %d" statementId standardId
 
-  {
-    Id = contentHandle.Thing
-    Title = title 
-    Abstract = abs 
-    StandardId = standardId
-    StatementId = statementId
-    Annotations = annotations
-    Content = contentHandle.Content
-    Html = html
+  { statement with
+      Id = contentHandle.Thing
+      Title = title 
+      Abstract = abs 
+      StandardId = standardId
+      StatementId = statementId
+      Annotations = annotations
+      Content = contentHandle.Content
+      Html = html
   }

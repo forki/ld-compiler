@@ -128,17 +128,17 @@ let validateStatement (config:Config) (statement:Statement) =
   |> verifyRequiredAnnotationsExist annotationConfig
   |> ignore
 
-  {
-    Id = statement.Id
-    Title = statement.Title
-    Abstract = statement.Abstract
-    StandardId = statement.StandardId
-    StatementId = statement.StatementId
-    Annotations = statement.Annotations
-                  |> List.map (addConfigToAnnotation annotationConfig)
-                  |> List.map (addUriToAnnotation propertyBaseUrl)
-                  |> List.map validateAnnotation
-                  |> List.filter (fun x -> x.Terms.Length > 0)
-    Content = statement.Content
-    Html = statement.Html
+  { statement with 
+      Id = statement.Id
+      Title = statement.Title
+      Abstract = statement.Abstract
+      StandardId = statement.StandardId
+      StatementId = statement.StatementId
+      Annotations = statement.Annotations
+                      |> List.map (addConfigToAnnotation annotationConfig)
+                      |> List.map (addUriToAnnotation propertyBaseUrl)
+                      |> List.map validateAnnotation
+                      |> List.filter (fun x -> x.Terms.Length > 0)
+      Content = statement.Content
+      Html = statement.Html
   }

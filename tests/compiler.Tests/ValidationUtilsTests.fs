@@ -83,14 +83,15 @@ let a_dateconditional = { annotation with Property = "dateconditional"; Vocab = 
 //let validRequiredAnnotations = [ a_positionalId; a_required ]
 
 let defaultStatement = {
-  Id = System.Guid.NewGuid().ToString()
-  Title = "Quality statement 1 from quality standard 1"
-  Abstract = "Abstract"
-  StandardId = 1
-  StatementId = 1
-  Annotations = [a_positionalId; a_required]
-  Content = "Content"
-  Html = "Content"
+  statement with
+    Id = System.Guid.NewGuid().ToString()
+    Title = "Quality statement 1 from quality standard 1"
+    Abstract = "Abstract"
+    StandardId = 1
+    StatementId = 1
+    Annotations = [a_positionalId; a_required]
+    Content = "Content"
+    Html = "Content"
 }
 
 [<Test>]

@@ -13,15 +13,16 @@ let undiscoverableList = [ { UndiscoverableLabel = "Affects If Discoverable"; An
 let a_discoverable = { annotation with Property = "affectsdiscoverability"; Vocab = "Affects If Discoverable"; Terms = ["yes"]; Format = "YesNo:Required"; Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasThingThatAffectsDiscoverability"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }
 let a_undiscoverable = { a_discoverable with Terms = ["no"]; }
 
-let s_discoverable = {
-  Id = System.Guid.NewGuid().ToString()
-  Title = "Quality statement 1 from quality standard 1"
-  Abstract = "Abstract"
-  StandardId = 1
-  StatementId = 1
-  Annotations = [a_discoverable]
-  Content = "Content"
-  Html = "Content"
+let s_discoverable ={
+  statement with
+    Id = System.Guid.NewGuid().ToString()
+    Title = "Quality statement 1 from quality standard 1"
+    Abstract = "Abstract"
+    StandardId = 1
+    StatementId = 1
+    Annotations = [a_discoverable]
+    Content = "Content"
+    Html = "Content"
 }
 let s_undiscoverable = { s_discoverable with Title = "Quality statement 2 from quality standard 1"; Annotations = [a_undiscoverable]}
 

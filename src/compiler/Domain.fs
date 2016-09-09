@@ -6,10 +6,11 @@ type Annotation = {
   Terms : string list
   IsDisplayed : bool
   IsDate : bool
-  IsValidated: bool
-  Format: string
-  Uri: string
-  IsDataAnnotation: bool
+  IsValidated : bool
+  Format : string
+  Uri : string
+  IsDataAnnotation : bool
+  UndiscoverableWhen : string
 }
 
 type Statement = {
@@ -21,6 +22,7 @@ type Statement = {
   Annotations : Annotation list
   Content : string
   Html : string
+  IsUndiscoverable : bool
 }
 
 
@@ -34,6 +36,7 @@ let annotation = {
   Format = null
   Uri = null
   IsDataAnnotation = false
+  UndiscoverableWhen = null
 }
 
 let statement = {
@@ -45,4 +48,5 @@ let statement = {
   Annotations = []
   Content = ""
   Html = ""
+  IsUndiscoverable = false
 }
