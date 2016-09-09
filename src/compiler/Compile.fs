@@ -55,8 +55,21 @@ let compile config extractor items outputDir dbName =
     | true -> ()
     | _ -> processTdfTtl thisStatement
 
+  let OLDcompileItem =
+    extractor.readContentForItem
+    >> convertMarkdownToHtml 
+    >> extractStatement
+    >> validateStatement config
+    >> bindDataToHtml
+    >> writeHtml outputDir
+    >> transformToRDF rdfArgs
+    >> transformToTurtle
+    >> prepareAsFile baseUrl outputDir ".ttl"
+    >> writeFile
+
   items
-  |> Seq.iter (fun item -> try item |> compileItem |> processIfDiscoverable with ex -> printf "[ERROR] problem processing item %s with: %s\n" item.Thing ( ex.ToString() ))
+  |> Seq.iter (fun item -> try (item |> compileItem |> processIfDiscoverable) with ex -> printf "[ERROR] problem processing item %s with: %s\n" item.Thing ( ex.ToString() ))
+ // |> Seq.iter (fun item -> try OLDcompileItem item  with ex -> printf "[ERROR] problem processing item %s with: %s\n" item.Thing ( ex.ToString() ))
 
   addGraphs outputDir dbName
 
