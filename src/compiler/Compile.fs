@@ -44,7 +44,7 @@ let compile config extractor items outputDir dbName =
     >> writeHtml outputDir
     >> isStatementUndiscoverable config.Undiscoverables
 
-  let processTdfTtl =
+  let processRdfTtl =
     transformToRDF rdfArgs
     >> transformToTurtle
     >> prepareAsFile baseUrl outputDir ".ttl"
@@ -53,23 +53,10 @@ let compile config extractor items outputDir dbName =
   let processIfDiscoverable (thisStatement, undiscoverable) =
     match undiscoverable with
     | true -> ()
-    | _ -> processTdfTtl thisStatement
-
-  let OLDcompileItem =
-    extractor.readContentForItem
-    >> convertMarkdownToHtml 
-    >> extractStatement
-    >> validateStatement config
-    >> bindDataToHtml
-    >> writeHtml outputDir
-    >> transformToRDF rdfArgs
-    >> transformToTurtle
-    >> prepareAsFile baseUrl outputDir ".ttl"
-    >> writeFile
+    | _ -> processRdfTtl thisStatement
 
   items
   |> Seq.iter (fun item -> try (item |> compileItem |> processIfDiscoverable) with ex -> printf "[ERROR] problem processing item %s with: %s\n" item.Thing ( ex.ToString() ))
- // |> Seq.iter (fun item -> try OLDcompileItem item  with ex -> printf "[ERROR] problem processing item %s with: %s\n" item.Thing ( ex.ToString() ))
 
   addGraphs outputDir dbName
 
