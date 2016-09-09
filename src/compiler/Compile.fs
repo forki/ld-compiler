@@ -15,6 +15,7 @@ open compiler.Domain
 open compiler.ValidationUtils
 open compiler.ConfigUtils
 open compiler.BindDataToHtml
+open compiler.FilteringUtils
 open compiler
 
 let private addGraphs outputDir dbName = 
@@ -41,12 +42,21 @@ let compile config extractor items outputDir dbName =
     >> validateStatement config
     >> bindDataToHtml
     >> writeHtml outputDir
-    >> transformToRDF rdfArgs
+    >> isStatementUndiscoverable config.Undiscoverables
+
+  let processTdfTtl =
+    transformToRDF rdfArgs
     >> transformToTurtle
     >> prepareAsFile baseUrl outputDir ".ttl"
-    >> writeFile 
+    >> writeFile
 
-  items |> Seq.iter (fun item -> try compileItem item with ex -> printf "[ERROR] problem processing item %s with: %s\n" item.Thing ( ex.ToString() ))
+  let processIfDiscoverable (thisStatement, undiscoverable) =
+    match undiscoverable with
+    | true -> ()
+    | _ -> processTdfTtl thisStatement
+
+  items
+  |> Seq.iter (fun item -> try item |> compileItem |> processIfDiscoverable with ex -> printf "[ERROR] problem processing item %s with: %s\n" item.Thing ( ex.ToString() ))
 
   addGraphs outputDir dbName
 

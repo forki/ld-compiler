@@ -57,6 +57,7 @@
     <Compile Include="TestUtilities.fs" />
     <Compile Include="ConfigUtilsTests.fs" />
     <Compile Include="ValidationUtilsTests.fs" />
+    <Compile Include="FilteringUtilsTests.fs" />
     <Compile Include="MarkdownParserTests.fs" />
     <Compile Include="YamlParserTests.fs" />
     <Compile Include="RDFTests.fs" />

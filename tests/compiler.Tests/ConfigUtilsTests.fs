@@ -257,7 +257,7 @@ let a_firstissued = { annotation with Property = "firstissued"; Vocab = "First i
 
 let private expected_BaseUrl = "http://ld.nice.org.uk/resource"
 
-let private expected_undiscoverables = [ { UndiscoverableLabel = "National priority"; AnnotationValue = "no"} ]
+let private expected_undiscoverables = [ { UndiscoverableLabel = "National priority"; AnnotationValue = "no" } ]
 
 [<Test>]
 let ``ConfigUtilsTests: Should extract schema base from config`` () =
