@@ -181,6 +181,7 @@ localpackages/
 paket-files
 *.orig
 .paket/paket.exe
+integration-tests/.paket/paket.exe
 docs/content/license.md
 docs/content/release-notes.md
 .fake
