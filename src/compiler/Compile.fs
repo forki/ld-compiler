@@ -41,12 +41,20 @@ let compile config extractor items outputDir dbName =
     >> validateStatement config
     >> bindDataToHtml
     >> writeHtml outputDir
-    >> transformToRDF rdfArgs
+
+  let processRdfTtl =
+    transformToRDF rdfArgs
     >> transformToTurtle
     >> prepareAsFile baseUrl outputDir ".ttl"
-    >> writeFile 
+    >> writeFile
 
-  items |> Seq.iter (fun item -> try compileItem item with ex -> printf "[ERROR] problem processing item %s with: %s\n" item.Thing ( ex.ToString() ))
+  let processIfDiscoverable thisStatement =
+    match thisStatement.IsUndiscoverable with
+    | true -> ()
+    | _ -> processRdfTtl thisStatement
+
+  items
+  |> Seq.iter (fun item -> try (item |> compileItem |> processIfDiscoverable) with ex -> printf "[ERROR] problem processing item %s with: %s\n" item.Thing ( ex.ToString() ))
 
   addGraphs outputDir dbName
 
