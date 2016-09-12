@@ -31,11 +31,11 @@ type ElasticResponse = JsonProvider<"""
           "http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn":"",
           "_id":"",
           "_type":"",
-          "qualitystandard:age":[],
-          "qualitystandard:setting":[],
-          "qualitystandard:serviceArea":[],
-          "qualitystandard:lifestyleCondition":[],
-          "qualitystandard:condition":[]
+          "qualitystandard:appliesToAgeGroup":[],
+          "qualitystandard:appliesToSetting":[],
+          "qualitystandard:appliesToServiceArea":[],
+          "qualitystandard:appliesToFactorAffectingHealthAndWellbeing":[],
+          "qualitystandard:appliesToConditionOrDisease":[]
         }
       }
     ],
@@ -47,7 +47,6 @@ let private queryElastic indexName typeName =
   let url = sprintf "http://elastic:9200/%s/%s/_search" indexName typeName
   let json = Http.RequestString(url, httpMethod="GET")
 
-  printf "%A" json
   ElasticResponse.Parse(json)
 
 let private queryElasticViaJsonParser indexName typeName =
@@ -84,7 +83,7 @@ let Teardown () =
 [<Test>]
 let ``When publishing a statement it should have added a statement to elastic search index`` () =
 
-  runCompileAndWaitTillFinished "https://github.com/dcmwong/ld-dummy-content"
+  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -94,18 +93,18 @@ let ``When publishing a statement it should have added a statement to elastic se
 
   let doc = (Seq.head response.Hits.Hits).Source
 
-  doc.Id.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/8422158b-302e-4be2-9a19-9085fc09dfe7"   
+  doc.Id.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/8422158b-302e-4be2-9a19-9085fc09dfe7"  
 
 [<Test>]
 let ``When publishing a statement it should apply structured data annotations that exist in metadata`` () =
 
-  runCompileAndWaitTillFinished "https://github.com/dcmwong/ld-dummy-content"
+  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
 
   let indexName = "kb"
   let typeName = "qualitystatement"
   let response = queryElastic indexName typeName
 
-  response.Hits.Total |> should equal 1 
+  response.Hits.Total |> should equal 1
 
   let doc = (Seq.head response.Hits.Hits).Source
 
@@ -116,32 +115,29 @@ let ``When publishing a statement it should apply structured data annotations th
 [<Test>]
 let ``When publishing a statement it should apply annotations that exist in metadata`` () =
 
-  runCompileAndWaitTillFinished "https://github.com/dcmwong/ld-dummy-content"
-  //runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
+  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
 
   let indexName = "kb"
   let typeName = "qualitystatement"
   let response = queryElasticViaJsonParser indexName typeName
   
-  printf "%A" response
-
   let getProperty (propertyName:string) (root:JsonValue) =
     let a = root.TryGetProperty(propertyName)
 
     match a with
-    | Some (a) -> Success a 
+    | Some (a) -> Success a
     | None -> sprintf "Couldn't find the property: %s" propertyName |> Failed
 
   let checkValueIsAnArrayOrString response =
     match response with
-    | JsonValue.Array a -> a |> Array.head |> Success  
-    | JsonValue.String a -> response |> Success 
+    | JsonValue.Array a -> a |> Array.head |> Success 
+    | JsonValue.String a -> response |> Success
     | _ -> Failed "The type you are accesing is not an array or a string"
     
   let checkValueIsAString (response:JsonValue) =
     match response with
     | JsonValue.String _ -> Success true
-    | _ -> Failed "Array doesn't contain strings" 
+    | _ -> Failed "Array doesn't contain strings"
 
   let getRootProperty response =
     Success response?hits?hits.[0]?_source
@@ -159,16 +155,16 @@ let ``When publishing a statement it should apply annotations that exist in meta
     | Success a -> a |> should equal true
     | Failed x -> sprintf "Test failed with error message: %A" x |> failwith
 
-  checkPropertyExistsAndIsValid "qualitystandard:hasAgeGroup"
-  checkPropertyExistsAndIsValid "qualitystandard:hasConditionOrDisease"
-  checkPropertyExistsAndIsValid "qualitystandard:hasServiceArea"
-  checkPropertyExistsAndIsValid "qualitystandard:hasSetting"
-  checkPropertyExistsAndIsValid "qualitystandard:hasFactorAffectingHealthAndWellbeing"
+  checkPropertyExistsAndIsValid "qualitystandard:appliesToAgeGroup"
+  checkPropertyExistsAndIsValid "qualitystandard:appliesToConditionOrDisease"
+  checkPropertyExistsAndIsValid "qualitystandard:appliesToServiceArea"
+  checkPropertyExistsAndIsValid "qualitystandard:appliesToSetting"
+  checkPropertyExistsAndIsValid "qualitystandard:appliesToFactorAffectingHealthAndWellbeing"
 
 
 [<Test>]
 let ``When publishing a statement it should apply supertype and subtype inferred annotations`` () =
-  runCompileAndWaitTillFinished "https://github.com/dcmwong/ld-dummy-content"
+  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -177,21 +173,22 @@ let ``When publishing a statement it should apply supertype and subtype inferred
   response.Hits.Total |> should equal 1 
 
   let doc = (Seq.head response.Hits.Hits).Source
-  let agegroups = doc.QualitystandardAge |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
+  let agegroups = doc.QualitystandardAppliesToAgeGroup |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
+
   agegroups |> should equal 
             ( ["\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults\""
-               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 18-24 years\""
-               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 25-64 years\""
-               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults 65+ years\""
-               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#All age groups\""
+               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults18-24Years\""
+               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults25-64Years\""
+               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults65PlusYears\""
+               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#AllAgeGroups\""
                "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#AgeGroup\""
-               "\"http://ld.nice.org.uk/ns/qualitystandard#PopulationSpecifier\""] |> Set.ofList )
+               ] |> Set.ofList )
        
 
 [<Test>]
 let ``When publishing a statement it should generate static html and post to resource api`` () =
 
-  runCompileAndWaitTillFinished "https://github.com/dcmwong/ld-dummy-content"
+  runCompileAndWaitTillFinished "https://github.com/nhsevidence/ld-dummy-content"
 
   let response = Http.Request("http://resourceapi:8082/resource/8422158b-302e-4be2-9a19-9085fc09dfe7",
                           headers = [ "Content-Type", "text/plain;charset=utf-8" ])
@@ -204,7 +201,7 @@ let ``When I post a markdown file to the convert end point it should generate ht
   let markdown = """### Abstract"""
 
   let html = Http.RequestString("http://compiler:8081/convert",
-                                  headers = [ "Content-Type", "text/plain;charset=utf-8" ], 
+                                  headers = [ "Content-Type", "text/plain;charset=utf-8" ],
                                   body = FormValues ["markdown", markdown])
 
   let expectedHtml = """<h3 id="abstract">Abstract</h3>""" + System.Environment.NewLine

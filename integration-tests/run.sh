@@ -1,4 +1,5 @@
 #!/bin/bash
+docker-compose rm -vf
 docker-compose pull
 docker-compose up -d
 sleep 10
