@@ -9,91 +9,114 @@ open compiler.ValidationUtils
 open compiler.Test.TestUtilities
 
 let private annotationValidations = [
-  {
-    Uri= "hasPositionalId"
-    Label="PositionalId"
-    Validate= true
-    Format= "PositionalId:Required"
-    PropertyPath=[]
+  { t_publishItem with
+      Uri= "hasPositionalId"
+      Label="PositionalId"
+      Validate= true
+      Format= "PositionalId:Required"
+      DataAnnotation = true
   }
-  {
-    Uri= "hasRequired"
-    Label="Required"
-    Validate= true
-    Format= "String:Required"
-    PropertyPath=[]
+  { t_publishItem with
+      Uri= "hasRequired"
+      Label="Required"
+      Validate= true
+      Format= "String:Required"
+      DataAnnotation = true
   }
-  {
-    Uri= "hasNotRequireddate"
-    Label="Date Not Required"
-    Validate= true
-    Format= "Date"
-    PropertyPath=[]
+  { t_publishItem with
+      Uri= "hasNotRequireddate"
+      Label="Date Not Required"
+      Validate= true
+      Format= "Date"
+      DataAnnotation = true
   }
-  {
-    Uri= "hasNotRequiredYesNo"
-    Label="YesNo Not Required"
-    Validate= true
-    Format= "YesNo"
-    PropertyPath=[]
+  { t_publishItem with
+      Uri= "hasNotRequiredYesNo"
+      Label="YesNo Not Required"
+      Validate= true
+      Format= "YesNo"
+      DataAnnotation = true
   }
-  {
-    Uri= "hasConditionallyRequiredDate"
-    Label="Date Conditional"
-    Validate = true
-    Format= "Date:Conditional:YesNo Not Required:no"
-    PropertyPath=[]
+  { t_publishItem with
+      Uri= "hasConditionallyRequiredDate"
+      Label="Date Conditional"
+      Validate = true
+      Format= "Date:Conditional:YesNo Not Required:no"
+      DataAnnotation = true
+  }
+  { t_publishItem with
+      Uri= "affectsdiscoverability"
+      Label="Affects If Discoverable"
+      Validate = true
+      Format= "YesNo"
+      DataAnnotation = true
+      UndiscoverableWhen = "no"
   }
 ]
 
-let validRequiredAnnotations = [ { annotation with Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-                                 { annotation with Vocab = "Required"; Terms = ["A value"] } ]
+let private configItem = {
+  Schema = "qualitystandard.ttl"
+  JsonLD = "qualitystandard.jsonld "
+  Map = false
+  Publish = annotationValidations
+}
+
+let private config = {
+  t_config with
+    SchemaBase = "http://schema/ns/"
+    UrlBase = "http://ld.nice.org.uk/"
+    QSBase ="ns/qualitystandard"
+    ThingBase = "resource"
+    IndexName = "kb"
+    TypeName = "qualitystatement"
+    SchemaDetails = [configItem]
+}
+
+let a_positionalId = { annotation with Property = "positionalid"; Vocab = "PositionalId"; Terms = ["qs1-st1"]; Format = "PositionalId:Required"; Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasPositionalId"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }
+let a_required = { annotation with Property = "required";Vocab = "Required"; Terms = ["A value"]; Format = "String:Required"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasRequired"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
+let a_datenotrequired = { annotation with Property = "datenotrequired"; Vocab = "Date Not Required"; Terms = ["01-10-2010"]; Format = "Date"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasNotRequireddate"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
+let a_yesnonotrequired = { annotation with Property = "yesnonotrequired"; Vocab = "YesNo Not Required"; Terms = ["yes"]; Format = "YesNo"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasNotRequiredYesNo"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true  }
+let a_dateconditional = { annotation with Property = "dateconditional"; Vocab = "Date Conditional"; Terms = ["01-08-2010"]; Format = "Date:Conditional:YesNo Not Required:no"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasConditionallyRequiredDate"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
+
 
 let defaultStatement = {
-  Id = System.Guid.NewGuid().ToString()
-  Title = "Quality statement 1 from quality standard 1"
-  Abstract = "Abstract"
-  StandardId = 1
-  StatementId = 1
-  ObjectAnnotations = []
-  DataAnnotations = validRequiredAnnotations
-  Content = "Content"
-  Html = "Content"
+  statement with
+    Id = System.Guid.NewGuid().ToString()
+    Title = "Quality statement 1 from quality standard 1"
+    Abstract = "Abstract"
+    StandardId = 1
+    StatementId = 1
+    Annotations = [a_positionalId; a_required]
+    Content = "Content"
+    Html = "Content"
 }
 
 [<Test>]
 let ``ValidationUtilsTests: When all statement annotations are valid (no conditionally required) then validating the statement will return a statement that is identical but with processed dates`` () =
-  let data = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { annotation with Vocab = "Date Not Required"; Terms = ["01-10-2010"] }
-                                                                                   { annotation with Vocab = "YesNo Not Required"; Terms = ["yes"] } ] }
+  let data = {defaultStatement with Annotations = [ a_positionalId; a_required; a_datenotrequired; a_yesnonotrequired ] }
   
-  let dataTransformed = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { annotation with Vocab = "Date Not Required"; Terms = ["2010-10-01"] }
-                                                                                              { annotation with Vocab = "YesNo Not Required"; Terms = ["yes"] } ] }
-  let resultStatement = validateStatement annotationValidations data
+  let dataTransformed = { defaultStatement with Annotations = [ a_positionalId; a_required; { a_datenotrequired with Terms = ["2010-10-01"]; IsDate = true }; a_yesnonotrequired ] }
+  let resultStatement = validateStatement config data
 
-  areListsTheSame dataTransformed.DataAnnotations resultStatement.DataAnnotations
+  areListsTheSame dataTransformed.Annotations resultStatement.Annotations
 
 
 [<Test>]
 let ``ValidationUtilsTests: When all statement annotations are valid (with conditionally required) then validating the statement will return a statement that is identical but with processed dates`` () =
-  let data = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { annotation with Vocab = "Date Not Required"; Terms = ["01-10-2010"] }
-                                                                                   { annotation with Vocab = "YesNo Not Required"; Terms = ["no"] }
-                                                                                   { annotation with Vocab = "Date Conditional"; Terms = ["01-08-2016"] } ] }
+  let data = {defaultStatement with Annotations = [ a_positionalId; a_required; a_datenotrequired; { a_yesnonotrequired with Terms = ["no"] }; a_dateconditional ] }
 
   
-  let dataTransformed = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { annotation with Vocab = "Date Not Required"; Terms = ["2010-10-01"] }
-                                                                                              { annotation with Vocab = "YesNo Not Required"; Terms = ["no"] }
-                                                                                              { annotation with Vocab = "Date Conditional"; Terms = ["2016-08-01"] } ] }
-  let resultStatement = validateStatement annotationValidations data
+  let dataTransformed = {defaultStatement with Annotations = [a_positionalId; a_required; { a_datenotrequired with Terms = ["2010-10-01"]; IsDate = true }; { a_yesnonotrequired with Terms = ["no"] }; { a_dateconditional with Terms = ["2010-08-01"]; IsDate = true} ] }
+  let resultStatement = validateStatement config data
 
-  areListsTheSame dataTransformed.DataAnnotations resultStatement.DataAnnotations
+  areListsTheSame dataTransformed.Annotations resultStatement.Annotations
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has an invalid PositionalId then validating the statement will throw an 'invalid annotation' exception`` () =
-  let data = {defaultStatement with DataAnnotations = [ { annotation with Vocab = "PositionalId"; Terms = ["st1-qs1"] }
-                                                        { annotation with Vocab = "Required"; Terms = ["A value"] } ] }
+  let data = {defaultStatement with Annotations = [ { a_positionalId with Terms = ["st1-qs1"] }; a_required ] }
 
   let res = try
-              validateStatement annotationValidations data |> ignore
+              validateStatement config data |> ignore
               "No exception caught"
             with
             | Failure msg -> msg
@@ -101,33 +124,29 @@ let ``ValidationUtilsTests: When a statement has an invalid PositionalId then va
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has an blank required annotation then validating the statement will throw a 'missing annotation' exception`` () =
-  let data = {defaultStatement with DataAnnotations = [ { annotation with Vocab = "PositionalId"; Terms = ["qs1-st1"] }
-                                                        { annotation with Vocab = "Required"; Terms = [] } ] }
 
   let res = try
-              validateStatement annotationValidations data |> ignore
+              verifyRequiredAnnotationsExist annotationValidations [ a_positionalId; { a_required with Terms = [] } ] |> ignore
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "Missing the 'Required' annotation"
+  res |> should equal "No value provided for the 'Required' annotation"
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement is missing required annotation then validating the statement will throw a 'missing annotation' exception`` () =
-  let data = {defaultStatement with DataAnnotations = [ { annotation with Vocab = "PositionalId"; Terms = ["qs1-st1"] } ] }
-  
   let res = try
-              validateStatement annotationValidations data |> ignore
+              verifyRequiredAnnotationsExist annotationValidations [ a_positionalId ] |> ignore
               "No exception caught"
             with
             | Failure msg -> msg
   res |> should equal "Missing the 'Required' annotation"
 
 [<Test>]
-let ``ValidationUtilsTests: When a statement has a date formatted annotation which is not valid (dd-MM-yyyy) then validating the statement will throw a 'missing annotation' exception`` () =
-  let data = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { annotation with Vocab = "Date Not Required"; Terms = ["01 October 2010"] } ] }
+let ``ValidationUtilsTests: When a statement has a date formatted annotation which is not valid (dd-MM-yyyy) then validating the statement will throw a 'invalid annotation' exception`` () =
+  let data = {defaultStatement with Annotations = [ a_positionalId; a_required; { a_datenotrequired with Terms = ["01 October 2010"] } ] }
 
   let res = try
-              validateStatement annotationValidations data |> ignore
+              validateStatement config data |> ignore
               "No exception caught"
             with
             | Failure msg -> msg
@@ -135,10 +154,10 @@ let ``ValidationUtilsTests: When a statement has a date formatted annotation whi
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has a YesNo formatted annotation which is not yes or no then validating the statement will throw a 'missing annotation' exception`` () =
-  let data = {defaultStatement with DataAnnotations = validRequiredAnnotations @ [ { annotation with Vocab = "YesNo Not Required"; Terms = ["Some Other Value"] } ] }
+  let data = {defaultStatement with Annotations = [ a_positionalId; a_required; { a_yesnonotrequired with Terms = ["Some Other Value"] } ] }
 
   let res = try
-              validateStatement annotationValidations data |> ignore
+              validateStatement config data |> ignore
               "No exception caught"
             with
             | Failure msg -> msg
@@ -146,11 +165,31 @@ let ``ValidationUtilsTests: When a statement has a YesNo formatted annotation wh
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has a conditionally required annotation which is not provided then validating the statement will throw a 'missing annotation' exception`` () =
-  let data = {defaultStatement with DataAnnotations = validRequiredAnnotations @  [ { annotation with Vocab = "YesNo Not Required"; Terms = ["no"] } ] }
+  let data = {defaultStatement with Annotations = [ a_positionalId; a_required; { a_yesnonotrequired with Terms = ["no"] } ] }
 
   let res = try
-              validateStatement annotationValidations data |> ignore
+              verifyRequiredAnnotationsExist annotationValidations  [ a_positionalId; a_required; { a_yesnonotrequired with Terms = ["no"] } ]  |> ignore
               "No exception caught"
             with
             | Failure msg -> msg
   res |> should equal "Missing the 'Date Conditional' annotation"
+
+//let a_discoverable = { annotation with Property = "affectsdiscoverability"; Vocab = "Affects If Discoverable"; Terms = ["yes"]; Format = "YesNo"; Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasThingThatAffectsDiscoverability"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }
+//let a_undiscoverable = { a_discoverable with Terms = ["no"]; }
+//
+//[<Test>]
+//let ``FilteringUtilsTests: An undiscoverable statement should not be discoverable`` () =
+//
+//  let result = defaultStatement
+//               |> validateStatement config
+//
+//  result.IsUndiscoverable |> should equal true
+//
+//
+//[<Test>]
+//let ``FilteringUtilsTests: A discoverable statement should  be discoverable`` () =
+//
+//  let result = defaultStatement
+//               |> validateStatement config
+//
+//  result.IsUndiscoverable |> should equal false

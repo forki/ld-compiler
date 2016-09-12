@@ -43,26 +43,26 @@ let private lookupAnnotations vocabMap termMap annotations =
 
 open Assertion
 
-let generateDataAnnotations (validations:PublishItem List) (baseUrl:string) (statement:compiler.Domain.Statement) =
-  let getAnnotationTerms label =
-    statement.DataAnnotations
-    |> List.filter (fun a -> a.Vocab = label)
-    |> List.map (fun a -> a.Terms)
-    |> List.concat
-
-  validations
-  |> List.map (fun v -> (sprintf "%s#%s" baseUrl v.Uri), getAnnotationTerms v.Label)
-  |> List.map (fun v -> v |> snd
-                          |> List.map (fun t -> (fst v), t))
+let private generateDataAnnotations (dataAnnotations:Annotation List) =
+  dataAnnotations
+  |> List.map (fun a -> a.Uri, a.Terms)
+  |> List.map (fun at -> at |> snd
+                            |> List.map (fun t -> (fst at), t))
   |> List.concat
-  |> List.map (fun (v,t) -> dataProperty !!v (t^^xsd.string))
+  |> List.map (fun (a,t) -> dataProperty !!a (t^^xsd.string))
 
-let transformToRDF args validations baseUrl statement =
+let transformToRDF args statement =
 
-  let dataAnnotations = generateDataAnnotations validations baseUrl statement
+  let dataAnnotations = statement.Annotations
+                        |> List.filter (fun a -> a.IsDataAnnotation)
+                        |> generateDataAnnotations 
                           
+  let objectAnnotations = statement.Annotations
+                          |> List.filter (fun a -> a.IsDataAnnotation = false)
+                          |> lookupAnnotations args.VocabMap args.TermMap
+  
   let uri = sprintf "%s/%s" args.BaseUrl statement.Id
-  let objectAnnotations = lookupAnnotations args.VocabMap args.TermMap statement.ObjectAnnotations
+ 
   let r = resource !! uri
             ( [a !! "http://ld.nice.org.uk/ns/qualitystandard#QualityStatement"
                dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#title" (statement.Title^^xsd.string)
