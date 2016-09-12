@@ -28,7 +28,7 @@ Target "RunTests" (fun _ ->
 
   let result = 
     ExecProcess (fun info -> info.FileName <- "mono"
-                             info.Arguments <- "packages/NUnit.ConsoleRunner/tools/nunit3-console.exe --labels=All --workers=1 compiler.IntegrationTests/bin/Debug/compiler.IntegrationTests.dll") (TimeSpan.FromMinutes 2.0)
+                             info.Arguments <- "packages/NUnit.ConsoleRunner/tools/nunit3-console.exe --labels=All --workers=1 compiler.IntegrationTests/bin/Debug/compiler.IntegrationTests.dll") (TimeSpan.FromMinutes 5.0)
   if result <> 0 then failwithf "NUnit failed"
     
 )
