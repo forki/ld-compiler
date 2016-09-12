@@ -136,6 +136,7 @@ let addConfigToAnnotation annotationConfig thisAnnotation =
              IsDataAnnotation = thisAnnotationConfig.Value.DataAnnotation
              IsValidated = thisAnnotationConfig.Value.Validate
              IsDisplayed = thisAnnotationConfig.Value.Display
+             UndiscoverableWhen = thisAnnotationConfig.Value.UndiscoverableWhen
            }
 
 let addUriToAnnotation propertyBaseUrl thisAnnotation =

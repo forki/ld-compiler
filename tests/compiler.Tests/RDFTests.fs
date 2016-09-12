@@ -23,16 +23,7 @@ let dataAnnotations = [
   }   
 ]
 
-let defaultStatement = {
-  Id = "id_goes_here"
-  Title = ""
-  Abstract = ""
-  StandardId = 0
-  StatementId = 0
-  Annotations = []
-  Content = ""
-  Html = ""
-}
+let defaultStatement = { statement with Id = "id_goes_here" }
 
 let private baseUrl = "http://ld.nice.org.uk/ns/qualitystandard"
 

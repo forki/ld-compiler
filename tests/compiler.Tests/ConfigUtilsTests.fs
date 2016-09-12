@@ -139,6 +139,7 @@ let private sampleConfig = """
 					"Format": "YesNo:Required",
                     "Display": false,
                     "DataAnnotation": true,
+                    "UndiscoverableWhen": "no",
                     "PropertyPath": []
 				},
 				{
@@ -163,6 +164,7 @@ let private sampleConfig = """
 			
 		}
 	]
+
 }
 """
 
@@ -201,41 +203,35 @@ let private expected_PropPaths = [
 ]
 
 let private expected_PropertyValidations = [
-  {
-    Uri = "hasPositionalId"
-    Label = "PositionalId"
-    Validate = true
-    Format = "PositionalId:Required"
-    Display = false
-    DataAnnotation = true
-    PropertyPath=[]
+  { t_publishItem with
+      Uri = "hasPositionalId"
+      Label = "PositionalId"
+      Validate = true
+      Format = "PositionalId:Required"
+      DataAnnotation = true
   }
-  {
-    Uri = "isNationalPriority"
-    Label = "National priority"
-    Validate = true
-    Format = "YesNo:Required"
-    Display = false
-    DataAnnotation = true
-    PropertyPath=[]
+  { t_publishItem with
+      Uri = "isNationalPriority"
+      Label = "National priority"
+      Validate = true
+      Format = "YesNo:Required"
+      DataAnnotation = true
+      UndiscoverableWhen = "no"
   }
-  {
-    Uri = "changedPriorityOn"
-    Label = "Changed Priority On"
-    Validate = true
-    Format = "Date:Conditional:National priority:no"
-    Display = false
-    DataAnnotation = true
-    PropertyPath=[]
+  { t_publishItem with
+      Uri = "changedPriorityOn"
+      Label = "Changed Priority On"
+      Validate = true
+      Format = "Date:Conditional:National priority:no"
+      DataAnnotation = true
   }
-  {
-    Uri = "wasFirstIssuedOn"
-    Label = "First issued"
-    Validate = true
-    Format = "Date:Required"
-    Display = true
-    DataAnnotation = true
-    PropertyPath=[]
+  { t_publishItem with
+      Uri = "wasFirstIssuedOn"
+      Label = "First issued"
+      Validate = true
+      Format = "Date:Required"
+      Display = true
+      DataAnnotation = true
   }
 ]
 
@@ -244,7 +240,7 @@ let baseAnnotations = [ { annotation with Property = "positionalid"; Vocab = "Po
                         { annotation with Property = "firstissued";Vocab = "First issued"; Terms = ["01-10-2000"] } ]
 
 let a_positionalid = { annotation with Property = "positionalid"; Vocab = "PositionalId"; Terms = ["qs1-st1"]; Format = "PositionalId:Required"; Uri= "hasPositionalId"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }
-let a_nationalpriority = { annotation with Property = "nationalpriority"; Vocab = "National priority"; Terms = ["yes"]; Format = "YesNo:Required"; Uri = "isNationalPriority"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
+let a_nationalpriority = { annotation with Property = "nationalpriority"; Vocab = "National priority"; Terms = ["yes"]; Format = "YesNo:Required"; Uri = "isNationalPriority"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true; UndiscoverableWhen = "no" }
 let a_firstissued = { annotation with Property = "firstissued"; Vocab = "First issued"; Terms = ["01-10-2000"]; Format = "Date:Required"; Uri = "wasFirstIssuedOn"; IsValidated= true; IsDisplayed = true; IsDataAnnotation = true }
 
 let private expected_BaseUrl = "http://ld.nice.org.uk/resource"
@@ -307,4 +303,3 @@ let ``ValidationUtilsTests: When the uri is appended with the annotations that i
                |> List.map (addUriToAnnotation propertyBaseUrl)
   
   areListsTheSame [ { a_positionalid with Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasPositionalId" }; { a_nationalpriority with Uri = "http://ld.nice.org.uk/ns/qualitystandard#isNationalPriority" }; { a_firstissued with Uri = "http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn" } ] result
-
