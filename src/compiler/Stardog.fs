@@ -62,7 +62,7 @@ let extractResources propertyPaths =
         retry f x
 
   let firstPathOPath (s:System.String) =
-    PathRegex().Match(s).firstPartOfPropertyPath.Value
+    PathRegex().TypedMatch(s).firstPartOfPropertyPath.Value
 
   let construct =
     List.mapi (fun i v -> sprintf " @entity <%s> ?o_%d . " (firstPathOPath v) i)

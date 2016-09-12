@@ -1,15 +1,10 @@
 source https://nuget.org/api/v2
-nuget DotLiquid
 nuget FSharp.Data
-nuget FSharp.Formatting 2.10.3
-nuget FSharp.RDF
-nuget FSharp.Text.RegexProvider
 nuget FsUnit
-nuget newtonsoft.json
 nuget NUnit
 nuget NUnit.Runners
-nuget Suave.Testing
 
 group Build
   source https://nuget.org/api/v2
+  
   nuget FAKE
