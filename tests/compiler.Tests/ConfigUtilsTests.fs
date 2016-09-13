@@ -128,7 +128,7 @@ let private sampleConfig = """
 					"Label": "PositionalId",
 					"Validate": true,
 					"Format": "PositionalId:Required",
-                    "Display": false,
+                    "Display": {},
                     "DataAnnotation": true,
                     "PropertyPath": []
 				},
@@ -137,7 +137,7 @@ let private sampleConfig = """
 					"Label": "National priority",
 					"Validate": true,
 					"Format": "YesNo:Required",
-                    "Display": false,
+                    "Display": {},
                     "DataAnnotation": true,
                     "UndiscoverableWhen": "no",
                     "PropertyPath": []
@@ -147,7 +147,7 @@ let private sampleConfig = """
 					"Label": "Changed Priority On",
 					"Validate": true,
 					"Format": "Date:Conditional:National priority:no",
-                    "Display": false,
+                    "Display": {},
                     "DataAnnotation": true,
                     "PropertyPath": []
 				},
@@ -156,7 +156,9 @@ let private sampleConfig = """
 					"Label": "First issued",
 					"Validate": true,
 					"Format": "Date:Required",
-                    "Display": true,
+                    "Display": {
+                        "Always": true
+                    },
                     "DataAnnotation": true,
                     "PropertyPath": []
 				}
@@ -202,6 +204,8 @@ let private expected_PropPaths = [
   "<http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn>"
 ]
 
+let display_wasFirstIssuedOn = {t_displayItem with Always = true}
+
 let private expected_PropertyValidations = [
   { t_publishItem with
       Uri = "hasPositionalId"
@@ -230,7 +234,7 @@ let private expected_PropertyValidations = [
       Label = "First issued"
       Validate = true
       Format = "Date:Required"
-      Display = true
+      Display = display_wasFirstIssuedOn
       DataAnnotation = true
   }
 ]

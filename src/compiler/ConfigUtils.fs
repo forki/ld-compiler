@@ -124,6 +124,11 @@ let getPropPaths config =
   |> List.concat
   |> List.filter (fun f -> f <> "")
 
+let private getAnnotationIsDisplayed thisDisplayItem =
+  match obj.ReferenceEquals(thisDisplayItem.Display, null) with
+  | true -> false
+  | _ -> thisDisplayItem.Display.Always
+
 let addConfigToAnnotation annotationConfig thisAnnotation =
   let thisAnnotationConfig = annotationConfig
                              |> List.filter (fun c -> c.Label = thisAnnotation.Vocab)
@@ -135,7 +140,7 @@ let addConfigToAnnotation annotationConfig thisAnnotation =
              Uri = thisAnnotationConfig.Value.Uri
              IsDataAnnotation = thisAnnotationConfig.Value.DataAnnotation
              IsValidated = thisAnnotationConfig.Value.Validate
-             IsDisplayed = thisAnnotationConfig.Value.Display
+             IsDisplayed = thisAnnotationConfig.Value |> getAnnotationIsDisplayed
              UndiscoverableWhen = thisAnnotationConfig.Value.UndiscoverableWhen
            }
 

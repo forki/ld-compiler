@@ -124,7 +124,7 @@ let configString = """
 					"Label": "PositionalId",
 					"Validate": true,
 					"Format": "PositionalId:Required",
-                    "Display": false,
+                    "Display": {},
                     "DataAnnotation": true,
                     "PropertyPath": []
 				},
@@ -133,7 +133,7 @@ let configString = """
 					"Label": "National priority",
 					"Validate": true,
 					"Format": "YesNo:Required",
-					"Display": false,
+                    "Display": {},
 					"DataAnnotation": true,
 					"PropertyPath": []
 				},
@@ -142,7 +142,7 @@ let configString = """
 					"Label": "Changed Priority On",
 					"Validate": true,
 					"Format": "Date:Conditional:National priority:no",
-					"Display": false,
+                    "Display": {},
 					"DataAnnotation": true,
 					"PropertyPath": []
 				},
@@ -151,7 +151,9 @@ let configString = """
 					"Label": "First issued",
 					"Validate": true,
 					"Format": "Date:Required",
-					"Display": true,
+                    "Display": {
+                        "Always": true
+                    },
 					"DataAnnotation": true,
 					"PropertyPath": []
 				}

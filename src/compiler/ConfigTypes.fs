@@ -1,11 +1,18 @@
 ﻿module compiler.ConfigTypes
 
+type DisplayItem = {
+    Always: bool
+    Condition: string
+    Label: string
+    Template: string
+}
+
 type PublishItem = {
     Uri: string
     Label: string
     Validate: bool
     DataAnnotation: bool
-    Display: bool
+    Display: DisplayItem
     Format: string
     PropertyPath: string list
     UndiscoverableWhen : string
@@ -28,12 +35,19 @@ type Config = {
     SchemaDetails: ConfigItem list
 }
 
+let t_displayItem = {
+    Always = false
+    Condition = null
+    Label = null
+    Template = null
+}
+
 let t_publishItem = {
   Uri = null
   Label = null
   Validate = false
   DataAnnotation = false
-  Display = false
+  Display = t_displayItem
   Format = null
   PropertyPath = []
   UndiscoverableWhen = null
