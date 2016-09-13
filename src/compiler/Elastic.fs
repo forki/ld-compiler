@@ -61,23 +61,23 @@ let private postMappings esUrl =
             "type" : "integer",
             "index" : "not_analyzed"
           },
-          "qualitystandard:serviceArea" : {
+          "qualitystandard:appliesToServiceArea" : {
             "type" : "string",
             "index" : "not_analyzed"
           },
-          "qualitystandard:age" : {
+          "qualitystandard:appliesToAgeGroup" : {
             "type" : "string",
             "index" : "not_analyzed"
           },
-          "qualitystandard:setting" : {
+          "qualitystandard:appliesToSetting" : {
             "type" : "string",
             "index" : "not_analyzed"
           },
-          "qualitystandard:condition" : {
+          "qualitystandard:appliesToConditionOrDisease" : {
             "type" : "string",
             "index" : "not_analyzed"
           },
-          "qualitystandard:lifestyleCondition" : {
+          "qualitystandard:appliesToFactorAffectingHealthAndWellbeing" : {
             "type" : "string",
             "index" : "not_analyzed"
           }
