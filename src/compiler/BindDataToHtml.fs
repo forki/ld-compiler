@@ -5,48 +5,88 @@ open System.IO
 
 open compiler.Domain
 open compiler.DotLiquidExtensions
+open Utils
 
 type MetadataItem = {
-    label: string 
-    value: string
-    is_date: bool
-  }
+  table: string
+  label: string
+  values: string list
+  value_template: string
+  values_html: string
+}
 
 type MetadataViewModel = {
   Metadata_items : MetadataItem list
 }
 
-let private mapMetadataFrom statement =
-  statement.Annotations 
-  |> List.filter (fun x -> x.IsDataAnnotation && x.IsDisplayed) 
-  |> List.map (fun x -> 
-    {
-      label=x.Vocab
-      value=x.Terms.Head
-      is_date=x.IsDate
-    })
+let private getStandardTemplate isDate =
+  match isDate with
+  | true -> """{{value |  date: "MMMM yyyy" }}"""
+  | _ -> "{{value}}"
 
-let bindDataToHtml statement =
-  let metadata = { Metadata_items = mapMetadataFrom statement }
+let private getTemplate (thisAnnotation:Annotation) =
+  match obj.ReferenceEquals(thisAnnotation.DisplayTemplate, null) with
+  | true ->  getStandardTemplate thisAnnotation.IsDate
+  | _ -> match thisAnnotation.DisplayTemplate.Length with
+         | 0 -> getStandardTemplate thisAnnotation.IsDate
+         | _ -> thisAnnotation.DisplayTemplate
 
-  let text = 
+let private getLabel (thisAnnotation:Annotation) =
+  match thisAnnotation.DisplayLabel |> isNullOrWhitespace with
+  | true -> thisAnnotation.Vocab
+  | _ -> thisAnnotation.DisplayLabel
+
+let private generateDataHtml thisMetadataItem =
+  let dataTableTemplate =
     """
-    <table id="metadata">
-    {% for item in metadata.Metadata_items %}
-    <tr>
-      <td class="col1">{{item.label }}</td>
-      <td>{% if item.is_date  %} 
-          {{item.value |  date: "MMMM yyyy" }}
-          {% else %}
-          {{item.value}}
-          {% endif %}
-      </td>
-    </tr>
-     {% endfor %}
-    </table>
-    """ + statement.Html
+      <table id='""" + thisMetadataItem.table + """'>
+      {% for value in item.values %}
+        <tr>
+          <td>
+            """ + thisMetadataItem.value_template + """
+          </td>
+        </tr>
+      {% endfor %}
+      </table>
+    """
+  let dataValuesTable = parseTemplate<MetadataItem> dataTableTemplate
+  { thisMetadataItem with values_html =  dataValuesTable "item" thisMetadataItem }
 
-  let metadataTable = parseTemplate<MetadataViewModel> text 
+let transformAnnotations (theseAnnotations:Annotation List) =
+  theseAnnotations
+  |> List.filter (fun a -> a.IsDisplayed)
+  |> List.map (fun a -> {
+                          table = a.Uri
+                          label = a |> getLabel
+                          values = a.Terms
+                          value_template = a |> getTemplate
+                          values_html = ""
+                        } )
+  |> List.map generateDataHtml
 
-  let newHtml = metadataTable  "metadata" metadata
-  { statement with Html = newHtml }
+let bindDataToHtml thisStatement =
+  let metadata = { Metadata_items = transformAnnotations thisStatement.Annotations }
+
+  let outlineTemplate =
+    """
+       <table id="metadata">
+       {% for item in metadata.Metadata_items %}
+         <tr>
+           <td class="col1">
+             {{item.label }}
+           </td>
+           <td>
+             {{item.values_html}}
+           </td>
+         </tr>
+       {% endfor %}
+       </table>
+    """
+
+  let metadataTable = parseTemplate<MetadataViewModel> outlineTemplate
+  let newHtml = metadataTable "metadata" metadata
+  { thisStatement with Html = newHtml + thisStatement.Html }
+
+
+
+
