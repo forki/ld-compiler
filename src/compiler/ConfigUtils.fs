@@ -124,10 +124,24 @@ let getPropPaths config =
   |> List.concat
   |> List.filter (fun f -> f <> "")
 
-let private getAnnotationIsDisplayed thisDisplayItem =
+let private getAnnotationDisplayDetails thisDisplayItem =
   match obj.ReferenceEquals(thisDisplayItem.Display, null) with
-  | true -> false
-  | _ -> thisDisplayItem.Display.Always
+  | true -> false,null,null
+  | _ -> thisDisplayItem.Display.Always,thisDisplayItem.Display.Label,thisDisplayItem.Display.Template
+
+let private constructAnnotationWithConfig thisAnnotation thisAnnotationConfig =
+  let isDisplayed, label, template = getAnnotationDisplayDetails thisAnnotationConfig
+
+  { thisAnnotation with
+      Format = thisAnnotationConfig.Format
+      Uri = thisAnnotationConfig.Uri
+      IsDataAnnotation = thisAnnotationConfig.DataAnnotation
+      IsValidated = thisAnnotationConfig.Validate
+      UndiscoverableWhen = thisAnnotationConfig.UndiscoverableWhen
+      IsDisplayed = isDisplayed
+      DisplayLabel = label
+      DisplayTemplate = template
+  }
 
 let addConfigToAnnotation annotationConfig thisAnnotation =
   let thisAnnotationConfig = annotationConfig
@@ -135,14 +149,7 @@ let addConfigToAnnotation annotationConfig thisAnnotation =
                              |> List.tryHead
   match thisAnnotationConfig.IsSome with
   | false -> thisAnnotation
-  | _ -> { thisAnnotation with
-             Format = thisAnnotationConfig.Value.Format
-             Uri = thisAnnotationConfig.Value.Uri
-             IsDataAnnotation = thisAnnotationConfig.Value.DataAnnotation
-             IsValidated = thisAnnotationConfig.Value.Validate
-             IsDisplayed = thisAnnotationConfig.Value |> getAnnotationIsDisplayed
-             UndiscoverableWhen = thisAnnotationConfig.Value.UndiscoverableWhen
-           }
+  | _ -> constructAnnotationWithConfig thisAnnotation thisAnnotationConfig.Value
 
 let addUriToAnnotation propertyBaseUrl thisAnnotation =
   match thisAnnotation.IsValidated with

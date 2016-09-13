@@ -23,7 +23,7 @@ let private mapMetadataFrom statement =
     {
       label=x.Vocab
       value=x.Terms.Head
-      is_date=true
+      is_date=x.IsDate
     })
 
 let bindDataToHtml statement =

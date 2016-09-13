@@ -147,7 +147,11 @@ let private sampleConfig = """
 					"Label": "Changed Priority On",
 					"Validate": true,
 					"Format": "Date:Conditional:National priority:no",
-                    "Display": {},
+                    "Display": {
+                        "Condition": "National priority:no",
+                        "Label": "Priority",
+                        "Template": "In {{item.value |  date: \"MMMM yyyy\" }} the priority of this statement changed. It is no longer considered a national priority for improvement but may still be useful at a local level."
+                    },
                     "DataAnnotation": true,
                     "PropertyPath": []
 				},
@@ -204,7 +208,13 @@ let private expected_PropPaths = [
   "<http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn>"
 ]
 
-let display_wasFirstIssuedOn = {t_displayItem with Always = true}
+let display_wasFirstIssuedOn = { t_displayItem with
+                                   Always = true
+                                }
+let display_changedPriorityOn = { t_displayItem with
+                                    Label = "Priority"
+                                    Condition = "National priority:no"
+                                    Template = "In {{item.value |  date: \"MMMM yyyy\" }} the priority of this statement changed. It is no longer considered a national priority for improvement but may still be useful at a local level."}
 
 let private expected_PropertyValidations = [
   { t_publishItem with
@@ -227,6 +237,7 @@ let private expected_PropertyValidations = [
       Label = "Changed Priority On"
       Validate = true
       Format = "Date:Conditional:National priority:no"
+      Display = display_changedPriorityOn
       DataAnnotation = true
   }
   { t_publishItem with
@@ -236,6 +247,7 @@ let private expected_PropertyValidations = [
       Format = "Date:Required"
       Display = display_wasFirstIssuedOn
       DataAnnotation = true
+      
   }
 ]
 
