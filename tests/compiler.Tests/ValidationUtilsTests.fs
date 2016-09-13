@@ -43,6 +43,11 @@ let private annotationValidations = [
       Validate = true
       Format= "Date:Conditional:YesNo Not Required:no"
       DataAnnotation = true
+      Display = { t_displayItem with
+                    Condition = "YesNo Not Required:no"
+                    Label = "Priority"
+                    Template = "In {{item.value |  date: \"MMMM yyyy\" }} the priority of this statement changed. It is no longer considered a national priority for improvement but may still be useful at a local level."
+      }
   }
   { t_publishItem with
       Uri= "affectsdiscoverability"
@@ -76,8 +81,18 @@ let a_positionalId = { annotation with Property = "positionalid"; Vocab = "Posit
 let a_required = { annotation with Property = "required";Vocab = "Required"; Terms = ["A value"]; Format = "String:Required"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasRequired"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
 let a_datenotrequired = { annotation with Property = "datenotrequired"; Vocab = "Date Not Required"; Terms = ["01-10-2010"]; Format = "Date"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasNotRequireddate"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
 let a_yesnonotrequired = { annotation with Property = "yesnonotrequired"; Vocab = "YesNo Not Required"; Terms = ["yes"]; Format = "YesNo"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasNotRequiredYesNo"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true  }
-let a_dateconditional = { annotation with Property = "dateconditional"; Vocab = "Date Conditional"; Terms = ["01-08-2010"]; Format = "Date:Conditional:YesNo Not Required:no"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasConditionallyRequiredDate"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
-
+let a_dateconditional = { annotation with
+                            Property = "dateconditional"
+                            Vocab = "Date Conditional"
+                            Terms = ["01-08-2010"]
+                            Format = "Date:Conditional:YesNo Not Required:no"
+                            Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasConditionallyRequiredDate"
+                            IsValidated= true
+                            IsDisplayed = false
+                            IsDataAnnotation = true
+                            DisplayLabel = "Priority"
+                            DisplayTemplate = "In {{item.value |  date: \"MMMM yyyy\" }} the priority of this statement changed. It is no longer considered a national priority for improvement but may still be useful at a local level."
+                          }
 
 let defaultStatement = {
   statement with
@@ -106,7 +121,7 @@ let ``ValidationUtilsTests: When all statement annotations are valid (with condi
   let data = {defaultStatement with Annotations = [ a_positionalId; a_required; a_datenotrequired; { a_yesnonotrequired with Terms = ["no"] }; a_dateconditional ] }
 
   
-  let dataTransformed = {defaultStatement with Annotations = [a_positionalId; a_required; { a_datenotrequired with Terms = ["2010-10-01"]; IsDate = true }; { a_yesnonotrequired with Terms = ["no"] }; { a_dateconditional with Terms = ["2010-08-01"]; IsDate = true} ] }
+  let dataTransformed = {defaultStatement with Annotations = [a_positionalId; a_required; { a_datenotrequired with Terms = ["2010-10-01"]; IsDate = true }; { a_yesnonotrequired with Terms = ["no"] }; { a_dateconditional with Terms = ["2010-08-01"]; IsDate = true; IsDisplayed = true} ] }
   let resultStatement = validateStatement config data
 
   areListsTheSame dataTransformed.Annotations resultStatement.Annotations
