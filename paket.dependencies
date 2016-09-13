@@ -4,6 +4,7 @@ nuget FSharp.Data
 nuget FSharp.Formatting 2.10.3
 nuget FSharp.RDF
 nuget FSharp.Text.RegexProvider
+nuget FSharpLint
 nuget FsUnit
 nuget newtonsoft.json
 nuget NUnit

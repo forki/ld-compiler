@@ -3,6 +3,9 @@
 // --------------------------------------------------------------------------------------
 
 #r @"packages/build/FAKE/tools/FakeLib.dll"
+#r @"packages/FSharpLint/FSharpLint.Application.dll"
+#r @"packages/FSharpLint/FSharpLint.FAKE.dll"
+open FSharpLint.FAKE
 open Fake
 open System
 open System.IO
@@ -101,6 +104,11 @@ Target "RunTests" (fun _ ->
     
 )
 
+Target "Lint" (fun _ ->
+    let projects = !! "src/**/*.fsproj" ++ "tests/**/*.fsproj"
+    printf "linting projects: %A" projects
+    projects |> Seq.iter (FSharpLint (fun options -> {options with FailBuildIfAnyWarnings=true})))
+
 // --------------------------------------------------------------------------------------
 // Run all targets by default. Invoke 'build <Target>' to override
 
@@ -108,6 +116,7 @@ Target "All" DoNothing
 
 "Clean"
   ==> "BuildRelease"
+  ==> "Lint"
   ==> "RunTests"
   ==> "CopyBinaries"
   ==> "All"
