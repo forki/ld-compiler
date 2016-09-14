@@ -8,7 +8,6 @@ open compiler.DotLiquidExtensions
 open Utils
 
 type MetadataItem = {
-  table: string
   label: string
   values: string list
   value_template: string
@@ -25,38 +24,54 @@ let private getStandardTemplate isDate =
   | _ -> "{{value}}"
 
 let private getTemplate (thisAnnotation:Annotation) =
-  match obj.ReferenceEquals(thisAnnotation.DisplayTemplate, null) with
-  | true ->  getStandardTemplate thisAnnotation.IsDate
-  | _ -> match thisAnnotation.DisplayTemplate.Length with
-         | 0 -> getStandardTemplate thisAnnotation.IsDate
-         | _ -> thisAnnotation.DisplayTemplate
+  match thisAnnotation.DisplayTemplate |> isNullOrWhitespace with
+  | true -> getStandardTemplate thisAnnotation.IsDate
+  | _ -> thisAnnotation.DisplayTemplate
 
 let private getLabel (thisAnnotation:Annotation) =
   match thisAnnotation.DisplayLabel |> isNullOrWhitespace with
   | true -> thisAnnotation.Vocab
   | _ -> thisAnnotation.DisplayLabel
 
+//let private OLDgenerateDataHtml thisMetadataItem =
+//  let dataTableTemplate =
+//    """
+//      <table>
+//      {% for value in item.values %}
+//        <tr>
+//          <td>
+//            """ + thisMetadataItem.value_template + """
+//          </td>
+//        </tr>
+//      {% endfor %}
+//      </table>
+//    """
+//  let dataValuesTable = parseTemplate<MetadataItem> dataTableTemplate
+//  { thisMetadataItem with values_html =  dataValuesTable "item" thisMetadataItem }
+
+let generateTailHtml thisMetadataItem =
+  let repeatedTermsTemplate =
+    """
+    {% for value in values %}
+    <hr>
+    """ + thisMetadataItem.value_template + """
+    {% endfor %}
+    """
+  let parseThem =  parseTemplate<string list> repeatedTermsTemplate
+  parseThem "values" thisMetadataItem.values.Tail
+
 let private generateDataHtml thisMetadataItem =
-  let dataTableTemplate =
-    """
-      <table id='""" + thisMetadataItem.table + """'>
-      {% for value in item.values %}
-        <tr>
-          <td>
-            """ + thisMetadataItem.value_template + """
-          </td>
-        </tr>
-      {% endfor %}
-      </table>
-    """
-  let dataValuesTable = parseTemplate<MetadataItem> dataTableTemplate
-  { thisMetadataItem with values_html =  dataValuesTable "item" thisMetadataItem }
+  let parseThis = parseTemplate<string> thisMetadataItem.value_template
+  let headHtml = parseThis "value" thisMetadataItem.values.Head
+  let tailHtml = match thisMetadataItem.values.Tail.Length with
+                 | 0 -> ""
+                 | _ -> generateTailHtml thisMetadataItem
+  { thisMetadataItem with values_html = headHtml + tailHtml }
 
 let transformAnnotations (theseAnnotations:Annotation List) =
   theseAnnotations
   |> List.filter (fun a -> a.IsDisplayed)
   |> List.map (fun a -> {
-                          table = a.Uri
                           label = a |> getLabel
                           values = a.Terms
                           value_template = a |> getTemplate

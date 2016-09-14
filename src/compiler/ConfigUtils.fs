@@ -26,8 +26,8 @@ let private getPathWithSubclass urlBase qsBase (p:PublishItem) =
   |> List.fold concatPropertyPaths ""  
 
 
-let private getPropertyForLabel s (label:string) =
-    match obj.ReferenceEquals(label, null) with
+let private getPropertyForLabel s label =
+    match label |> isNullOrWhitespace with
     |true -> s
     |_ -> getProperty label
 

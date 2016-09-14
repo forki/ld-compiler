@@ -46,7 +46,7 @@ let private annotationValidations = [
       Display = { t_displayItem with
                     Condition = "YesNo Not Required:no"
                     Label = "Priority"
-                    Template = "In {{item.value |  date: \"MMMM yyyy\" }} the priority of this statement changed. It is no longer considered a national priority for improvement but may still be useful at a local level."
+                    Template = "In {{value |  date: \"MMMM yyyy\" }} the priority of this statement changed. It is no longer considered a national priority for improvement but may still be useful at a local level."
       }
   }
   { t_publishItem with
@@ -91,7 +91,7 @@ let a_dateconditional = { annotation with
                             IsDisplayed = false
                             IsDataAnnotation = true
                             DisplayLabel = "Priority"
-                            DisplayTemplate = "In {{item.value |  date: \"MMMM yyyy\" }} the priority of this statement changed. It is no longer considered a national priority for improvement but may still be useful at a local level."
+                            DisplayTemplate = "In {{value |  date: \"MMMM yyyy\" }} the priority of this statement changed. It is no longer considered a national priority for improvement but may still be useful at a local level."
                           }
 
 let defaultStatement = {
