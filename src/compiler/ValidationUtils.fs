@@ -3,6 +3,7 @@
 open compiler.Domain
 open compiler.ConfigUtils
 open compiler.ConfigTypes
+open Utils
 
 let private raiseError annotation state =
   match state with
@@ -109,7 +110,7 @@ let private processYesNo thisAnnotation =
 
   thisAnnotation
 
-let private validateDataAnnotation (thisAnnotation:Annotation) =
+let private validateDataAnnotationFormat (thisAnnotation:Annotation) =
   let validationParts = thisAnnotation.Format.Split [|':'|]   
   match validationParts.Length with
     | 0 -> thisAnnotation
@@ -119,7 +120,12 @@ let private validateDataAnnotation (thisAnnotation:Annotation) =
            | "YesNo" -> processYesNo thisAnnotation
            | _ -> thisAnnotation
 
-let private validateAnnotation (thisAnnotation:Annotation) =
+let private validateDataAnnotation (thisAnnotation:Annotation) =
+  match thisAnnotation.Format |> isNullOrWhitespace with
+  | true -> thisAnnotation
+  | _ -> thisAnnotation |> validateDataAnnotationFormat
+
+let private validateAnnotation thisAnnotation =
   match thisAnnotation.IsDataAnnotation with
   | true -> validateDataAnnotation thisAnnotation
   | _ -> thisAnnotation

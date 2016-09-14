@@ -33,22 +33,6 @@ let private getLabel (thisAnnotation:Annotation) =
   | true -> thisAnnotation.Vocab
   | _ -> thisAnnotation.DisplayLabel
 
-//let private OLDgenerateDataHtml thisMetadataItem =
-//  let dataTableTemplate =
-//    """
-//      <table>
-//      {% for value in item.values %}
-//        <tr>
-//          <td>
-//            """ + thisMetadataItem.value_template + """
-//          </td>
-//        </tr>
-//      {% endfor %}
-//      </table>
-//    """
-//  let dataValuesTable = parseTemplate<MetadataItem> dataTableTemplate
-//  { thisMetadataItem with values_html =  dataValuesTable "item" thisMetadataItem }
-
 let generateTailHtml thisMetadataItem =
   let repeatedTermsTemplate =
     """
