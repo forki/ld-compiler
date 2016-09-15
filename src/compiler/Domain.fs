@@ -11,6 +11,8 @@ type Annotation = {
   Uri : string
   IsDataAnnotation : bool
   UndiscoverableWhen : string
+  DisplayLabel: string
+  DisplayTemplate: string
 }
 
 type Statement = {
@@ -37,6 +39,8 @@ let annotation = {
   Uri = null
   IsDataAnnotation = false
   UndiscoverableWhen = null
+  DisplayLabel = null
+  DisplayTemplate = null
 }
 
 let statement = {

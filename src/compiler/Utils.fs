@@ -37,3 +37,10 @@ let tryClean dir =
   Directory.CreateDirectory dir |> ignore
 
 let getProperty (x : string) = x.Replace(" ", "").ToLowerInvariant()
+
+let isNullOrWhitespace (x:string) =
+  match obj.ReferenceEquals(x, null) with
+  | true -> true
+  | _ -> match x.Replace(" ","").Length with
+         | 0 -> true
+         | _ -> false

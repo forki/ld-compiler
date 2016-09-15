@@ -3,6 +3,7 @@
 open compiler.Domain
 open compiler.ConfigUtils
 open compiler.ConfigTypes
+open Utils
 
 let private raiseError annotation state =
   match state with
@@ -12,22 +13,26 @@ let private raiseError annotation state =
   | _ -> sprintf "Error (%s) encountered while processing the '%s' annotation" state annotation
   |> failwith
 
+
+let private doesAnnotationWithTermExist vocab term theseAnnotations =
+  theseAnnotations
+  |> List.filter (fun a -> a.Vocab = vocab)
+  |> List.map (fun a -> a.Terms |> List.filter (fun t -> t = term))
+  |> List.concat
+  |> fun al -> match al.Length with
+               | 0 -> false
+               | _ -> true
+
 let verifyRequiredAnnotationsExist theseValidations theseAnnotations =
   let validationHasFormat thisValidation =
     match obj.ReferenceEquals(thisValidation.Format, null) with
     | false -> thisValidation, true
     | _ -> thisValidation, false
 
-  let isConditionalReqires validationParts = 
+  let isConditionalReqired validationParts = 
     let condVocab = Array.get validationParts 2
     let condTerm = Array.get validationParts 3
-    theseAnnotations
-    |> List.filter (fun a -> a.Vocab = condVocab)
-    |> List.map (fun a -> a.Terms |> List.filter (fun t -> t = condTerm))
-    |> List.concat
-    |> fun al -> match al.Length with
-                 | 0 -> false
-                 | _ -> true
+    doesAnnotationWithTermExist condVocab condTerm theseAnnotations
 
   let isValidationRequired thisValidation =
     let validationParts = thisValidation.Format.Split [|':'|]
@@ -36,7 +41,7 @@ let verifyRequiredAnnotationsExist theseValidations theseAnnotations =
     | 1 -> thisValidation, false
     | _ -> match Array.get validationParts 1 with
            | "Required" -> thisValidation, true
-           | "Conditional" -> thisValidation, (isConditionalReqires validationParts)
+           | "Conditional" -> thisValidation, (isConditionalReqired validationParts)
            | _ -> thisValidation, false
 
   let isRequiresAnnotationInList thisValidation =
@@ -105,7 +110,7 @@ let private processYesNo thisAnnotation =
 
   thisAnnotation
 
-let private validateDataAnnotation (thisAnnotation:Annotation) =
+let private validateDataAnnotationFormat (thisAnnotation:Annotation) =
   let validationParts = thisAnnotation.Format.Split [|':'|]   
   match validationParts.Length with
     | 0 -> thisAnnotation
@@ -115,7 +120,12 @@ let private validateDataAnnotation (thisAnnotation:Annotation) =
            | "YesNo" -> processYesNo thisAnnotation
            | _ -> thisAnnotation
 
-let private validateAnnotation (thisAnnotation:Annotation) =
+let private validateDataAnnotation (thisAnnotation:Annotation) =
+  match thisAnnotation.Format |> isNullOrWhitespace with
+  | true -> thisAnnotation
+  | _ -> thisAnnotation |> validateDataAnnotationFormat
+
+let private validateAnnotation thisAnnotation =
   match thisAnnotation.IsDataAnnotation with
   | true -> validateDataAnnotation thisAnnotation
   | _ -> thisAnnotation
@@ -139,9 +149,42 @@ let private addIsUndiscoverable thisStatement =
   let isUndiscoverable = thisStatement.Annotations |> hasUndiscoverableAnnotations
   { thisStatement with IsUndiscoverable = isUndiscoverable}
 
+
+let getDisplayFlagFromAnnotations (theseAnnotations:Annotation List) (thisPublishItem:PublishItem) =
+  let doesConditionalExist conditionParts = 
+    let condVocab = Array.get conditionParts 0
+    let condTerm = Array.get conditionParts 1
+    doesAnnotationWithTermExist condVocab condTerm 
+
+  let updatedDisplayItem displayFlag = { thisPublishItem.Display with Always = displayFlag }
+  let updatedPublishItem displayFlag = { thisPublishItem with Display = updatedDisplayItem displayFlag }
+
+  let conditionParts = thisPublishItem.Display.Condition.Split [|':'|]
+  match conditionParts.Length with
+  | 2 -> theseAnnotations |> doesConditionalExist conditionParts |> updatedPublishItem
+  | _ -> thisPublishItem
+
+let private setDisplayFlagFromCondition (theseAnnotations:Annotation List) (thisPublishItem:PublishItem) =
+  match obj.ReferenceEquals(thisPublishItem.Display.Condition, null) with
+  | true -> thisPublishItem
+  | _ -> getDisplayFlagFromAnnotations theseAnnotations thisPublishItem
+
+let private setDisplayFlag (theseAnnotations:Annotation List) (thisPublishItem:PublishItem) =
+  match obj.ReferenceEquals(thisPublishItem.Display, null) with
+  | true -> thisPublishItem
+  | _ -> match thisPublishItem.Display.Always with
+         | true -> thisPublishItem
+         | _ -> setDisplayFlagFromCondition theseAnnotations thisPublishItem
+  
+let private addConditionalDisplayFlag (thisStatement:Statement) (annotationConfig:PublishItem list) =
+  annotationConfig
+  |> List.map (fun x -> setDisplayFlag thisStatement.Annotations x )
+
 let validateStatement (config:Config) (thisStatement:Statement) =
   let propertyBaseUrl = config |> getPropertyBaseUrl
-  let annotationConfig = config |> getAnnotationConfig
+  let annotationConfig = config
+                         |> getAnnotationConfig
+                         |> addConditionalDisplayFlag thisStatement
 
   thisStatement.Annotations
   |> verifyRequiredAnnotationsExist annotationConfig
@@ -161,3 +204,4 @@ let validateStatement (config:Config) (thisStatement:Statement) =
       Content = thisStatement.Content
       Html = thisStatement.Html
   } |> addIsUndiscoverable
+
