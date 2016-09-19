@@ -7,3 +7,4 @@ RANCHER_ACCESS_KEY=${RANCHER_ACCESS_KEY:?"Need to set RANCHER_ACCESS_KEY"}
 RANCHER_SECRET_KEY=${RANCHER_SECRET_KEY:?"Need to set RANCHER_SECRET_KEY"}
 
 rancher-compose -p $PROJECT_NAME --url $RANCHER_SERVER_URL --access-key $RANCHER_ACCESS_KEY --secret-key $RANCHER_SECRET_KEY --debug up -u -c -p -d  || exit $?
+docker tag $IMAGE_NAME:test
