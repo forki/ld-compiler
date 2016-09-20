@@ -3,6 +3,7 @@
 open NUnit.Framework
 open FsUnit
 open compiler.NewConfig
+open compiler.Test.TestUtilities
 
 let private sampleConfig = """
 {
@@ -168,6 +169,36 @@ let private sampleConfig = """
 
 [<Test>]
 let ``NewConfigTests: should extract schema base from config`` () =
-  let newConfig = createConfig sampleConfig
-  newConfig.SchemaBase |> should equal "http://schema/ns/"
+  let config = createConfig sampleConfig
+  config.SchemaBase |> should equal "http://schema/ns/"
 
+
+[<Test>]
+let ``NewConfigTests: Should extract jsonld contexts from config`` () =
+
+  let expectedContexts = [
+      "http://schema/ns/qualitystandard/setting.jsonld "
+      "http://schema/ns/qualitystandard/agegroup.jsonld "
+      "http://schema/ns/qualitystandard/conditionordisease.jsonld "
+      "http://schema/ns/qualitystandard/servicearea.jsonld "
+      "http://schema/ns/qualitystandard/lifestylecondition.jsonld "
+      "http://schema/ns/qualitystandard.jsonld "
+  ]
+  let config = createConfig sampleConfig
+
+  areListsTheSame expectedContexts config.JsonLdContexts
+
+[<Test>]
+let ``NewConfigTests: Should extract schema ttls from config`` () =
+ 
+  let expectedTtls = [
+    "http://schema/ns/qualitystandard/setting.ttl"
+    "http://schema/ns/qualitystandard/agegroup.ttl"
+    "http://schema/ns/qualitystandard/conditionordisease.ttl"
+    "http://schema/ns/qualitystandard/servicearea.ttl"
+    "http://schema/ns/qualitystandard/lifestylecondition.ttl"
+    "http://schema/ns/qualitystandard.ttl"
+  ]
+  let config = createConfig sampleConfig
+
+  areListsTheSame expectedTtls config.Ttls
