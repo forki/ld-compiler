@@ -202,3 +202,27 @@ let ``NewConfigTests: Should extract schema ttls from config`` () =
   let config = createConfig sampleConfig
 
   areListsTheSame expectedTtls config.Ttls
+
+
+[<Test>]
+let ``NewConfigTests: `` () =
+  
+  let expected_PropPaths = [ 
+    "<http://ld.nice.org.uk/ns/qualitystandard#setting>/^rdfs:subClassOf*" 
+    "<http://ld.nice.org.uk/ns/qualitystandard#age>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#age>/rdfs:subClassOf*" 
+    "<http://ld.nice.org.uk/ns/qualitystandard#condition>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#condition>/rdfs:subClassOf*" 
+    "<http://ld.nice.org.uk/ns/qualitystandard#servicearea>/^rdfs:subClassOf*" 
+    "<http://ld.nice.org.uk/ns/qualitystandard#lifestylecondition>/^rdfs:subClassOf*" 
+    "<http://ld.nice.org.uk/ns/qualitystandard#title>" 
+    "<http://ld.nice.org.uk/ns/qualitystandard#abstract>" 
+    "<http://ld.nice.org.uk/ns/qualitystandard#qsidentifier>" 
+    "<http://ld.nice.org.uk/ns/qualitystandard#stidentifier>"
+    "<http://ld.nice.org.uk/ns/qualitystandard#hasPositionalId>"
+    "<http://ld.nice.org.uk/ns/qualitystandard#isNationalPriority>"
+    "<http://ld.nice.org.uk/ns/qualitystandard#changedPriorityOn>"
+    "<http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn>"
+  ]
+
+  let config = createConfig sampleConfig
+
+  areListsTheSame expected_PropPaths config.PropPaths
