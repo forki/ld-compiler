@@ -57,6 +57,13 @@ let private annotationValidations = [
       DataAnnotation = true
       UndiscoverableWhen = "no"
   }
+  { t_publishItem with
+      Uri= "affectsdiscoverabilityifpopulated"
+      Label="Being Populated Affects If Discoverable"
+      Validate = true
+      DataAnnotation = true
+      UndiscoverableWhen = "*Populated*"
+  }
 ]
 
 let private configItem = {
@@ -189,22 +196,39 @@ let ``ValidationUtilsTests: When a statement has a conditionally required annota
             | Failure msg -> msg
   res |> should equal "Missing the 'Date Conditional' annotation"
 
-//let a_discoverable = { annotation with Property = "affectsdiscoverability"; Vocab = "Affects If Discoverable"; Terms = ["yes"]; Format = "YesNo"; Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasThingThatAffectsDiscoverability"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }
-//let a_undiscoverable = { a_discoverable with Terms = ["no"]; }
-//
-//[<Test>]
-//let ``FilteringUtilsTests: An undiscoverable statement should not be discoverable`` () =
-//
-//  let result = defaultStatement
-//               |> validateStatement config
-//
-//  result.IsUndiscoverable |> should equal true
-//
-//
-//[<Test>]
-//let ``FilteringUtilsTests: A discoverable statement should  be discoverable`` () =
-//
-//  let result = defaultStatement
-//               |> validateStatement config
-//
-//  result.IsUndiscoverable |> should equal false
+let a_conditionaldiscoverable = { annotation with Property = "affectsdiscoverability"; Vocab = "Affects If Discoverable"; Terms = ["yes"]; Format = "YesNo"; Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasThingThatAffectsDiscoverability"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }
+let a_conditionalundiscoverable = { a_conditionaldiscoverable with Terms = ["no"]; }
+let a_undiscoverablewhenpopulated_notpopulated = { annotation with Property = "affectsdiscoverabilityifpopulated"; Vocab = "Being Populated Affects If Discoverable"; Terms = []; Uri= "http://ld.nice.org.uk/ns/qualitystandard#affectsdiscoverabilityifpopulated"; IsValidated = true; IsDisplayed = true; IsDataAnnotation = true }
+let a_undiscoverablewhenpopulated_populated = { a_undiscoverablewhenpopulated_notpopulated with Terms = ["A Value"] }
+
+[<Test>]
+let ``ValidationUtilsTests: An conditionally discoverable statement should be discoverable when the condition is not met`` () =
+
+  let result = { defaultStatement with Annotations = [ a_positionalId; a_required; a_conditionaldiscoverable ] }
+               |> validateStatement config
+
+  result.IsUndiscoverable |> should equal false
+
+[<Test>]
+let ``ValidationUtilsTests: An conditionally discoverable statement should be undiscoverable when the condition is met`` () =
+
+  let result = { defaultStatement with Annotations = [ a_positionalId; a_required; a_conditionalundiscoverable ] }
+               |> validateStatement config
+
+  result.IsUndiscoverable |> should equal true
+
+[<Test>]
+let ``ValidationUtilsTests: An undiscoverable when populated - unpopulated - statement should be discoverable`` () =
+
+  let result = { defaultStatement with Annotations = [ a_positionalId; a_required; a_undiscoverablewhenpopulated_notpopulated ] }
+               |> validateStatement config
+
+  result.IsUndiscoverable |> should equal false
+  
+[<Test>]
+let ``ValidationUtilsTests: An undiscoverable when populated - populated - statement should be undiscoverable`` () =
+
+  let result = { defaultStatement with Annotations = [ a_positionalId; a_required; a_undiscoverablewhenpopulated_populated ] }
+               |> validateStatement config
+
+  result.IsUndiscoverable |> should equal true

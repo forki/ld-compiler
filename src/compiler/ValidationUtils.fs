@@ -138,6 +138,9 @@ let private isAnnotationUndiscoverable (thisAnnotation:Annotation) =
   | true -> false
   | _ -> match thisAnnotation.UndiscoverableWhen with
          | "" -> false
+         | "*Populated*" -> match thisAnnotation.Terms.Length with
+                          | 0 -> false
+                          | _ -> true
          | _ -> hasUndiscoverableTerms thisAnnotation
 
 let private hasUndiscoverableAnnotations theseAnnotations =
