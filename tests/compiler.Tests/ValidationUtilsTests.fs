@@ -64,6 +64,13 @@ let private annotationValidations = [
       DataAnnotation = true
       UndiscoverableWhen = "*Populated*"
   }
+  { t_publishItem with
+      Uri= "statementref"
+      Label="Reference to A Statement"
+      Validate = true
+      Format= "Statement"
+      DataAnnotation = true
+  }
 ]
 
 let private configItem = {
@@ -100,6 +107,7 @@ let a_dateconditional = { annotation with
                             DisplayLabel = "Priority"
                             DisplayTemplate = "In {{value |  date: \"MMMM yyyy\" }} the priority of this statement changed. It is no longer considered a national priority for improvement but may still be useful at a local level."
                           }
+let a_statementReference = { annotation with Property = "statementref"; Vocab = "Reference to A Statement"; Terms = ["8422158b-302e-4be2-9a19-9085fc09dfe7"]; Format = "Statement"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#statementref"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
 
 let defaultStatement = {
   statement with
@@ -187,14 +195,35 @@ let ``ValidationUtilsTests: When a statement has a YesNo formatted annotation wh
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has a conditionally required annotation which is not provided then validating the statement will throw a 'missing annotation' exception`` () =
-  let data = {defaultStatement with Annotations = [ a_positionalId; a_required; { a_yesnonotrequired with Terms = ["no"] } ] }
-
+  let data =  [ a_positionalId; a_required; { a_yesnonotrequired with Terms = ["no"] } ]
   let res = try
-              verifyRequiredAnnotationsExist annotationValidations  [ a_positionalId; a_required; { a_yesnonotrequired with Terms = ["no"] } ]  |> ignore
+              verifyRequiredAnnotationsExist annotationValidations data  |> ignore
               "No exception caught"
             with
             | Failure msg -> msg
   res |> should equal "Missing the 'Date Conditional' annotation"
+
+[<Test>]
+let ``ValidationUtilsTests: where the Annotation is a Statement: invalid GUIDs will throw an exception`` () =
+  let data = { defaultStatement with Annotations = [ a_positionalId; a_required; { a_statementReference with Terms = ["Clearly an invalid Guid"]} ] }
+
+  let res = try
+              validateStatement config data |> ignore
+              "No exception caught"
+            with
+            | Failure msg -> msg
+  res |> should equal "Invalid value for the 'Reference to A Statement' annotation"
+
+[<Test>]
+let ``ValidationUtilsTests: where the Annotation is a Statement: the config thingbase value will be prepended to form a link`` () =
+  let statementRef_result = addThingBaseToAnnotation config.ThingBase a_statementReference
+  let statementRef_expectedResult = { a_statementReference with Terms = ["/resource/8422158b-302e-4be2-9a19-9085fc09dfe7"] }
+
+  let normal_result = addThingBaseToAnnotation config.ThingBase a_positionalId
+
+  areListsTheSame [ statementRef_result, normal_result ] [ statementRef_expectedResult, a_positionalId ]
+
+  
 
 let a_conditionaldiscoverable = { annotation with Property = "affectsdiscoverability"; Vocab = "Affects If Discoverable"; Terms = ["yes"]; Format = "YesNo"; Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasThingThatAffectsDiscoverability"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }
 let a_conditionalundiscoverable = { a_conditionaldiscoverable with Terms = ["no"]; }

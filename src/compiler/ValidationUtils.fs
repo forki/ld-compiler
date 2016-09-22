@@ -110,6 +110,14 @@ let private processYesNo thisAnnotation =
 
   thisAnnotation
 
+let private processStatementReference thisAnnotation =
+  let isInvaid = thisAnnotation.Terms
+                 |> List.map (fun t -> System.Guid.TryParse(t) |> fst)
+                 |> List.contains false
+  match isInvaid with
+  | true -> raiseError thisAnnotation.Vocab "Invalid"
+  | _ -> thisAnnotation
+  
 let private validateDataAnnotationFormat (thisAnnotation:Annotation) =
   let validationParts = thisAnnotation.Format.Split [|':'|]   
   match validationParts.Length with
@@ -118,6 +126,7 @@ let private validateDataAnnotationFormat (thisAnnotation:Annotation) =
            | "Date" -> processDates thisAnnotation
            | "PositionalId" -> processPositionalId thisAnnotation
            | "YesNo" -> processYesNo thisAnnotation
+           | "Statement" -> processStatementReference thisAnnotation
            | _ -> thisAnnotation
 
 let private validateDataAnnotation (thisAnnotation:Annotation) =
@@ -183,6 +192,19 @@ let private addConditionalDisplayFlag (thisStatement:Statement) (annotationConfi
   annotationConfig
   |> List.map (fun x -> setDisplayFlag thisStatement.Annotations x )
 
+let private addThingBaseToTerms thingBase (thisAnnotation:Annotation) =
+  let terms = thisAnnotation.Terms
+              |> List.map (fun t -> sprintf "/%s/%s" thingBase t)
+
+  { thisAnnotation with Terms = terms}
+
+let addThingBaseToAnnotation thingBase (thisAnnotation:Annotation) =
+  match thisAnnotation.Format |> isNullOrWhitespace with
+  | true -> thisAnnotation
+  | _ -> match thisAnnotation.Format with
+         | s when s.StartsWith("Statement") -> addThingBaseToTerms thingBase thisAnnotation
+         | _ -> thisAnnotation
+  
 let validateStatement (config:Config) (thisStatement:Statement) =
   let propertyBaseUrl = config |> getPropertyBaseUrl
   let annotationConfig = config
@@ -193,6 +215,12 @@ let validateStatement (config:Config) (thisStatement:Statement) =
   |> verifyRequiredAnnotationsExist annotationConfig
   |> ignore
 
+  let processAnnotations =
+    addConfigToAnnotation annotationConfig
+    >> addUriToAnnotation propertyBaseUrl
+    >> validateAnnotation
+    >> addThingBaseToAnnotation config.ThingBase
+
   { thisStatement with 
       Id = thisStatement.Id
       Title = thisStatement.Title
@@ -200,9 +228,7 @@ let validateStatement (config:Config) (thisStatement:Statement) =
       StandardId = thisStatement.StandardId
       StatementId = thisStatement.StatementId
       Annotations = thisStatement.Annotations
-                      |> List.map (addConfigToAnnotation annotationConfig)
-                      |> List.map (addUriToAnnotation propertyBaseUrl)
-                      |> List.map validateAnnotation
+                      |> List.map processAnnotations 
                       |> List.filter (fun x -> x.Terms.Length > 0)
       Content = thisStatement.Content
       Html = thisStatement.Html
