@@ -57,6 +57,20 @@ let private annotationValidations = [
       DataAnnotation = true
       UndiscoverableWhen = "no"
   }
+  { t_publishItem with
+      Uri= "affectsdiscoverabilityifpopulated"
+      Label="Being Populated Affects If Discoverable"
+      Validate = true
+      DataAnnotation = true
+      UndiscoverableWhen = "*Populated*"
+  }
+  { t_publishItem with
+      Uri= "statementref"
+      Label="Reference to A Statement"
+      Validate = true
+      Format= "Statement"
+      DataAnnotation = true
+  }
 ]
 
 let private configItem = {
@@ -93,6 +107,7 @@ let a_dateconditional = { annotation with
                             DisplayLabel = "Priority"
                             DisplayTemplate = "In {{value |  date: \"MMMM yyyy\" }} the priority of this statement changed. It is no longer considered a national priority for improvement but may still be useful at a local level."
                           }
+let a_statementReference = { annotation with Property = "statementref"; Vocab = "Reference to A Statement"; Terms = ["8422158b-302e-4be2-9a19-9085fc09dfe7"]; Format = "Statement"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#statementref"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
 
 let defaultStatement = {
   statement with
@@ -180,31 +195,58 @@ let ``ValidationUtilsTests: When a statement has a YesNo formatted annotation wh
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has a conditionally required annotation which is not provided then validating the statement will throw a 'missing annotation' exception`` () =
-  let data = {defaultStatement with Annotations = [ a_positionalId; a_required; { a_yesnonotrequired with Terms = ["no"] } ] }
-
+  let data =  [ a_positionalId; a_required; { a_yesnonotrequired with Terms = ["no"] } ]
   let res = try
-              verifyRequiredAnnotationsExist annotationValidations  [ a_positionalId; a_required; { a_yesnonotrequired with Terms = ["no"] } ]  |> ignore
+              verifyRequiredAnnotationsExist annotationValidations data  |> ignore
               "No exception caught"
             with
             | Failure msg -> msg
   res |> should equal "Missing the 'Date Conditional' annotation"
 
-//let a_discoverable = { annotation with Property = "affectsdiscoverability"; Vocab = "Affects If Discoverable"; Terms = ["yes"]; Format = "YesNo"; Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasThingThatAffectsDiscoverability"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }
-//let a_undiscoverable = { a_discoverable with Terms = ["no"]; }
-//
-//[<Test>]
-//let ``FilteringUtilsTests: An undiscoverable statement should not be discoverable`` () =
-//
-//  let result = defaultStatement
-//               |> validateStatement config
-//
-//  result.IsUndiscoverable |> should equal true
-//
-//
-//[<Test>]
-//let ``FilteringUtilsTests: A discoverable statement should  be discoverable`` () =
-//
-//  let result = defaultStatement
-//               |> validateStatement config
-//
-//  result.IsUndiscoverable |> should equal false
+[<Test>]
+let ``ValidationUtilsTests: where the Annotation is a Statement: invalid GUIDs will throw an exception`` () =
+  let data = { defaultStatement with Annotations = [ a_positionalId; a_required; { a_statementReference with Terms = ["Clearly an invalid Guid"]} ] }
+
+  let res = try
+              validateStatement config data |> ignore
+              "No exception caught"
+            with
+            | Failure msg -> msg
+  res |> should equal "Invalid value for the 'Reference to A Statement' annotation"
+
+let a_conditionaldiscoverable = { annotation with Property = "affectsdiscoverability"; Vocab = "Affects If Discoverable"; Terms = ["yes"]; Format = "YesNo"; Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasThingThatAffectsDiscoverability"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }
+let a_conditionalundiscoverable = { a_conditionaldiscoverable with Terms = ["no"]; }
+let a_undiscoverablewhenpopulated_notpopulated = { annotation with Property = "affectsdiscoverabilityifpopulated"; Vocab = "Being Populated Affects If Discoverable"; Terms = []; Uri= "http://ld.nice.org.uk/ns/qualitystandard#affectsdiscoverabilityifpopulated"; IsValidated = true; IsDisplayed = true; IsDataAnnotation = true }
+let a_undiscoverablewhenpopulated_populated = { a_undiscoverablewhenpopulated_notpopulated with Terms = ["A Value"] }
+
+[<Test>]
+let ``ValidationUtilsTests: An conditionally discoverable statement should be discoverable when the condition is not met`` () =
+
+  let result = { defaultStatement with Annotations = [ a_positionalId; a_required; a_conditionaldiscoverable ] }
+               |> validateStatement config
+
+  result.IsUndiscoverable |> should equal false
+
+[<Test>]
+let ``ValidationUtilsTests: An conditionally discoverable statement should be undiscoverable when the condition is met`` () =
+
+  let result = { defaultStatement with Annotations = [ a_positionalId; a_required; a_conditionalundiscoverable ] }
+               |> validateStatement config
+
+  result.IsUndiscoverable |> should equal true
+
+[<Test>]
+let ``ValidationUtilsTests: An undiscoverable when populated - unpopulated - statement should be discoverable`` () =
+
+  let result = { defaultStatement with Annotations = [ a_positionalId; a_required; a_undiscoverablewhenpopulated_notpopulated ] }
+               |> validateStatement config
+
+  result.IsUndiscoverable |> should equal false
+  
+[<Test>]
+let ``ValidationUtilsTests: An undiscoverable when populated - populated - statement should be undiscoverable`` () =
+
+  let result = { defaultStatement with Annotations = [ a_positionalId; a_required; a_undiscoverablewhenpopulated_populated ] }
+               |> validateStatement config
+
+  result.IsUndiscoverable |> should equal true
