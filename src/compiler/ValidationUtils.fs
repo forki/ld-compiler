@@ -198,13 +198,6 @@ let private addThingBaseToTerms thingBase (thisAnnotation:Annotation) =
 
   { thisAnnotation with Terms = terms}
 
-let addThingBaseToAnnotation thingBase (thisAnnotation:Annotation) =
-  match thisAnnotation.Format |> isNullOrWhitespace with
-  | true -> thisAnnotation
-  | _ -> match thisAnnotation.Format with
-         | s when s.StartsWith("Statement") -> addThingBaseToTerms thingBase thisAnnotation
-         | _ -> thisAnnotation
-  
 let validateStatement (config:Config) (thisStatement:Statement) =
   let propertyBaseUrl = config |> getPropertyBaseUrl
   let annotationConfig = config
@@ -219,7 +212,6 @@ let validateStatement (config:Config) (thisStatement:Statement) =
     addConfigToAnnotation annotationConfig
     >> addUriToAnnotation propertyBaseUrl
     >> validateAnnotation
-    >> addThingBaseToAnnotation config.ThingBase
 
   { thisStatement with 
       Id = thisStatement.Id
