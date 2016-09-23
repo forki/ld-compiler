@@ -192,12 +192,6 @@ let private addConditionalDisplayFlag (thisStatement:Statement) (annotationConfi
   annotationConfig
   |> List.map (fun x -> setDisplayFlag thisStatement.Annotations x )
 
-let private addThingBaseToTerms thingBase (thisAnnotation:Annotation) =
-  let terms = thisAnnotation.Terms
-              |> List.map (fun t -> sprintf "/%s/%s" thingBase t)
-
-  { thisAnnotation with Terms = terms}
-
 let validateStatement (config:Config) (thisStatement:Statement) =
   let propertyBaseUrl = config |> getPropertyBaseUrl
   let annotationConfig = config
