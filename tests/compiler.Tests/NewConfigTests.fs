@@ -3,6 +3,7 @@
 open NUnit.Framework
 open FsUnit
 open compiler.NewConfig
+open compiler.ConfigTypes
 open compiler.Test.TestUtilities
 
 let private sampleConfig = """
@@ -15,14 +16,15 @@ let private sampleConfig = """
 	"TypeName": "qualitystatement",
 	"SchemaDetails":
 	[
-		{
+				{
 			"Schema": "qualitystandard/setting.ttl",
 			"JsonLD": "qualitystandard/setting.jsonld ",
 			"Map": true,
 			"Publish":
 			[
 				{
-					"Uri": "setting",
+					"Uri": "appliesToSetting",
+					"Label": "Setting",
 					"PropertyPath":
 					[
 						"^rdfs:subClassOf*"
@@ -37,8 +39,8 @@ let private sampleConfig = """
 			"Publish":
 			[
 				{
-					"Uri": "age",
-					"Label": "Age Group",
+					"Uri": "appliesToAgeGroup",
+					"Label": "Age group",
 					"PropertyPath":
 					[
 						"^rdfs:subClassOf*",
@@ -55,8 +57,8 @@ let private sampleConfig = """
 			"Publish":
 			[
 				{
-					"Uri": "condition",
-					"Label": "Condition Or Disease",
+					"Uri": "appliesToConditionOrDisease",
+					"Label": "Condition or disease",
 					"PropertyPath": 
 					[
 						"^rdfs:subClassOf*",
@@ -73,7 +75,8 @@ let private sampleConfig = """
 			"Publish":
 			[
 				{
-					"Uri": "servicearea",
+					"Uri": "appliesToServiceArea",
+					"Label": "Service area",
 					"PropertyPath": 
 					[
 						"^rdfs:subClassOf*"
@@ -83,13 +86,14 @@ let private sampleConfig = """
 			
 		},
 		{
-			"Schema": "qualitystandard/lifestylecondition.ttl",
-			"JsonLD": "qualitystandard/lifestylecondition.jsonld ",
+			"Schema": "qualitystandard/factorsaffectinghealthandwellbeing.ttl",
+			"JsonLD": "qualitystandard/factorsaffectinghealthandwellbeing.jsonld ",
 			"Map": true,
 			"Publish":
 			[
 				{
-					"Uri": "lifestylecondition",
+					"Uri": "appliesToFactorAffectingHealthAndWellbeing",
+					"Label": "Lifestyle condition",
 					"PropertyPath":
 					[
 						"^rdfs:subClassOf*"
@@ -181,9 +185,10 @@ let ``NewConfigTests: Should extract jsonld contexts from config`` () =
       "http://schema/ns/qualitystandard/agegroup.jsonld "
       "http://schema/ns/qualitystandard/conditionordisease.jsonld "
       "http://schema/ns/qualitystandard/servicearea.jsonld "
-      "http://schema/ns/qualitystandard/lifestylecondition.jsonld "
+      "http://schema/ns/qualitystandard/factorsaffectinghealthandwellbeing.jsonld "
       "http://schema/ns/qualitystandard.jsonld "
   ]
+
   let config = createConfig sampleConfig
 
   areListsTheSame expectedContexts config.JsonLdContexts
@@ -196,7 +201,7 @@ let ``NewConfigTests: Should extract schema ttls from config`` () =
     "http://schema/ns/qualitystandard/agegroup.ttl"
     "http://schema/ns/qualitystandard/conditionordisease.ttl"
     "http://schema/ns/qualitystandard/servicearea.ttl"
-    "http://schema/ns/qualitystandard/lifestylecondition.ttl"
+    "http://schema/ns/qualitystandard/factorsaffectinghealthandwellbeing.ttl"
     "http://schema/ns/qualitystandard.ttl"
   ]
   let config = createConfig sampleConfig
@@ -205,14 +210,14 @@ let ``NewConfigTests: Should extract schema ttls from config`` () =
 
 
 [<Test>]
-let ``NewConfigTests: `` () =
+let ``NewConfigTests: Should extract property paths from config`` () =
   
   let expected_PropPaths = [ 
-    "<http://ld.nice.org.uk/ns/qualitystandard#setting>/^rdfs:subClassOf*" 
-    "<http://ld.nice.org.uk/ns/qualitystandard#age>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#age>/rdfs:subClassOf*" 
-    "<http://ld.nice.org.uk/ns/qualitystandard#condition>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#condition>/rdfs:subClassOf*" 
-    "<http://ld.nice.org.uk/ns/qualitystandard#servicearea>/^rdfs:subClassOf*" 
-    "<http://ld.nice.org.uk/ns/qualitystandard#lifestylecondition>/^rdfs:subClassOf*" 
+    "<http://ld.nice.org.uk/ns/qualitystandard#appliesToSetting>/^rdfs:subClassOf*" 
+    "<http://ld.nice.org.uk/ns/qualitystandard#appliesToAgeGroup>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#appliesToAgeGroup>/rdfs:subClassOf*" 
+    "<http://ld.nice.org.uk/ns/qualitystandard#appliesToConditionOrDisease>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#appliesToConditionOrDisease>/rdfs:subClassOf*" 
+    "<http://ld.nice.org.uk/ns/qualitystandard#appliesToServiceArea>/^rdfs:subClassOf*" 
+    "<http://ld.nice.org.uk/ns/qualitystandard#appliesToFactorAffectingHealthAndWellbeing>/^rdfs:subClassOf*" 
     "<http://ld.nice.org.uk/ns/qualitystandard#title>" 
     "<http://ld.nice.org.uk/ns/qualitystandard#abstract>" 
     "<http://ld.nice.org.uk/ns/qualitystandard#qsidentifier>" 
@@ -226,3 +231,65 @@ let ``NewConfigTests: `` () =
   let config = createConfig sampleConfig
 
   areListsTheSame expected_PropPaths config.PropPaths
+
+[<Test>]
+let ``NewConfigTests: Should extract annotation vaidations from config`` () =
+  let display_wasFirstIssuedOn = { t_displayItem with
+                                     Always = true }
+  let display_changedPriorityOn = { t_displayItem with
+                                      Label = "Priority"
+                                      Condition = "National priority:no"
+                                      Template = "In {{value |  date: \"MMMM yyyy\" }} the priority of this statement changed. It is no longer considered a national priority for improvement but may still be useful at a local level." }
+
+  let expected_AnnotationConfig = [
+    { t_publishItem with
+        Uri = "hasPositionalId"
+        Label = "PositionalId"
+        Validate = true
+        Format = "PositionalId:Required"
+        DataAnnotation = true
+    }
+    { t_publishItem with
+        Uri = "isNationalPriority"
+        Label = "National priority"
+        Validate = true
+        Format = "YesNo:Required"
+        DataAnnotation = true
+        UndiscoverableWhen = "no"
+    }
+    { t_publishItem with
+        Uri = "changedPriorityOn"
+        Label = "Changed Priority On"
+        Validate = true
+        Format = "Date:Conditional:National priority:no"
+        Display = display_changedPriorityOn
+        DataAnnotation = true
+    }
+    { t_publishItem with
+        Uri = "wasFirstIssuedOn"
+        Label = "First issued"
+        Validate = true
+        Format = "Date:Required"
+        Display = display_wasFirstIssuedOn
+        DataAnnotation = true
+    }
+  ]
+
+  let config = createConfig sampleConfig
+
+  areListsTheSame expected_AnnotationConfig config.AnnotationConfig
+
+[<Test>]
+let ``NewConfigTests: Should extract Rdf Term Map details from config`` () =
+
+  let expected_RdfTerms = [
+    "setting",  "http://schema/ns/qualitystandard/setting.ttl"
+    "agegroup", "http://schema/ns/qualitystandard/agegroup.ttl"
+    "conditionordisease", "http://schema/ns/qualitystandard/conditionordisease.ttl"
+    "servicearea", "http://schema/ns/qualitystandard/servicearea.ttl"
+    "lifestylecondition", "http://schema/ns/qualitystandard/factorsaffectinghealthandwellbeing.ttl"
+  ]
+
+  let config = createConfig sampleConfig
+
+  areListsTheSame expected_RdfTerms config.RdfTerms

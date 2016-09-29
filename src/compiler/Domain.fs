@@ -1,5 +1,7 @@
 module compiler.Domain
 
+open FSharp.RDF
+
 type Annotation = {
   Property : string
   Vocab : string
@@ -27,6 +29,11 @@ type Statement = {
   IsUndiscoverable : bool
 }
 
+type RDFArgs = {
+  VocabMap : Map<string, Uri>     
+  TermMap : Map<string, Map<string, Uri>>
+  BaseUrl : string
+}
 
 let annotation = {
   Property = ""

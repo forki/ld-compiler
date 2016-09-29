@@ -7,12 +7,6 @@ open FSharp.RDF
 open compiler.Utils
 open Domain
 
-type RDFArgs = {
-  VocabMap : Map<string, Uri>     
-  TermMap : Map<string, Map<string, Uri>>
-  BaseUrl : string
-}
-
 let mkKey (x : string) = x.Replace(" ", "").ToLowerInvariant()
 
 let private getPathWithSubclass urlBase qsBase (p:PublishItem) =
