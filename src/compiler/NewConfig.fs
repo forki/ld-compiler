@@ -7,6 +7,7 @@ open compiler.Utils
 open compiler.Domain
 
 type NewConfig = {
+  BaseUrl: string
   SchemaBase: string
   JsonLdContexts : string list
   Ttls : string list
@@ -117,12 +118,13 @@ let createConfig jsonString =
 
   let getPropertySetFromConfig = getPropertySet deserialisedConfig
 
-  {SchemaBase = deserialisedConfig.SchemaBase
-   JsonLdContexts = getPropertySetFromConfig getJsonLd
-   Ttls = getPropertySetFromConfig getTtl
-   PropPaths = getPropPaths deserialisedConfig
-   AnnotationConfig = getAnnotationConfig deserialisedConfig
-   RdfTerms = getRdfTerms deserialisedConfig
-   LoadRdfArgs = getRdfArgs deserialisedConfig
-   }
+  { BaseUrl = sprintf "%s%s" deserialisedConfig.UrlBase deserialisedConfig.ThingBase
+    SchemaBase = deserialisedConfig.SchemaBase
+    JsonLdContexts = getPropertySetFromConfig getJsonLd
+    Ttls = getPropertySetFromConfig getTtl
+    PropPaths = getPropPaths deserialisedConfig
+    AnnotationConfig = getAnnotationConfig deserialisedConfig
+    RdfTerms = getRdfTerms deserialisedConfig
+    LoadRdfArgs = getRdfArgs deserialisedConfig
+  }
 

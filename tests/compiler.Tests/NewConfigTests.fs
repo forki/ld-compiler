@@ -293,3 +293,10 @@ let ``NewConfigTests: Should extract Rdf Term Map details from config`` () =
   let config = createConfig sampleConfig
 
   areListsTheSame expected_RdfTerms config.RdfTerms
+
+[<Test>]
+let ``NewConfigTests: Should extract the expected BaseUrl from config`` () =
+  let expected_BaseUrl = "http://ld.nice.org.uk/resource"
+  let config = createConfig sampleConfig
+
+  config.BaseUrl |> should equal expected_BaseUrl
