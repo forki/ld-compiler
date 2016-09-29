@@ -28,6 +28,17 @@ type ConfigItem = {
     Publish: PublishItem list
 }
 
+
+type Config = {
+    SchemaBase: string
+    UrlBase: string
+    QSBase: string
+    ThingBase: string
+    IndexName: string
+    TypeName: string
+    SchemaDetails: ConfigItem list
+}
+
 type NewConfig = {
   BaseUrl: string
   PropertyBaseUrl: string
@@ -41,17 +52,6 @@ type NewConfig = {
   TypeName : string
   IndexName : string
 }
-
-type Config = {
-    SchemaBase: string
-    UrlBase: string
-    QSBase: string
-    ThingBase: string
-    IndexName: string
-    TypeName: string
-    SchemaDetails: ConfigItem list
-}
-
 let t_displayItem = {
     Always = false
     Condition = null
