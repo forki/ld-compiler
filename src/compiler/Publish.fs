@@ -16,15 +16,13 @@ let private uploadResource html =
                      body=TextRequest html.Content,
                      headers = [ "Content-Type", "text/plain;charset=utf-8" ]) |> ignore
 
-let publish outputDir config =
-  let jsonldContexts = config |> getJsonLdContexts
+let publish outputDir (config:compiler.ConfigTypes.NewConfig) =
 
   let publishJsonLdResources =
     printf "Publishing jsonld resources\n"
-    config
-    |> getPropPaths
+    config.PropPaths
     |> Stardog.extractResources
-    |> transformToJsonLD jsonldContexts
+    |> transformToJsonLD config.JsonLdContexts
     |> bulkUpload config.IndexName config.TypeName
 
   let publishStaticHtmlResources = 

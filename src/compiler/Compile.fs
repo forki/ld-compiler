@@ -13,6 +13,7 @@ open compiler.Pandoc
 open compiler.Publish
 open compiler.Domain
 open compiler.ValidationUtils
+open compiler.ConfigTypes
 open compiler.ConfigUtils
 open compiler.BindDataToHtml
 open compiler
@@ -30,9 +31,9 @@ let writeHtml outputDir statement =
 
   statement
 
-let compile config extractor items outputDir dbName = 
-  let rdfArgs = config |> getRdfArgs
-  let baseUrl = config |> getBaseUrl
+let compile (config:NewConfig) extractor items outputDir dbName = 
+  let rdfArgs = config.LoadRdfArgs ()
+//  let baseUrl = config |> getBaseUrl
 
   let compileItem =
     extractor.readContentForItem
@@ -45,7 +46,7 @@ let compile config extractor items outputDir dbName =
   let processRdfTtl =
     transformToRDF rdfArgs
     >> transformToTurtle
-    >> prepareAsFile baseUrl outputDir ".ttl"
+    >> prepareAsFile config.BaseUrl outputDir ".ttl"
     >> writeFile
 
   let processIfDiscoverable thisStatement =

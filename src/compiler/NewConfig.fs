@@ -1,21 +1,11 @@
 ﻿module compiler.NewConfig
 
 open Newtonsoft.Json
-open FSharp.RDF
 open compiler.ConfigTypes
 open compiler.Utils
 open compiler.Domain
+open FSharp.RDF
 
-type NewConfig = {
-  BaseUrl: string
-  SchemaBase: string
-  JsonLdContexts : string list
-  Ttls : string list
-  PropPaths : string list
-  AnnotationConfig : PublishItem List
-  RdfTerms : (string * string) List
-  LoadRdfArgs : unit -> RDFArgs
-}
 
 let private buildUrl baseUrl path =
   sprintf "%s%s" baseUrl path
@@ -24,7 +14,7 @@ let private buildUrl baseUrl path =
 let private getJsonLd item = item.JsonLD
 let private getTtl item = item.Schema
 
-let private getPropertySet (config:Config) getPropFn  =
+let private getPropertySet (config:compiler.ConfigTypes.Config) getPropFn  =
   config.SchemaDetails
   |> List.map (getPropFn >> buildUrl config.SchemaBase)
 
@@ -55,7 +45,7 @@ let private getPropPaths config =
   |> List.concat
   |> List.filter (fun f -> f <> "")
 
-let private getAnnotationConfig (config:Config) =
+let private getAnnotationConfig (config:compiler.ConfigTypes.Config) =
   config.SchemaDetails
   |> List.map (fun f -> f.Publish |> List.filter(fun p -> p.Validate))
   |> List.concat
@@ -78,7 +68,7 @@ let private vocabLookup uri =
   |> onlySome
   |> Map.ofList
 
-let private getRdfTerms (config:Config) =
+let private getRdfTerms (config:compiler.ConfigTypes.Config) =
   config.SchemaDetails
   |> List.filter (fun sd -> sd.Map )
   |> List.map (fun sd -> sd.Publish
@@ -106,7 +96,7 @@ let private rdf_getVocabMap config =
     |> List.map (fun p -> (fst p, Uri.from(snd p)))
     |> Map.ofList
 
-let private getRdfArgs (config:Config) () =
+let private getRdfArgs (config:compiler.ConfigTypes.Config) () =
   let getTermListMap = getRdfTerms >> getRdfTermMap
   { VocabMap = rdf_getVocabMap config
     TermMap = getTermListMap config
@@ -114,11 +104,12 @@ let private getRdfArgs (config:Config) () =
   }
 
 let createConfig jsonString = 
-  let deserialisedConfig = JsonConvert.DeserializeObject<Config>(jsonString)
+  let deserialisedConfig = JsonConvert.DeserializeObject<compiler.ConfigTypes.Config>(jsonString)
 
   let getPropertySetFromConfig = getPropertySet deserialisedConfig
 
   { BaseUrl = sprintf "%s%s" deserialisedConfig.UrlBase deserialisedConfig.ThingBase
+    PropertyBaseUrl = sprintf "%s%s" deserialisedConfig.UrlBase deserialisedConfig.QSBase
     SchemaBase = deserialisedConfig.SchemaBase
     JsonLdContexts = getPropertySetFromConfig getJsonLd
     Ttls = getPropertySetFromConfig getTtl
@@ -126,5 +117,7 @@ let createConfig jsonString =
     AnnotationConfig = getAnnotationConfig deserialisedConfig
     RdfTerms = getRdfTerms deserialisedConfig
     LoadRdfArgs = getRdfArgs deserialisedConfig
+    TypeName = deserialisedConfig.TypeName
+    IndexName = deserialisedConfig.IndexName
   }
 

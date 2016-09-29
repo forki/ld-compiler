@@ -1,5 +1,8 @@
 ﻿module compiler.ConfigTypes
 
+open compiler.Domain
+open FSharp.RDF
+
 type DisplayItem = {
     Always: bool
     Condition: string
@@ -23,6 +26,20 @@ type ConfigItem = {
     JsonLD: string
     Map: bool
     Publish: PublishItem list
+}
+
+type NewConfig = {
+  BaseUrl: string
+  PropertyBaseUrl: string
+  SchemaBase: string
+  JsonLdContexts : string list
+  Ttls : string list
+  PropPaths : string list
+  AnnotationConfig : PublishItem List
+  RdfTerms : (string * string) List
+  LoadRdfArgs : unit -> RDFArgs
+  TypeName : string
+  IndexName : string
 }
 
 type Config = {
@@ -68,4 +85,31 @@ let t_config = {
   IndexName = null
   TypeName = null
   SchemaDetails = []
+}
+
+//type RDFArgs = {
+//  VocabMap : Map<string, Uri>     
+//  TermMap : Map<string, Map<string, Uri>>
+//  BaseUrl : string
+//}
+let t_loadRdfArgs () =
+  let v = ["string", Uri.from "Uri"] |> Map.ofList
+  let t = ["string", v] |> Map.ofList
+  { VocabMap = v
+    TermMap = t
+    BaseUrl = null
+  }
+
+let t_newconfig = {
+  BaseUrl = null
+  PropertyBaseUrl = null
+  SchemaBase = null
+  JsonLdContexts = []
+  Ttls = []
+  PropPaths = []
+  AnnotationConfig = []
+  RdfTerms = []
+  LoadRdfArgs = t_loadRdfArgs
+  TypeName = null
+  IndexName = null
 }

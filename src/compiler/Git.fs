@@ -5,7 +5,8 @@ open System.IO
 open System.Text
 open compiler.Utils
 open compiler.ContentHandle
-open compiler.ConfigUtils
+//open compiler.ConfigUtils
+open compiler.NewConfig
 
 let private contentDir = "/git"
 
@@ -33,7 +34,8 @@ let readOne item =
 let readConfig () = 
   sprintf "%s/OntologyConfig.json" contentDir
   |> getConfigFromFile
-  |> deserializeConfig
+//  |> deserializeConfig
+  |> createConfig
   
 let prepare () =
   tryClean contentDir
