@@ -16,7 +16,7 @@ let private sampleConfig = """
 	"TypeName": "qualitystatement",
 	"SchemaDetails":
 	[
-				{
+		{
 			"Schema": "qualitystandard/setting.ttl",
 			"JsonLD": "qualitystandard/setting.jsonld ",
 			"Map": true,
