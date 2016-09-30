@@ -97,11 +97,10 @@ let ``When publishing a discoverable statement it should have added a statement 
 
   response.Hits.Total |> should equal 2
 
-  let doc = (Seq.head response.Hits.Hits).Source
-
-  doc.Id.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/8422158b-302e-4be2-9a19-9085fc09dfe7" 
-//  let docId = (Seq.head response.Hits.Hits).Id
-//  docId.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/8422158b-302e-4be2-9a19-9085fc09dfe7" 
+//  let doc = (Seq.head response.Hits.Hits).Source
+//  doc.Id.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/8422158b-302e-4be2-9a19-9085fc09dfe7" 
+  let docId = (Seq.head response.Hits.Hits).Id
+  docId.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/8422158b-302e-4be2-9a19-9085fc09dfe7" 
 
 [<Test>]
 let ``When publishing a discoverable statement it should apply structured data annotations that exist in metadata`` () =
