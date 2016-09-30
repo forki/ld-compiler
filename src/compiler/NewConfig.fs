@@ -17,7 +17,7 @@ let private buildUrl baseUrl path =
 let private getJsonLd item = item.JsonLD
 let private getTtl item = item.Schema
 
-let private getPropertySet (config:Config) getPropFn  =
+let private getPropertySet config getPropFn  =
   config.SchemaDetails
   |> List.map (getPropFn >> buildUrl config.SchemaBase)
 
@@ -50,7 +50,7 @@ let private getPropPaths config =
 
 
 let createConfig jsonString = 
-  let deserialisedConfig = JsonConvert.DeserializeObject<Config>(jsonString)
+  let deserialisedConfig = JsonConvert.DeserializeObject<ConfigFile>(jsonString)
 
   let getPropertySetFromConfig = getPropertySet deserialisedConfig
 
