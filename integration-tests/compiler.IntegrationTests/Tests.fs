@@ -30,8 +30,8 @@ type ElasticResponse = JsonProvider<"""
           "http://ld.nice.org.uk/ns/qualitystandard#qsidentifier":"",
           "http://ld.nice.org.uk/ns/qualitystandard#stidentifier":"",
           "http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn":"",
-          "_id":"",
-          "_type":"",
+          "@id":"",
+          "@type":"",
           "qualitystandard:appliesToAgeGroup":[],
           "qualitystandard:appliesToSetting":[],
           "qualitystandard:appliesToServiceArea":[],
@@ -95,11 +95,13 @@ let ``When publishing a discoverable statement it should have added a statement 
   let typeName = "qualitystatement"
   let response = queryElastic indexName typeName
 
-  response.Hits.Total |> should equal 1
+  response.Hits.Total |> should equal 2
 
   let doc = (Seq.head response.Hits.Hits).Source
 
-  doc.Id.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/8422158b-302e-4be2-9a19-9085fc09dfe7"  
+  doc.Id.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/8422158b-302e-4be2-9a19-9085fc09dfe7" 
+//  let docId = (Seq.head response.Hits.Hits).Id
+//  docId.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/8422158b-302e-4be2-9a19-9085fc09dfe7" 
 
 [<Test>]
 let ``When publishing a discoverable statement it should apply structured data annotations that exist in metadata`` () =
@@ -110,7 +112,7 @@ let ``When publishing a discoverable statement it should apply structured data a
   let typeName = "qualitystatement"
   let response = queryElastic indexName typeName
 
-  response.Hits.Total |> should equal 1
+  response.Hits.Total |> should equal 2
 
   let doc = (Seq.head response.Hits.Hits).Source
 
@@ -176,7 +178,7 @@ let ``When publishing a discoverable statement it should apply supertype and sub
   let typeName = "qualitystatement"
   let response = queryElastic indexName typeName
 
-  response.Hits.Total |> should equal 1 
+  response.Hits.Total |> should equal 2
 
   let doc = (Seq.head response.Hits.Hits).Source
   let agegroups = doc.QualitystandardAppliesToAgeGroup |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
