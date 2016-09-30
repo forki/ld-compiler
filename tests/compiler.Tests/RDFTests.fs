@@ -2,7 +2,7 @@ module compiler.Tests.RDFTests
 
 open compiler.Domain
 open compiler.ConfigTypes
-open compiler.ConfigUtils
+//open compiler.ConfigUtils
 open compiler.RDF
 open FSharp.RDF
 open resource

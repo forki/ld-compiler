@@ -1,7 +1,7 @@
 ﻿module compiler.ConfigTypes
 
-open compiler.Domain
 open FSharp.RDF
+open compiler.Domain
 
 type DisplayItem = {
     Always: bool
@@ -29,7 +29,7 @@ type ConfigItem = {
 }
 
 
-type Config = {
+type ConfigFile = {
     SchemaBase: string
     UrlBase: string
     QSBase: string
@@ -39,7 +39,7 @@ type Config = {
     SchemaDetails: ConfigItem list
 }
 
-type NewConfig = {
+type ConfigDetails = {
   BaseUrl: string
   PropertyBaseUrl: string
   SchemaBase: string
@@ -77,7 +77,7 @@ let t_configItem = {
   Publish = []
 }
 
-let t_config = {
+let t_configFile = {
   SchemaBase = null
   UrlBase = null
   QSBase = null
@@ -87,11 +87,6 @@ let t_config = {
   SchemaDetails = []
 }
 
-//type RDFArgs = {
-//  VocabMap : Map<string, Uri>     
-//  TermMap : Map<string, Map<string, Uri>>
-//  BaseUrl : string
-//}
 let t_loadRdfArgs () =
   let v = ["string", Uri.from "Uri"] |> Map.ofList
   let t = ["string", v] |> Map.ofList
@@ -100,7 +95,7 @@ let t_loadRdfArgs () =
     BaseUrl = null
   }
 
-let t_newconfig = {
+let t_configDetails = {
   BaseUrl = null
   PropertyBaseUrl = null
   SchemaBase = null

@@ -91,7 +91,7 @@ let private configItem = {
 //    SchemaDetails = [configItem]
 //}
 let private config = {
-  t_newconfig with
+  t_configDetails with
     AnnotationConfig = annotationValidations
     PropertyBaseUrl = "http://ld.nice.org.uk/ns/qualitystandard"
 }

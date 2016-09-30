@@ -3,10 +3,9 @@ module compiler.Git
 open System.Diagnostics
 open System.IO
 open System.Text
-open compiler.Utils
 open compiler.ContentHandle
-//open compiler.ConfigUtils
-open compiler.NewConfig
+open compiler.Utils
+open compiler.ConfigUtils
 
 let private contentDir = "/git"
 

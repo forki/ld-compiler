@@ -3,10 +3,10 @@
 open NUnit.Framework
 open FsUnit
 open compiler.ContentHandle
-open compiler.NewConfig
 open compiler.ConfigTypes
+open compiler.ConfigUtils
 open compiler.ValidationUtils
-open compiler.Markdown
+open compiler.MarkdownParser
 
 let configString = """
 {

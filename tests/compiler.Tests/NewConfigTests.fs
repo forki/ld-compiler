@@ -2,8 +2,8 @@
 
 open NUnit.Framework
 open FsUnit
-open compiler.NewConfig
 open compiler.ConfigTypes
+open compiler.ConfigUtils
 open compiler.Test.TestUtilities
 
 let private sampleConfig = """

@@ -1,4 +1,4 @@
-﻿module compiler.Test.ConfigUtilsTests
+﻿module compiler.Test.AnnotationUtilsTests
 
 open NUnit.Framework
 open FsUnit
@@ -6,7 +6,7 @@ open FsUnit
 open compiler.Domain
 open compiler.Utils
 open compiler.ConfigTypes
-open compiler.ConfigUtils
+open compiler.AnnotationUtils
 open compiler.Test.TestUtilities
 open FSharp.Data
 open compiler.RDF
@@ -48,7 +48,7 @@ let private configItem = {
 }
 
 let private config = {
-  t_newconfig with
+  t_configDetails with
     AnnotationConfig = annotationValidations
     PropertyBaseUrl = "http://ld.nice.org.uk/ns/qualitystandard"
 }

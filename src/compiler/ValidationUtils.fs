@@ -1,9 +1,9 @@
 ﻿module compiler.ValidationUtils
 
 open compiler.Domain
-open compiler.ConfigUtils
+open compiler.Utils
 open compiler.ConfigTypes
-open Utils
+open compiler.AnnotationUtils
 
 let private raiseError annotation state =
   match state with
@@ -192,8 +192,7 @@ let private addConditionalDisplayFlag (thisStatement:Statement) (annotationConfi
   annotationConfig
   |> List.map (fun x -> setDisplayFlag thisStatement.Annotations x )
 
-let validateStatement (config:NewConfig) (thisStatement:Statement) =
-//  let propertyBaseUrl = config.BaseUrl
+let validateStatement config (thisStatement:Statement) =
   let annotationConfig = config.AnnotationConfig
                          |> addConditionalDisplayFlag thisStatement
 

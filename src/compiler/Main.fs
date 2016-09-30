@@ -5,13 +5,13 @@ open compiler.ContentHandle
 open compiler.ContentExtractor
 open compiler.Compile
 open compiler.Utils
-open compiler.Markdown
+open compiler.MarkdownParser
 open compiler.RDF
 open compiler.Turtle
 open compiler.Pandoc
 open compiler.Publish
 open compiler.Preamble
-open compiler.ConfigUtils
+//open compiler.ConfigUtils
 open FSharp.RDF
 open FSharp.Data
 

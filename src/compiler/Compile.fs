@@ -3,20 +3,19 @@ module compiler.Compile
 open FSharp.RDF
 open FSharp.Data
 open System.IO
+open compiler
+open compiler.Domain
+open compiler.ConfigTypes
 open compiler.ContentHandle
 open compiler.ContentExtractor
 open compiler.Utils
-open compiler.Markdown
+open compiler.ValidationUtils
+open compiler.MarkdownParser
 open compiler.RDF
 open compiler.Turtle
 open compiler.Pandoc
 open compiler.Publish
-open compiler.Domain
-open compiler.ValidationUtils
-open compiler.ConfigTypes
-open compiler.ConfigUtils
 open compiler.BindDataToHtml
-open compiler
 
 let private addGraphs outputDir dbName = 
   let concatToArgs turtles = List.fold (fun acc file -> file + " " + acc) "" turtles
@@ -31,7 +30,7 @@ let writeHtml outputDir statement =
 
   statement
 
-let compile (config:NewConfig) extractor items outputDir dbName = 
+let compile config extractor items outputDir dbName = 
   let rdfArgs = config.LoadRdfArgs ()
 //  let baseUrl = config |> getBaseUrl
 

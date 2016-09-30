@@ -1,13 +1,13 @@
 module compiler.Preamble
 
-open compiler.Stardog
-open compiler.ContentHandle
-open compiler.Utils
-open compiler.ConfigUtils
 open FSharp.Data
 open System.IO
+open compiler.ConfigTypes
+open compiler.ContentHandle
+open compiler.Utils
+open compiler.Stardog
 
-let downloadSchema (config:ConfigTypes.NewConfig) outputDir =
+let downloadSchema (config:ConfigDetails) outputDir =
   let download (schema:string) =
     {Thing = sprintf "%s/%s" outputDir (schema.Remove(0,schema.LastIndexOf('/')+1))
      Content = Http.RequestString(schema)}
