@@ -92,7 +92,7 @@ let private sampleConfig = """
 			"Publish":
 			[
 				{
-					"Uri": "appliesToFactorAffectingHealthOrWellbeing",
+					"Uri": "appliesToFactorsAffectingHealthOrWellbeing",
 					"Label": "Factors affecting health or wellbeing",
 					"PropertyPath":
 					[
@@ -217,7 +217,7 @@ let ``ConfigUtilsTests: Should extract property paths from config`` () =
     "<http://ld.nice.org.uk/ns/qualitystandard#appliesToAgeGroup>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#appliesToAgeGroup>/rdfs:subClassOf*" 
     "<http://ld.nice.org.uk/ns/qualitystandard#appliesToConditionOrDisease>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#appliesToConditionOrDisease>/rdfs:subClassOf*" 
     "<http://ld.nice.org.uk/ns/qualitystandard#appliesToServiceArea>/^rdfs:subClassOf*" 
-    "<http://ld.nice.org.uk/ns/qualitystandard#appliesToFactorAffectingHealthOrWellbeing>/^rdfs:subClassOf*" 
+    "<http://ld.nice.org.uk/ns/qualitystandard#appliesToFactorsAffectingHealthOrWellbeing>/^rdfs:subClassOf*" 
     "<http://ld.nice.org.uk/ns/qualitystandard#title>" 
     "<http://ld.nice.org.uk/ns/qualitystandard#abstract>" 
     "<http://ld.nice.org.uk/ns/qualitystandard#qsidentifier>" 

@@ -77,7 +77,7 @@ let private postMappings esUrl =
             "type" : "string",
             "index" : "not_analyzed"
           },
-          "qualitystandard:appliesToFactorAffectingHealthAndWellbeing" : {
+          "qualitystandard:appliesToFactorsAffectingHealthOrWellbeing" : {
             "type" : "string",
             "index" : "not_analyzed"
           }
