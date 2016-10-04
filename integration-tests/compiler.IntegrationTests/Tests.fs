@@ -35,7 +35,7 @@ type ElasticResponse = JsonProvider<"""
           "qualitystandard:appliesToAgeGroup":[],
           "qualitystandard:appliesToSetting":[],
           "qualitystandard:appliesToServiceArea":[],
-          "qualitystandard:appliesToFactorAffectingHealthOrWellbeing":[],
+          "qualitystandard:appliesToFactorsAffectingHealthOrWellbeing":[],
           "qualitystandard:appliesToConditionOrDisease":[]
         }
       }
@@ -165,7 +165,7 @@ let ``When publishing a discoverable statement it should apply annotations that 
   checkPropertyExistsAndIsValid "qualitystandard:appliesToConditionOrDisease"
   checkPropertyExistsAndIsValid "qualitystandard:appliesToServiceArea"
   checkPropertyExistsAndIsValid "qualitystandard:appliesToSetting"
-  checkPropertyExistsAndIsValid "qualitystandard:appliesToFactorAffectingHealthOrWellbeing"
+  checkPropertyExistsAndIsValid "qualitystandard:appliesToFactorsAffectingHealthOrWellbeing"
 
 
 [<Test>]
