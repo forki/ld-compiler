@@ -35,7 +35,7 @@ type ElasticResponse = JsonProvider<"""
           "qualitystandard:appliesToAgeGroup":[],
           "qualitystandard:appliesToSetting":[],
           "qualitystandard:appliesToServiceArea":[],
-          "qualitystandard:appliesToFactorAffectingHealthOrWellbeing":[],
+          "qualitystandard:appliesToFactorsAffectingHealthOrWellbeing":[],
           "qualitystandard:appliesToConditionOrDisease":[]
         }
       }
