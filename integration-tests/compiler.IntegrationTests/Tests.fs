@@ -166,7 +166,7 @@ let ``When publishing a discoverable statement it should apply annotations that 
   checkPropertyExistsAndIsValid "qualitystandard:appliesToConditionOrDisease"
   checkPropertyExistsAndIsValid "qualitystandard:appliesToServiceArea"
   checkPropertyExistsAndIsValid "qualitystandard:appliesToSetting"
-  checkPropertyExistsAndIsValid "qualitystandard:appliesToFactorAffectingHealthOrWellbeing"
+  checkPropertyExistsAndIsValid "qualitystandard:appliesToFactorsAffectingHealthOrWellbeing"
 
 
 [<Test>]
