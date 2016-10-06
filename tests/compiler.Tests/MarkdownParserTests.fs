@@ -6,7 +6,7 @@ open FsUnit
 open compiler
 open compiler.ContentHandle
 open compiler.Domain
-open compiler.Markdown
+open compiler.MarkdownParser
 open compiler.ConfigTypes
 
 let nl:string = System.Environment.NewLine

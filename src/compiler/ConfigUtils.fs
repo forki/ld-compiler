@@ -1,19 +1,22 @@
 ﻿module compiler.ConfigUtils
 
-open FSharp.Data
-open compiler.ConfigTypes
-open Newtonsoft.Json
 open FSharp.RDF
+open Newtonsoft.Json
+open compiler.Domain
+open compiler.ConfigTypes
 open compiler.Utils
-open Domain
 
-type RDFArgs = {
-  VocabMap : Map<string, Uri>     
-  TermMap : Map<string, Map<string, Uri>>
-  BaseUrl : string
-}
 
-let mkKey (x : string) = x.Replace(" ", "").ToLowerInvariant()
+let private buildUrl baseUrl path =
+  sprintf "%s%s" baseUrl path
+
+// move these to ConfigTypes?????
+let private getJsonLd item = item.JsonLD
+let private getTtl item = item.Schema
+
+let private getPropertySet (config:ConfigFile) getPropFn  =
+  config.SchemaDetails
+  |> List.map (getPropFn >> buildUrl config.SchemaBase)
 
 let private getPathWithSubclass urlBase qsBase (p:PublishItem) =
   let delimiter = "|"
@@ -25,6 +28,27 @@ let private getPathWithSubclass urlBase qsBase (p:PublishItem) =
   |> List.map buildPropertyPathUri
   |> List.fold concatPropertyPaths ""  
 
+let private getPropPaths config =
+  let isEmptyPropertyPathSet p =
+    match obj.ReferenceEquals(p.PropertyPath, null) with
+    | true -> true
+    | _ -> p.PropertyPath.IsEmpty 
+    
+  let buildSchemaDetails p =
+    match isEmptyPropertyPathSet p with
+    | true ->  sprintf "<%s%s#%s>" config.UrlBase config.QSBase p.Uri
+    | _ -> getPathWithSubclass config.UrlBase config.QSBase p
+
+  config.SchemaDetails
+  |> List.map (fun f -> f.Publish 
+                        |> List.map (fun p -> buildSchemaDetails p))
+  |> List.concat
+  |> List.filter (fun f -> f <> "")
+
+let private getAnnotationConfig (config:ConfigFile) =
+  config.SchemaDetails
+  |> List.map (fun f -> f.Publish |> List.filter(fun p -> p.Validate))
+  |> List.concat
 
 let private getPropertyForLabel s label =
     match label |> isNullOrWhitespace with
@@ -39,9 +63,21 @@ let private vocabLookup uri =
   |> List.map (fun r ->
        match r with
        | FunctionalDataProperty rdfslbl xsd.string x ->
-         Some(mkKey x, Resource.id r)
+         Some(getProperty x, Resource.id r)
        | _ -> None)
   |> onlySome
+  |> Map.ofList
+
+let private getRdfTerms (config:ConfigFile) =
+  config.SchemaDetails
+  |> List.filter (fun sd -> sd.Map )
+  |> List.map (fun sd -> sd.Publish
+                         |> List.map (fun p -> getPropertyForLabel p.Uri p.Label, sprintf "%s%s" config.SchemaBase sd.Schema))
+  |> List.concat
+
+let private getRdfTermMap termList =
+  termList
+  |> List.map (fun t -> (fst t, vocabLookup(snd t)))
   |> Map.ofList
 
 let private rdf_getVocabMap config =
@@ -60,98 +96,28 @@ let private rdf_getVocabMap config =
     |> List.map (fun p -> (fst p, Uri.from(snd p)))
     |> Map.ofList
 
-let private rdf_getTermMap config =
-  let getTermPublishList pl schema = 
-    pl
-    |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
-    |> List.filter (fun p -> p.PropertyPath.Length > 0)
-    |> List.map (fun p -> (getPropertyForLabel p.Uri p.Label, sprintf "%s%s" config.SchemaBase schema)) 
-
-  let getTermList config =
-    config.SchemaDetails
-    |> List.filter (fun x -> x.Map)
-    |> List.map (fun f -> getTermPublishList f.Publish f.Schema)
-    |> List.concat
-
-  getTermList config
-  |> List.map (fun t -> (fst t, vocabLookup(snd t)))
-  |> Map.ofList
-
-let getBaseUrl config =
-  sprintf "%s%s" config.UrlBase config.ThingBase
-
-let getPropertyBaseUrl config =
-  sprintf "%s%s" config.UrlBase config.QSBase
-
-let getRdfArgs config =
-  {
-    BaseUrl = getBaseUrl config
-    VocabMap = rdf_getVocabMap config
-    TermMap = rdf_getTermMap config
+let private getRdfArgs (config:ConfigFile) () =
+  let getTermListMap = getRdfTerms >> getRdfTermMap
+  { VocabMap = rdf_getVocabMap config
+    TermMap = getTermListMap config
+    BaseUrl = sprintf "%s%s" config.UrlBase config.ThingBase
   }
 
-let getAnnotationConfig config =
-  config.SchemaDetails
-  |> List.filter (fun x -> x.Map=false)
-  |> List.map (fun f -> (f.Publish |> List.filter (fun p -> p.Validate)))
-  |> List.concat
+let createConfig jsonString = 
+  let deserialisedConfig = JsonConvert.DeserializeObject<ConfigFile>(jsonString)
 
-let deserializeConfig jsonString =
-  JsonConvert.DeserializeObject<ConfigTypes.Config>(jsonString)
+  let getPropertySetFromConfig = getPropertySet deserialisedConfig
 
-let getJsonLdContexts config =
-  config.SchemaDetails
-  |> List.map (fun f -> (sprintf "%s%s" config.SchemaBase f.JsonLD))
-
-let getSchemaTtls config =
-  config.SchemaDetails
-  |> List.map (fun f -> (sprintf "%s%s" config.SchemaBase f.Schema))
-
-let getPropPaths config =
-  let isEmptyPropertyPathSet p =
-    match obj.ReferenceEquals(p.PropertyPath, null) with
-    | true -> true
-    | _ -> p.PropertyPath.IsEmpty 
-    
-  let buildSchemaDetails p =
-    match isEmptyPropertyPathSet p with
-    | true ->  sprintf "<%s%s#%s>" config.UrlBase config.QSBase p.Uri
-    | _ -> getPathWithSubclass config.UrlBase config.QSBase p
-
-  config.SchemaDetails
-  |> List.map (fun f -> f.Publish 
-                        |> List.map (fun p -> buildSchemaDetails p))
-  |> List.concat
-  |> List.filter (fun f -> f <> "")
-
-let private getAnnotationDisplayDetails thisDisplayItem =
-  match obj.ReferenceEquals(thisDisplayItem.Display, null) with
-  | true -> false,null,null
-  | _ -> thisDisplayItem.Display.Always,thisDisplayItem.Display.Label,thisDisplayItem.Display.Template
-
-let private constructAnnotationWithConfig thisAnnotation thisAnnotationConfig =
-  let isDisplayed, label, template = getAnnotationDisplayDetails thisAnnotationConfig
-
-  { thisAnnotation with
-      Format = thisAnnotationConfig.Format
-      Uri = thisAnnotationConfig.Uri
-      IsDataAnnotation = thisAnnotationConfig.DataAnnotation
-      IsValidated = thisAnnotationConfig.Validate
-      UndiscoverableWhen = thisAnnotationConfig.UndiscoverableWhen
-      IsDisplayed = isDisplayed
-      DisplayLabel = label
-      DisplayTemplate = template
+  { BaseUrl = sprintf "%s%s" deserialisedConfig.UrlBase deserialisedConfig.ThingBase
+    PropertyBaseUrl = sprintf "%s%s" deserialisedConfig.UrlBase deserialisedConfig.QSBase
+    SchemaBase = deserialisedConfig.SchemaBase
+    JsonLdContexts = getPropertySetFromConfig getJsonLd
+    Ttls = getPropertySetFromConfig getTtl
+    PropPaths = getPropPaths deserialisedConfig
+    AnnotationConfig = getAnnotationConfig deserialisedConfig
+    RdfTerms = getRdfTerms deserialisedConfig
+    LoadRdfArgs = getRdfArgs deserialisedConfig
+    TypeName = deserialisedConfig.TypeName
+    IndexName = deserialisedConfig.IndexName
   }
 
-let addConfigToAnnotation annotationConfig thisAnnotation =
-  let thisAnnotationConfig = annotationConfig
-                             |> List.filter (fun c -> c.Label = thisAnnotation.Vocab)
-                             |> List.tryHead
-  match thisAnnotationConfig.IsSome with
-  | false -> thisAnnotation
-  | _ -> constructAnnotationWithConfig thisAnnotation thisAnnotationConfig.Value
-
-let addUriToAnnotation propertyBaseUrl thisAnnotation =
-  match thisAnnotation.IsValidated with
-  | true -> { thisAnnotation with Uri = sprintf "%s#%s" propertyBaseUrl thisAnnotation.Uri }
-  | _ -> thisAnnotation

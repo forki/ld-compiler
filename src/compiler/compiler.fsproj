@@ -65,6 +65,7 @@
     <Compile Include="Utils.fs" />
     <Compile Include="YamlParser.fs" />
     <Compile Include="ConfigUtils.fs" />
+    <Compile Include="AnnotationUtils.fs" />
     <Compile Include="ValidationUtils.fs" />
     <Compile Include="RDF.fs" />
     <Compile Include="Git.fs" />

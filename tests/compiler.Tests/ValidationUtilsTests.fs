@@ -80,15 +80,20 @@ let private configItem = {
   Publish = annotationValidations
 }
 
+//let private config = {
+//  t_config with
+//    SchemaBase = "http://schema/ns/"
+//    UrlBase = "http://ld.nice.org.uk/"
+//    QSBase ="ns/qualitystandard"
+//    ThingBase = "resource"
+//    IndexName = "kb"
+//    TypeName = "qualitystatement"
+//    SchemaDetails = [configItem]
+//}
 let private config = {
-  t_config with
-    SchemaBase = "http://schema/ns/"
-    UrlBase = "http://ld.nice.org.uk/"
-    QSBase ="ns/qualitystandard"
-    ThingBase = "resource"
-    IndexName = "kb"
-    TypeName = "qualitystatement"
-    SchemaDetails = [configItem]
+  t_configDetails with
+    AnnotationConfig = annotationValidations
+    PropertyBaseUrl = "http://ld.nice.org.uk/ns/qualitystandard"
 }
 
 let a_positionalId = { annotation with Property = "positionalid"; Vocab = "PositionalId"; Terms = ["qs1-st1"]; Format = "PositionalId:Required"; Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasPositionalId"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }

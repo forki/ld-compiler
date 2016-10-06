@@ -56,6 +56,7 @@
   <ItemGroup>
     <Compile Include="TestUtilities.fs" />
     <Compile Include="ConfigUtilsTests.fs" />
+    <Compile Include="AnnotationUtilsTests.fs" />
     <Compile Include="ValidationUtilsTests.fs" />
     <Compile Include="MarkdownParserTests.fs" />
     <Compile Include="YamlParserTests.fs" />

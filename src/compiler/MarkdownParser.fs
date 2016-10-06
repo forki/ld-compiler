@@ -1,15 +1,12 @@
-module compiler.Markdown
+module compiler.MarkdownParser
 
-open compiler.Domain
-open compiler.ContentHandle
-open compiler.YamlParser
-open compiler.Utils
-open compiler.ConfigTypes
-open compiler.ConfigUtils
-open compiler.ValidationUtils
-open System.Text.RegularExpressions
 open FSharp.Markdown
 open FSharp.Data
+open System.Text.RegularExpressions
+open compiler.Domain
+open compiler.ContentHandle
+open compiler.Utils
+open compiler.YamlParser
 
 let private extract pattern input =
   let m = Regex.Match(input,pattern) 

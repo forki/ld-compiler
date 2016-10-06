@@ -3,10 +3,10 @@
 open NUnit.Framework
 open FsUnit
 open compiler.ContentHandle
-open compiler.ConfigUtils
 open compiler.ConfigTypes
+open compiler.ConfigUtils
 open compiler.ValidationUtils
-open compiler.Markdown
+open compiler.MarkdownParser
 
 let configString = """
 {
@@ -195,7 +195,7 @@ let markdown = { Thing = "8422158b-302e-4be2-9a19-9085fc09dfe7"
 [<Test>]
 let ``E2EProcessingTests: Should process the loaded file without error``() =
 
-  let config = deserializeConfig configString
+  let config = createConfig configString
 
   let res = try
                extractStatement (markdown, content)

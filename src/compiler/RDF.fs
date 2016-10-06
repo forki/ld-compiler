@@ -1,14 +1,12 @@
 module compiler.RDF
 
-open compiler.Domain
-open compiler.Utils
-open compiler.ConfigTypes
-open compiler.ConfigUtils
 open FSharp.RDF
 open Assertion
 open resource
 open rdf
-open FSharp.RDF
+open compiler.Domain
+open compiler.Utils
+open compiler.ConfigTypes
 
 ///Load all resources from uri and make a map of rdfs:label -> resource uri
 
