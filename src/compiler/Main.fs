@@ -11,7 +11,6 @@ open compiler.Turtle
 open compiler.Pandoc
 open compiler.Publish
 open compiler.Preamble
-//open compiler.ConfigUtils
 open FSharp.RDF
 open FSharp.Data
 
@@ -24,7 +23,6 @@ let private dbPass = "admin"
 /////////////////////////////////////////////////////////////////
 
 let compileAndPublish ( fetchUrl:string ) () =
-
   let extractor =
     {readAllContentItems = Git.readAll (Uri.from fetchUrl)
      readContentForItem = Git.readOne
