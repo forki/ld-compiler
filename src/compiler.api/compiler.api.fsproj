@@ -61,7 +61,9 @@
     <Compile Include="RunServer.fs" />
     <None Include="paket.references" />
     <None Include="paket.template" />
-    <Content Include="app.config" />
+    <Content Include="app.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">

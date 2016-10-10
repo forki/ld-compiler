@@ -29,4 +29,6 @@ RUN cd /bin && \
 
 EXPOSE 8081
 
-CMD mono /compiler/bin/compiler.api.exe
+ADD populateAppConfig.sh /compiler/
+
+CMD ./populateAppConfig.sh && mono /compiler/bin/compiler.api.exe
