@@ -1,0 +1,98 @@
+FROM ocelotuproar/docker-alpine-fsharp:4.0
+
+MAINTAINER NICE Operations <imandtoperations@nice.org.uk>
+
+ENV JRE=jre1.8.0_60
+
+RUN apk --update add \
+    curl \
+    libtool \
+    autoconf \
+    g++ \
+    gettext \
+    make \
+    cmake \
+    git \
+    wget \
+    htop 
+
+# Install Java 8 JRE
+ENV JAVA_VERSION=8 \
+    JAVA_UPDATE=92 \
+    JAVA_BUILD=14 \
+    JAVA_HOME="/usr/lib/jvm/default-jvm" \
+    GLIBC_VERSION="2.23-r2"
+
+# Install glibc
+RUN apk upgrade --update && \
+    for pkg in glibc glibc-bin glibc-i18n; do curl -sSL https://github.com/sgerrand/alpine-pkg-glibc/releases/download/$GLIBC_VERSION/${pkg}-$GLIBC_VERSION.apk -o /tmp/${pkg}-$GLIBC_VERSION.apk; done && \
+    apk add --allow-untrusted /tmp/glibc-*.apk && \
+    rm -v /tmp/*.apk && \
+    ( /usr/glibc-compat/bin/localedef --force --inputfile POSIX --charmap UTF-8 C.UTF-8 || true ) && \
+    echo "export LANG=C.UTF-8" > /etc/profile.d/locale.sh && \
+    /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib && \
+    echo 'hosts: files mdns4_minimal [NOTFOUND=return] dns mdns4' >> /etc/nsswitch.conf
+
+# Install Java
+RUN apk add --virtual=build-dependencies ca-certificates && \
+    cd /tmp && \
+    curl -jksSLH "Cookie: oraclelicense=accept-securebackup-cookie" -o /tmp/java.tar.gz "http://download.oracle.com/otn-pub/java/jdk/${JAVA_VERSION}u${JAVA_UPDATE}-b${JAVA_BUILD}/jdk-${JAVA_VERSION}u${JAVA_UPDATE}-linux-x64.tar.gz" && \
+    tar -xzf /tmp/java.tar.gz && \
+    mkdir -p /usr/lib/jvm && \
+    mv /tmp/jdk1.${JAVA_VERSION}.0_${JAVA_UPDATE} /usr/lib/jvm/java-${JAVA_VERSION}-oracle && \
+    chown -R root:root /usr/lib/jvm/java-${JAVA_VERSION}-oracle && \
+    ln -s "java-${JAVA_VERSION}-oracle" "$JAVA_HOME" && \
+    ln -s "$JAVA_HOME/bin/"* "/usr/bin/" && \
+    rm -rf "$JAVA_HOME/"*src.zip && \
+    apk del build-dependencies && \
+    rm -rf /tmp/* && \
+    rm -rf /var/cache/apk/* && \
+    rm -rf $JAVA_HOME/*src.zip \
+           $JAVA_HOME/lib/missioncontrol \
+           $JAVA_HOME/lib/visualvm \
+           $JAVA_HOME/lib/*javafx* \
+           $JAVA_HOME/jre/plugin \
+           $JAVA_HOME/jre/bin/javaws \
+           $JAVA_HOME/jre/bin/jjs \
+           $JAVA_HOME/jre/bin/keytool \
+           $JAVA_HOME/jre/bin/orbd \
+           $JAVA_HOME/jre/bin/pack200 \
+           $JAVA_HOME/jre/bin/policytool \
+           $JAVA_HOME/jre/bin/rmid \
+           $JAVA_HOME/jre/bin/rmiregistry \
+           $JAVA_HOME/jre/bin/servertool \
+           $JAVA_HOME/jre/bin/tnameserv \
+           $JAVA_HOME/jre/bin/unpack200 \
+           $JAVA_HOME/jre/lib/javaws.jar \
+           $JAVA_HOME/jre/lib/deploy* \
+           $JAVA_HOME/jre/lib/desktop \
+           $JAVA_HOME/jre/lib/*javafx* \
+           $JAVA_HOME/jre/lib/*jfx* \
+           $JAVA_HOME/jre/lib/amd64/libdecora_sse.so \
+           $JAVA_HOME/jre/lib/amd64/libprism_*.so \
+           $JAVA_HOME/jre/lib/amd64/libfxplugins.so \
+           $JAVA_HOME/jre/lib/amd64/libglass.so \
+           $JAVA_HOME/jre/lib/amd64/libgstreamer-lite.so \
+           $JAVA_HOME/jre/lib/amd64/libjavafx*.so \
+           $JAVA_HOME/jre/lib/amd64/libjfx*.so \
+           $JAVA_HOME/jre/lib/ext/jfxrt.jar \
+           $JAVA_HOME/jre/lib/ext/nashorn.jar \
+           $JAVA_HOME/jre/lib/oblique-fonts \
+           $JAVA_HOME/jre/lib/plugin.jar
+
+## Install the Haskell platform and pandoc, and clean-up
+COPY mitch.tishmack@gmail.com-55881c97.rsa.pub /etc/apk/keys/mitch.tishmack@gmail.com-55881c97.rsa.pub
+RUN echo "https://s3-us-west-2.amazonaws.com/alpine-ghc/8.0" >> /etc/apk/repositories
+
+RUN apk update && apk upgrade &&\
+  apk add ghc cabal stack linux-headers musl-dev gmp-dev zlib-dev && \
+  cabal update && \
+  cabal install hsb2hs && \
+  cabal install --flags="embed_data_files" \
+	--enable-executable-stripping --disable-documentation --global \
+	pandoc pandoc-citeproc && \
+  apk del --purge ghc cabal stack linux-headers musl-dev make && \
+  rm -rf /usr/local/bin/aeson-pretty /usr/local/bin/json2yaml /usr/local/bin/yaml2json \
+         /root/.ghc /root/.cabal /usr/local/lib /usr/local/share
+
+CMD ["sh"]

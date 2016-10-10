@@ -4,8 +4,6 @@ MAINTAINER James Kirk <james.kirk@nice.org.uk>
 
 ENV STARDOG_VERSION=4.0.1
 
-RUN mkdir /compiler
-
 # Keep package management separate from code
 ADD paket.dependencies paket.lock .paket/ /compiler/
 ADD .paket/ /compiler/.paket/
