@@ -10,7 +10,7 @@ compiler:
   ports:
     - "8081:8081"
 schema:
-  image: nice/ontologies
+  image: nice/ontologies:test
   expose:
     - 80
   ports:
