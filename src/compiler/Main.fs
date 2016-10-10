@@ -1,18 +1,12 @@
 module compiler.Main 
 
-open compiler
-open compiler.ContentHandle
+open Serilog
+open NICE.Logging
 open compiler.ContentExtractor
 open compiler.Compile
-open compiler.Utils
-open compiler.MarkdownParser
-open compiler.RDF
-open compiler.Turtle
-open compiler.Pandoc
 open compiler.Publish
 open compiler.Preamble
 open FSharp.RDF
-open FSharp.Data
 
 //// These should be passed in as arguments ////////
 let private outputDir = "/artifacts"
@@ -42,4 +36,4 @@ let compileAndPublish ( fetchUrl:string ) () =
 
   publish outputDir config
 
-  printf "Knowledge base creation complete!\n"
+  Log.Information "Knowledge base creation complete!"
