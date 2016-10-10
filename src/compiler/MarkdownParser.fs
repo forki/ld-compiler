@@ -1,5 +1,7 @@
 module compiler.MarkdownParser
 
+open Serilog
+open NICE.Logging
 open FSharp.Markdown
 open FSharp.Data
 open System.Text.RegularExpressions
@@ -39,7 +41,7 @@ let private convertToAnnotation {Name = name; Fields = fields} =
   { annotation with Property = getProperty name; Vocab = name; Terms = fields }
 
 let private HandleNoPositionalIdAnnotationError =
-  printfn "[Error] A statement was missing the PositionalId annotation"
+  Log.Error "A statement was missing the PositionalId annotation"
   ""
 
 let private extractQSandSTNumbers annotation =

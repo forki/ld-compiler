@@ -20,12 +20,6 @@ let main _ =
   let logConfig = LoggerConfiguration().WriteTo.Nice().WriteTo.Console()
   Log.Logger <- logConfig.MinimumLevel.Debug().CreateLogger()
 
-//  Log.Debug ("Debug message")
-//  Log.Information ("Information message")
-//  Log.Warning ("Warning message")
-//  Log.Error ("Error message")
-//  Log.Fatal ("Fatal message")
-
   let defaultConfig =
     { defaultConfig with
                     bindings = [ HttpBinding.mkSimple HTTP "0.0.0.0" 8081 ]}

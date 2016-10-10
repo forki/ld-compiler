@@ -1,5 +1,7 @@
 module compiler.api.core.App
 
+open Serilog
+open NICE.Logging
 open Suave
 open Suave.Filters
 open Suave.Operators
@@ -24,10 +26,10 @@ let private asyncCompile compileFn =
   Async.Start(
     async {
       setRunning true
-      printf "Started compiling...\n"
+      Log.Information "Started compiling..."
       tryExecute compileFn 
       setRunning false
-      printf "Finished compiling!\n"
+      Log.Information "Finished compiling!"
   })
 
 let private runCompile compileFn: WebPart =

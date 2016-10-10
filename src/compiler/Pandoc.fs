@@ -1,5 +1,7 @@
 module compiler.Pandoc
 
+open Serilog
+open NICE.Logging
 open compiler.ContentHandle
 open compiler.Utils
 open System.Text
@@ -30,7 +32,7 @@ let private runProcess cmd ( stdInContent:string ) args =
   let stdErr = proc.StandardError.ReadToEnd()
   let stdOut = proc.StandardOutput.ReadToEnd()
   if stdErr <> "" then
-    printfn "[ERROR] Pandoc: %s\n" stdErr
+    Log.Error (sprintf "Pandoc: %s\n" stdErr)
   stdOut
 
 
@@ -38,7 +40,7 @@ let private buildPandocArgs () =
   sprintf "-f markdown -t html5" 
 
 let convertMarkdownToHtml contentHandle =
-  printfn "Converting statement %s to Html" contentHandle.Thing
+  Log.Information (sprintf "Converting statement %s to Html" contentHandle.Thing)
   let html = runProcess "pandoc" contentHandle.Content (buildPandocArgs())
 
   (contentHandle, html)

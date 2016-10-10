@@ -1,5 +1,7 @@
 module compiler.Stardog
 
+open Serilog
+open NICE.Logging
 open System.Diagnostics
 open System.IO
 open VDS.RDF
@@ -23,7 +25,7 @@ let createDb dbName =
 let deleteDb dbName dbUser dbPass =
   try
     Http.RequestString ( "http://stardog:5820/admin/databases/"+dbName, httpMethod = "DELETE", headers = [ BasicAuth dbUser dbPass] ) |> ignore
-  with _ -> printf "Database does not exist yet"
+  with _ -> Log.Warning "Database does not exist yet"
 
 let addGraph dbName files =
   // TODO: figure out how to do use dotNetRDF/FSharp.RDF to do this.
@@ -34,7 +36,7 @@ let addGraph dbName files =
   proc.WaitForExit(timeout) |> ignore
 
 let extractResources propertyPaths =
-  printf "extractin resources from stardog...\n"
+  Log.Information "extracting resources from stardog..."
   let stardog =
     Store.Store.stardog "http://stardog:5820" "nice" "admin" "admin" false
 
@@ -96,7 +98,7 @@ let extractResources propertyPaths =
     Graph.defaultPrefixes (Uri.from "http://ld.nice.org.uk/") [] (stardog.queryGraph [] query [ ("entity", Param.Uri entity) ])
 
   let resources = queryResources ()
-  printf "extracted %d resources from stardog\n" ( Seq.length resources )
+  Log.Information (sprintf "extracted %d resources from stardog" ( Seq.length resources ))
   let xr =
     resources
     |> Seq.map ( querySubGraph |> retry) 
@@ -104,6 +106,6 @@ let extractResources propertyPaths =
          (Resource.fromType
             (Uri.from "http://ld.nice.org.uk/ns/qualitystandard#QualityStatement"))
     |> Seq.filter (List.isEmpty >> not)
-  printf "extracted %d subgraphs\n" (Seq.length xr)
+  Log.Information (sprintf "extracted %d subgraphs" (Seq.length xr))
   xr
 
