@@ -6,6 +6,8 @@ compiler:
     - "8081:8081"
   labels:
     io.rancher.sidekicks: stardog
+  environment:
+    - LOGGING_ENVIRONMENT
   external_links:
     - ontologies/schema:schema
     - resourceapi/resourceapi:resourceapi
