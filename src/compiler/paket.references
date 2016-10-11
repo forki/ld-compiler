@@ -5,3 +5,4 @@ FSharp.Data
 DotLiquid
 NICE.Logging
 Serilog.Sinks.Console
+RabbitMQ.Client

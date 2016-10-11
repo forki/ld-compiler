@@ -10,6 +10,7 @@ nuget newtonsoft.json
 nuget NICE.Logging
 nuget NUnit
 nuget NUnit.Runners
+nuget RabbitMQ.Client 3.3.2
 nuget Serilog.Sinks.Console
 nuget Suave.Testing
 
