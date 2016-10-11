@@ -1,5 +1,7 @@
 module compiler.Elastic
 
+open Serilog
+open NICE.Logging
 open FSharp.Data
 open System.IO
 open compiler.ContentHandle
@@ -8,7 +10,7 @@ type IdSchema = JsonProvider<""" {"_id":"" }""">
 
 let buildBulkData indexName typeName jsonldResources =
   let buildCreateCommand acc (id,json) = 
-    printf "building bulk data for: %A \n" id
+    Log.Information (sprintf "building bulk data for: %A" id)
     let cmd = sprintf "{ \"create\" : { \"_id\" : \"%s\", \"_type\" : \"%s\",\"_index\" : \"%s\" }}\n%s\n " id typeName indexName json
     acc + cmd
 
@@ -18,7 +20,7 @@ let buildBulkData indexName typeName jsonldResources =
 let private deleteIndex esUrl = 
   try
     Http.Request(esUrl, httpMethod="DELETE") |> ignore
-  with ex -> printf "Index not created yet, skipping delete\n" 
+  with ex -> Log.Information "Index not created yet, skipping delete" 
 
 let private postMappings esUrl = 
   Http.Request(esUrl, httpMethod="POST", body = TextRequest """
@@ -99,7 +101,7 @@ let private uploadBulkData esUrl typeName bulkData =
 let bulkUpload indexName typeName jsonldResources =
   let esUrl = sprintf "http://elastic:9200/%s" indexName
 
-  printf "building bulk data for upload to elastic"
+  Log.Information "building bulk data for upload to elastic"
   let bulkData = buildBulkData indexName typeName jsonldResources
 
   deleteIndex esUrl

@@ -1,5 +1,7 @@
 module compiler.RDF
 
+open Serilog
+open NICE.Logging
 open FSharp.RDF
 open Assertion
 open resource
@@ -9,9 +11,6 @@ open compiler.Utils
 open compiler.ConfigTypes
 
 ///Load all resources from uri and make a map of rdfs:label -> resource uri
-
-let private warn msg x = printf "[WARNING] %s\n" msg; x
-let private info msg x = printf "%s\n" msg; x
 
 let private lookupAnnotations vocabMap termMap annotations = 
   let flattenTerms annotation =
@@ -27,10 +26,14 @@ let private lookupAnnotations vocabMap termMap annotations =
       match Map.tryFind vocabKey termMap with
       | Some terms ->
         match Map.tryFind termKey terms with
-        | Some termUri -> (info (sprintf "Annotating for term %s" term) Some (vocabUri, termUri))
-        | None -> (warn (sprintf "Cannot find '%s' in '%s'" term vocab) None)
-      | None -> (warn (sprintf "Cannot find vocabulary '%s'" vocab) None)
-    | None -> (warn (sprintf "Cannot find vocabulary '%s'" vocab) None)
+        | Some termUri -> Log.Information (sprintf "Annotating for term %s" term)
+                          Some (vocabUri, termUri)
+        | None -> Log.Warning (sprintf "Cannot find '%s' in '%s'" term vocab)
+                  None
+      | None -> Log.Warning (sprintf "Cannot find vocabulary '%s'" vocab)
+                None
+    | None -> Log.Warning (sprintf "Cannot find vocabulary '%s'" vocab)
+              None
 
   annotations
   |> List.collect flattenTerms

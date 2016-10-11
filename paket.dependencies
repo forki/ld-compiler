@@ -1,4 +1,5 @@
 source https://nuget.org/api/v2
+source http://nuget.nice.org.uk/nuget
 nuget DotLiquid
 nuget FSharp.Data
 nuget FSharp.Formatting 2.10.3
@@ -6,8 +7,10 @@ nuget FSharp.RDF
 nuget FSharp.Text.RegexProvider
 nuget FsUnit
 nuget newtonsoft.json
+nuget NICE.Logging
 nuget NUnit
 nuget NUnit.Runners
+nuget Serilog.Sinks.Console
 nuget Suave.Testing
 
 group Build

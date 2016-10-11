@@ -1,5 +1,7 @@
 module compiler.Utils
 
+open Serilog
+open NICE.Logging
 open System.IO
 open System.Text
 open compiler.ContentHandle
@@ -22,15 +24,15 @@ let readHandle handle =
 let writeFile file =
   try 
     File.WriteAllText(file.Thing, file.Content, Encoding.UTF8)
-    printf "Written %s\n" file.Thing
-  with ex -> printf "Couldnt write %s to disk!\n" file.Thing
+    Log.Information (sprintf "Written %s" file.Thing)
+  with ex -> Log.Error (sprintf "Couldnt write %s to disk!" file.Thing)
 
 let prepareAsFile baseUrl outputDir ext (id:string, content) =
   let id = id.Replace(baseUrl+"/", "").Replace("/","_")
   {Thing = sprintf "%s/%s%s" outputDir id ext; Content = content}
 
 let tryClean dir = 
-  printf "Cleaning directory : %s\n" dir 
+  Log.Information (sprintf "Cleaning directory : %s" dir)
   try 
     Directory.Delete(dir, true)
   with ex -> ()
