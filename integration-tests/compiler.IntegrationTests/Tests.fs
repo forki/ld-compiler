@@ -9,7 +9,7 @@ open System.Web
 open System.Net
 
 let runCompileAndWaitTillFinished () =
-  let myGitRepoUrl = "https://github.com/sainsworth/ld-dummy-content"
+  let myGitRepoUrl = "https://github.com/nhsevidence/ld-dummy-content"
   let res = Http.RequestString("http://compiler:8081/compile",
                                query=["repoUrl", myGitRepoUrl],
                                httpMethod="POST")
