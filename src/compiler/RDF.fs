@@ -26,7 +26,7 @@ let private lookupAnnotations vocabMap termMap annotations =
       match Map.tryFind vocabKey termMap with
       | Some terms ->
         match Map.tryFind termKey terms with
-        | Some termUri -> Log.Information (sprintf "Annotating for term %s" term)
+        | Some termUri -> Log.Information("Annotating for term {@term}", term)
                           Some (vocabUri, termUri)
         | None -> Log.Warning (sprintf "Cannot find '%s' in '%s'" term vocab)
                   None
