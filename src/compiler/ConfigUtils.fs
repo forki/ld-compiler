@@ -55,14 +55,17 @@ let private getPropertyForLabel s label =
     |true -> s
     |_ -> getProperty label
 
-let private getId (uri:Uri) =
-  uri.ToString().Split('/') |> Array.rev |> Array.head
-
 let private vocabLookup uri =
-  let owl_class = Uri.from "http://www.w3.org/2002/07/owl#Class"
+  let rdfslbl = Uri.from "http://www.w3.org/2000/01/rdf-schema#label"
   let gcd = Graph.loadFrom uri
-  Resource.fromType owl_class gcd
-  |> List.map (fun r -> Resource.id r |> getId, Resource.id r )
+  let onlySome = List.choose id
+  Resource.fromPredicate rdfslbl gcd
+  |> List.map (fun r ->
+       match r with
+       | FunctionalDataProperty rdfslbl xsd.string x ->
+         Some(getProperty x, Resource.id r)
+       | _ -> None)
+  |> onlySome
   |> Map.ofList
 
 let private getRdfTerms (config:ConfigFile) =
