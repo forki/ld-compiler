@@ -73,17 +73,15 @@ let switch f x =
     f x |> Success
 
 
-[<TearDown>]
-let Teardown () =
-  printf "Deleting elastic index\n"
-  try Http.RequestString("http://elastic:9200/kb", httpMethod="DELETE") |> ignore with _ -> ()
-  printf "Deleting all static html resources\n"
-  try Http.RequestString("http://resourceapi:8082/resource/8422158b-302e-4be2-9a19-9085fc09dfe7", httpMethod="DELETE") |> ignore with _ -> ()
-
-
-[<SetUp>]
-let setup () =
+[<OneTimeSetUp>]
+let ``run before all tests``() =
+  printf "Running pre-test setup"
   runCompileAndWaitTillFinished ()
+
+[<OneTimeTearDown>]
+let ``run after all tests``() =
+  printf "Running post-test teardown"
+
 
 /// Tests constructed on the presumption that there are 2 statements in the content being deployed, which are similar in annotations, but only one is discoverable
 [<Test>]

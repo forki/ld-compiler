@@ -31,7 +31,7 @@ type Statement = {
 
 type RDFArgs = {
   VocabMap : Map<string, Uri>     
-  TermMap : Map<string, Map<string, Uri>>
+  TermMap : Map<string, Map<string, Resource>>
   BaseUrl : string
 }
 

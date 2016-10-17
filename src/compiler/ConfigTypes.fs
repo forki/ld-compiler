@@ -1,6 +1,8 @@
 ﻿module compiler.ConfigTypes
 
 open FSharp.RDF
+open Assertion
+open rdf
 open compiler.Domain
 
 type DisplayItem = {
@@ -88,8 +90,8 @@ let t_configFile = {
 }
 
 let t_loadRdfArgs () =
-  let v = ["string", Uri.from "Uri"] |> Map.ofList
-  let t = ["string", v] |> Map.ofList
+  let v = ["string", Uri.from "http://someresource.com"] |> Map.ofList
+  let t = ["string", ["string", resource !! "http://someresource.com" [] ] |> Map.ofList] |> Map.ofList
   { VocabMap = v
     TermMap = t
     BaseUrl = null

@@ -62,7 +62,7 @@ let private vocabLookup uri =
   let owl_class = Uri.from "http://www.w3.org/2002/07/owl#Class"
   let gcd = Graph.loadFrom uri
   Resource.fromType owl_class gcd
-  |> List.map (fun r -> Resource.id r |> getId, Resource.id r )
+  |> List.map (fun r -> Resource.id r |> getId, r)
   |> Map.ofList
 
 let private getRdfTerms (config:ConfigFile) =
