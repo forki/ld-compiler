@@ -3,8 +3,8 @@ module compiler.RDF
 open Serilog
 open NICE.Logging
 open FSharp.RDF
-open Assertion
 open resource
+open Assertion
 open rdf
 open compiler.Domain
 open compiler.Utils
@@ -17,17 +17,25 @@ let private lookupAnnotations vocabMap termMap annotations =
     annotation.Terms
     |> List.map (fun term -> (annotation.Vocab, term))
 
+  let getTermUriFor resource vocabUri termId =
+    let rdfslbl = Uri.from "http://www.w3.org/2000/01/rdf-schema#label"
+    let termUri = Resource.id resource
+    match resource with 
+    | DataProperty rdfslbl FSharp.RDF.xsd.string label -> 
+      Log.Information("Annotating for term {@termId} {@termLabel}", termId, label |> List.head)
+      Some (vocabUri, termUri)
+    | _ -> None
+
   let lookupTerms (vocab,term) =
     let termMap = termMap
     let vocabKey = getProperty vocab
-    let termKey = getProperty term
+    let termId = getProperty term
     match Map.tryFind vocabKey vocabMap with
     | Some vocabUri ->
       match Map.tryFind vocabKey termMap with
       | Some terms ->
-        match Map.tryFind termKey terms with
-        | Some termUri -> Log.Information("Annotating for term {@term}", term)
-                          Some (vocabUri, termUri)
+        match Map.tryFind termId terms with
+        | Some resource -> getTermUriFor resource vocabUri termId
         | None -> Log.Warning (sprintf "Cannot find '%s' in '%s'" term vocab)
                   None
       | None -> Log.Warning (sprintf "Cannot find vocabulary '%s'" vocab)

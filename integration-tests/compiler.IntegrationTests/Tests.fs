@@ -73,17 +73,15 @@ let switch f x =
     f x |> Success
 
 
-[<TearDown>]
-let Teardown () =
-  printf "Deleting elastic index\n"
-  try Http.RequestString("http://elastic:9200/kb", httpMethod="DELETE") |> ignore with _ -> ()
-  printf "Deleting all static html resources\n"
-  try Http.RequestString("http://resourceapi:8082/resource/8422158b-302e-4be2-9a19-9085fc09dfe7", httpMethod="DELETE") |> ignore with _ -> ()
-
-
-[<SetUp>]
-let setup () =
+[<OneTimeSetUp>]
+let ``run before all tests``() =
+  printf "Running pre-test setup"
   runCompileAndWaitTillFinished ()
+
+[<OneTimeTearDown>]
+let ``run after all tests``() =
+  printf "Running post-test teardown"
+
 
 /// Tests constructed on the presumption that there are 2 statements in the content being deployed, which are similar in annotations, but only one is discoverable
 [<Test>]
@@ -183,12 +181,12 @@ let ``When publishing a discoverable statement it should apply supertype and sub
   let agegroups = doc.QualitystandardAppliesToAgeGroup |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
 
   agegroups |> should equal 
-            ( ["\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults\""
-               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults18-24Years\""
-               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults25-64Years\""
-               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#Adults65PlusYears\""
-               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#AllAgeGroups\""
-               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup#AgeGroup\""
+            ( ["\"http://ld.nice.org.uk/ns/qualitystandard/agegroup/d3326f46_c734_4ab7_9e41_923256bd7d0b\""
+               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup/c4347520_adf4_4ddb_9926_8f6c3132525e\""
+               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup/c7935d78_d1ad_47f3_98a6_f0af04956b97\""
+               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup/7cd6067c_4af1_411e_ba3c_39abac7633c8\""
+               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup/aa4da4d7_b934_4d03_b556_f7b97381953f\""
+               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup/011cdd3d_2911_4676_93b4_5af484c359c0\""
                ] |> Set.ofList )
        
 

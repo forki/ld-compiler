@@ -5,6 +5,8 @@ open compiler.ConfigTypes
 //open compiler.ConfigUtils
 open compiler.RDF
 open FSharp.RDF
+open Assertion
+open rdf
 open resource
 open NUnit.Framework
 open FsUnit
@@ -35,7 +37,7 @@ let defaultArgs = {
 
 let private FindDataProperty (uri:string) resource =
   match resource with
-   | DataProperty (Uri.from uri) xsd.string values -> values
+   | DataProperty (Uri.from uri) FSharp.RDF.xsd.string values -> values
    | _ -> []
 
 let private FindObjectProperty (uri:string) resource =
@@ -43,6 +45,9 @@ let private FindObjectProperty (uri:string) resource =
    | ObjectProperty (Uri.from uri) values -> values
    | _ -> []
 
+let createResourceWithLabel (uri:string) (label:string) =
+  let subject = sprintf "%s#%s" uri label
+  resource !! subject [ dataProperty !! "http://www.w3.org/2000/01/rdf-schema#label" (label^^xsd.string)]
 
 [<Test>]
 let ``RDFTests: Should create resource with type of qualitystatement``() =
@@ -87,9 +92,10 @@ let ``RDFTests: Should create title dataproperty for resource``() =
 
 [<Test>]
 let ``RDFTests: Should convert a single annotated term into an objectproperty``() =
+  let vocabUri = "http://someuri.com/Vocab1"
   let statement = {defaultStatement with Annotations = [{ annotation with Vocab="Vocab1"; Terms=[ "Term1" ] }]}
-  let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"] |> Map.ofList
-                               TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"] |> Map.ofList ] |> Map.ofList}
+  let args = {defaultArgs with VocabMap = ["vocab1", Uri.from vocabUri] |> Map.ofList
+                               TermMap = ["vocab1", ["term1", createResourceWithLabel vocabUri "Term1"] |> Map.ofList ] |> Map.ofList}
   let property = 
     statement
     |> transformToRDF args
@@ -101,10 +107,12 @@ let ``RDFTests: Should convert a single annotated term into an objectproperty``(
 
 [<Test>]
 let ``RDFTests: Should convert multiple annotated terms from one vocab as objectproperties``() =
+  let vocabUri = "http://someuri.com/Vocab1"
+
   let statement = {defaultStatement with Annotations = [{ annotation with Vocab="Vocab 1"; Terms=[ "Term1"; "Term2" ] }]}
-  let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"] |> Map.ofList
-                               TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"
-                                                     "term2", Uri.from "http://someuri.com/Vocab1#Term2"] |> Map.ofList ] |> Map.ofList}
+  let args = {defaultArgs with VocabMap = ["vocab1", Uri.from vocabUri] |> Map.ofList
+                               TermMap = ["vocab1", ["term1", createResourceWithLabel vocabUri "Term1"
+                                                     "term2", createResourceWithLabel vocabUri "Term2" ] |> Map.ofList ] |> Map.ofList}
   let properties = 
     statement
     |> transformToRDF args
@@ -117,12 +125,14 @@ let ``RDFTests: Should convert multiple annotated terms from one vocab as object
 
 [<Test>]
 let ``RDFTests: Should convert annotated terms from multiple vocabs as objectproperties``() =
+  let vocab1Uri = "http://someuri.com/Vocab1"
+  let vocab2Uri = "http://someuri.com/Vocab2"
   let statement = {defaultStatement with Annotations = [{ annotation with Vocab="Vocab1"; Terms=[ "Term1"] }
                                                         { annotation with Vocab="Vocab2"; Terms=[ "Term1"] }]}
-  let args = {defaultArgs with VocabMap = ["vocab1", Uri.from "http://someuri.com/Vocab1"
-                                           "vocab2", Uri.from "http://someuri.com/Vocab2"] |> Map.ofList
-                               TermMap = ["vocab1", ["term1", Uri.from "http://someuri.com/Vocab1#Term1"] |> Map.ofList 
-                                          "vocab2", ["term1", Uri.from "http://someuri.com/Vocab2#Term1"] |> Map.ofList ] |> Map.ofList}
+  let args = {defaultArgs with VocabMap = ["vocab1", Uri.from vocab1Uri
+                                           "vocab2", Uri.from vocab2Uri] |> Map.ofList
+                               TermMap = ["vocab1", ["term1", createResourceWithLabel vocab1Uri "Term1" ] |> Map.ofList 
+                                          "vocab2", ["term1", createResourceWithLabel vocab2Uri "Term1" ] |> Map.ofList ] |> Map.ofList}
   let rdf = statement |> transformToRDF args
 
   rdf
