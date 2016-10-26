@@ -21,13 +21,13 @@ let dataAnnotations = [
       IsValidated = true
       IsDataAnnotation = true
       Format = "Date:Required"
-      Uri = "http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn"
+      Uri = "https://nice.org.uk/ontologies/qualitystandard#wasFirstIssuedOn"
   }   
 ]
 
 let defaultStatement = { statement with Id = "id_goes_here" }
 
-let private baseUrl = "http://ld.nice.org.uk/ns/qualitystandard"
+let private baseUrl = "https://nice.org.uk/ontologies/qualitystandard"
 
 let defaultArgs = {
   VocabMap = Map.ofList []
@@ -57,7 +57,7 @@ let ``RDFTests: Should create resource with type of qualitystatement``() =
   |> FindObjectProperty "rdf:type" 
   |> Seq.map (fun p -> p.ToString())
   |> Seq.head
-  |> should equal "http://ld.nice.org.uk/ns/qualitystandard#QualityStatement"
+  |> should equal "https://nice.org.uk/ontologies/qualitystandard#QualityStatement"
   
 
 [<Test>]
@@ -65,7 +65,7 @@ let ``RDFTests: Should create a resource with data property wasFirstIssuedOn``()
 
   { defaultStatement with Annotations = dataAnnotations }
   |> transformToRDF defaultArgs
-  |> FindDataProperty "http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn" 
+  |> FindDataProperty "https://nice.org.uk/ontologies/qualitystandard#wasFirstIssuedOn" 
   |> Seq.map (fun p -> p.ToString())
   |> Seq.head
   |> should equal "2010-10-01"
@@ -78,7 +78,7 @@ let ``RDFTests: Should create resource with subject uri as id``() =
            |> transformToRDF defaultArgs
            |> Resource.id 
    
-  id.ToString() |> should equal "http://ld.nice.org.uk/ns/qualitystandard/id_goes_here"
+  id.ToString() |> should equal "https://nice.org.uk/ontologies/qualitystandard/id_goes_here"
 
 [<Test>]
 let ``RDFTests: Should create title dataproperty for resource``() =
@@ -86,7 +86,7 @@ let ``RDFTests: Should create title dataproperty for resource``() =
 
   let title = statement
               |> transformToRDF defaultArgs
-              |> FindDataProperty "http://ld.nice.org.uk/ns/qualitystandard#title" 
+              |> FindDataProperty "https://nice.org.uk/ontologies/qualitystandard#title" 
 
   title |> should equal ["This is the title"]
 

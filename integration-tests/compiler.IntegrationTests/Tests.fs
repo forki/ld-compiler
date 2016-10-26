@@ -25,11 +25,11 @@ type ElasticResponse = JsonProvider<"""
       {
         "_id":"",
         "_source":{
-          "http://ld.nice.org.uk/ns/qualitystandard#title":"",
-          "http://ld.nice.org.uk/ns/qualitystandard#abstract":"",
-          "http://ld.nice.org.uk/ns/qualitystandard#qsidentifier":"",
-          "http://ld.nice.org.uk/ns/qualitystandard#stidentifier":"",
-          "http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn":"",
+          "https://nice.org.uk/ontologies/qualitystandard#title":"",
+          "https://nice.org.uk/ontologies/qualitystandard#abstract":"",
+          "https://nice.org.uk/ontologies/qualitystandard#qsidentifier":"",
+          "https://nice.org.uk/ontologies/qualitystandard#stidentifier":"",
+          "https://nice.org.uk/ontologies/qualitystandard#wasFirstIssuedOn":"",
           "@id":"",
           "@type":"",
           "qualitystandard:appliesToAgeGroup":[],
@@ -126,7 +126,7 @@ let ``When publishing a discoverable statement it should apply structured data a
 
   let doc = (Seq.head response.Hits.Hits).Source
 
-  let firstIssued = doc.HttpLdNiceOrgUkNsQualitystandardWasFirstIssuedOn
+  let firstIssued = doc.HttpsNiceOrgUkOntologiesQualitystandardWasFirstIssuedOn
   firstIssued.JsonValue.AsString() |> should equal "2010-06-01"
 
 
@@ -194,12 +194,12 @@ let ``When publishing a discoverable statement it should apply supertype and sub
   let agegroups = doc.QualitystandardAppliesToAgeGroup |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
 
   agegroups |> should equal 
-            ( ["\"http://ld.nice.org.uk/ns/qualitystandard/agegroup/d3326f46_c734_4ab7_9e41_923256bd7d0b\""
-               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup/c4347520_adf4_4ddb_9926_8f6c3132525e\""
-               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup/c7935d78_d1ad_47f3_98a6_f0af04956b97\""
-               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup/7cd6067c_4af1_411e_ba3c_39abac7633c8\""
-               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup/aa4da4d7_b934_4d03_b556_f7b97381953f\""
-               "\"http://ld.nice.org.uk/ns/qualitystandard/agegroup/011cdd3d_2911_4676_93b4_5af484c359c0\""
+            ( ["\"https://nice.org.uk/ontologies/qualitystandard/agegroup/d3326f46_c734_4ab7_9e41_923256bd7d0b\""
+               "\"https://nice.org.uk/ontologies/qualitystandard/agegroup/c4347520_adf4_4ddb_9926_8f6c3132525e\""
+               "\"https://nice.org.uk/ontologies/qualitystandard/agegroup/c7935d78_d1ad_47f3_98a6_f0af04956b97\""
+               "\"https://nice.org.uk/ontologies/qualitystandard/agegroup/7cd6067c_4af1_411e_ba3c_39abac7633c8\""
+               "\"https://nice.org.uk/ontologies/qualitystandard/agegroup/aa4da4d7_b934_4d03_b556_f7b97381953f\""
+               "\"https://nice.org.uk/ontologies/qualitystandard/agegroup/011cdd3d_2911_4676_93b4_5af484c359c0\""
                ] |> Set.ofList )
        
 
