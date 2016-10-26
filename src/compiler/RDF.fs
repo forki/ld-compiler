@@ -73,12 +73,12 @@ let transformToRDF args statement =
   let uri = sprintf "%s/%s" args.BaseUrl statement.Id
  
   let r = resource !! uri
-            ( [a !! "http://ld.nice.org.uk/ns/qualitystandard#QualityStatement"
-               dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#title" (statement.Title^^xsd.string)
-               dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#abstract" (statement.Abstract^^xsd.string)
+            ( [a !! "https://nice.org.uk/ontologies/qualitystandard#QualityStatement"
+               dataProperty !!"https://nice.org.uk/ontologies/qualitystandard#title" (statement.Title^^xsd.string)
+               dataProperty !!"https://nice.org.uk/ontologies/qualitystandard#abstract" (statement.Abstract^^xsd.string)
                dataProperty !!"http://www.w3.org/2011/content#chars" (statement.Content^^xsd.string)
-               dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#stidentifier" (statement.StatementId^^xsd.integer)
-               dataProperty !!"http://ld.nice.org.uk/ns/qualitystandard#qsidentifier" (statement.StandardId^^xsd.integer)
+               dataProperty !!"https://nice.org.uk/ontologies/qualitystandard#stidentifier" (statement.StatementId^^xsd.integer)
+               dataProperty !!"https://nice.org.uk/ontologies/qualitystandard#qsidentifier" (statement.StandardId^^xsd.integer)
                ] @ objectAnnotations @ dataAnnotations) 
   
   r
