@@ -18,9 +18,9 @@ let private getPropertySet (config:ConfigFile) getPropFn  =
   config.SchemaDetails
   |> List.map (getPropFn >> buildUrl config.SchemaBase)
 
-let private getPathWithSubclass urlBase qsBase (p:PublishItem) =
+let private getPathWithSubclass qsBase (p:PublishItem) =
   let delimiter = "|"
-  let buildPropertyPathUri pp = sprintf "<%s%s#%s>/%s" urlBase qsBase p.Uri pp 
+  let buildPropertyPathUri pp = sprintf "<%s#%s>/%s" qsBase p.Uri pp 
   let concatPropertyPaths acc prop = match acc with
                                      | "" -> prop
                                      | _ -> sprintf "%s%s%s" acc delimiter prop
@@ -36,8 +36,8 @@ let private getPropPaths config =
     
   let buildSchemaDetails p =
     match isEmptyPropertyPathSet p with
-    | true ->  sprintf "<%s%s#%s>" config.UrlBase config.QSBase p.Uri
-    | _ -> getPathWithSubclass config.UrlBase config.QSBase p
+    | true ->  sprintf "<%s#%s>" config.QSBase p.Uri
+    | _ -> getPathWithSubclass config.QSBase p
 
   config.SchemaDetails
   |> List.map (fun f -> f.Publish 
@@ -81,7 +81,7 @@ let private rdf_getVocabMap config =
   let getMmkVocabList p =
     p
     |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
-    |> List.map (fun p -> (getPropertyForLabel p.Uri p.Label, sprintf "%s%s#%s" config.UrlBase config.QSBase p.Uri))
+    |> List.map (fun p -> (getPropertyForLabel p.Uri p.Label, sprintf "%s#%s" config.QSBase p.Uri))
 
   let getVocabList config =
     config.SchemaDetails
@@ -97,7 +97,7 @@ let private getRdfArgs (config:ConfigFile) () =
   let getTermListMap = getRdfTerms >> getRdfTermMap
   { VocabMap = rdf_getVocabMap config
     TermMap = getTermListMap config
-    BaseUrl = sprintf "%s%s" config.UrlBase config.ThingBase
+    BaseUrl = config.ThingBase
   }
 
 let createConfig jsonString = 
@@ -105,8 +105,8 @@ let createConfig jsonString =
 
   let getPropertySetFromConfig = getPropertySet deserialisedConfig
 
-  { BaseUrl = sprintf "%s%s" deserialisedConfig.UrlBase deserialisedConfig.ThingBase
-    PropertyBaseUrl = sprintf "%s%s" deserialisedConfig.UrlBase deserialisedConfig.QSBase
+  { BaseUrl = deserialisedConfig.ThingBase
+    PropertyBaseUrl = deserialisedConfig.QSBase
     SchemaBase = deserialisedConfig.SchemaBase
     JsonLdContexts = getPropertySetFromConfig getJsonLd
     Ttls = getPropertySetFromConfig getTtl

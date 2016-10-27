@@ -29,7 +29,7 @@ let deleteDb dbName dbUser dbPass =
 
 let addGraph dbName files =
   // TODO: figure out how to do use dotNetRDF/FSharp.RDF to do this.
-  let args = sprintf "%s --named-graph http://ld.nice.org.uk/ %s" dbName files
+  let args = sprintf "%s --named-graph https://nice.org.uk/ %s" dbName files
   let proc = Process.Start("addgraph", args)
   let timeout = 100000
 
@@ -82,7 +82,7 @@ let extractResources propertyPaths =
     let clause = clause propertyPaths
     let construct = construct propertyPaths
     let query = (sprintf """
-                       prefix nice: <http://ld.nice.org.uk/>
+                       prefix nice: <https://nice.org.uk/>
                        construct {
                          @entity a <https://nice.org.uk/ontologies/qualitystandard#QualityStatement> .
                          %s
@@ -95,7 +95,7 @@ let extractResources propertyPaths =
                        }
                """ construct clause) 
 
-    Graph.defaultPrefixes (Uri.from "http://ld.nice.org.uk/") [] (stardog.queryGraph [] query [ ("entity", Param.Uri entity) ])
+    Graph.defaultPrefixes (Uri.from "https://nice.org.uk/") [] (stardog.queryGraph [] query [ ("entity", Param.Uri entity) ])
 
   let resources = queryResources ()
   Log.Information (sprintf "extracted %d resources from stardog" ( Seq.length resources ))

@@ -9,7 +9,7 @@ open System.Web
 open System.Net
 
 let runCompileAndWaitTillFinished () =
-  let myGitRepoUrl = "https://github.com/nhsevidence/ld-dummy-content"
+  let myGitRepoUrl = "https://github.com/sainsworth/ld-dummy-content"
   let res = Http.RequestString("http://compiler:8081/compile",
                                query=["repoUrl", myGitRepoUrl],
                                httpMethod="POST")
@@ -46,8 +46,8 @@ type ElasticResponse = JsonProvider<"""
 
 let query = """{
 "sort": [
-  { "http://ld.nice.org.uk/ns/qualitystandard#qsidentifier" : { "order": "desc" }},
-  { "http://ld.nice.org.uk/ns/qualitystandard#stidentifier" : { "order": "asc" }}
+  { "https://nice.org.uk/ontologies/qualitystandard#qsidentifier" : { "order": "desc" }},
+  { "https://nice.org.uk/ontologies/qualitystandard#stidentifier" : { "order": "asc" }}
 ]
 }"""
 
@@ -194,12 +194,12 @@ let ``When publishing a discoverable statement it should apply supertype and sub
   let agegroups = doc.QualitystandardAppliesToAgeGroup |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
 
   agegroups |> should equal 
-            ( ["\"https://nice.org.uk/ontologies/qualitystandard/agegroup/d3326f46_c734_4ab7_9e41_923256bd7d0b\""
-               "\"https://nice.org.uk/ontologies/qualitystandard/agegroup/c4347520_adf4_4ddb_9926_8f6c3132525e\""
-               "\"https://nice.org.uk/ontologies/qualitystandard/agegroup/c7935d78_d1ad_47f3_98a6_f0af04956b97\""
-               "\"https://nice.org.uk/ontologies/qualitystandard/agegroup/7cd6067c_4af1_411e_ba3c_39abac7633c8\""
-               "\"https://nice.org.uk/ontologies/qualitystandard/agegroup/aa4da4d7_b934_4d03_b556_f7b97381953f\""
-               "\"https://nice.org.uk/ontologies/qualitystandard/agegroup/011cdd3d_2911_4676_93b4_5af484c359c0\""
+            ( ["\"https://nice.org.uk/ontologies/agegroup/d3326f46_c734_4ab7_9e41_923256bd7d0b\""
+               "\"https://nice.org.uk/ontologies/agegroup/c4347520_adf4_4ddb_9926_8f6c3132525e\""
+               "\"https://nice.org.uk/ontologies/agegroup/c7935d78_d1ad_47f3_98a6_f0af04956b97\""
+               "\"https://nice.org.uk/ontologies/agegroup/7cd6067c_4af1_411e_ba3c_39abac7633c8\""
+               "\"https://nice.org.uk/ontologies/agegroup/aa4da4d7_b934_4d03_b556_f7b97381953f\""
+               "\"https://nice.org.uk/ontologies/agegroup/011cdd3d_2911_4676_93b4_5af484c359c0\""
                ] |> Set.ofList )
        
 

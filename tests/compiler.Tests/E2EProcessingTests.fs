@@ -11,9 +11,9 @@ open compiler.MarkdownParser
 let configString = """
 {
 	"SchemaBase": "http://schema/ns/",
-	"UrlBase": "http://ld.nice.org.uk/",
-	"QSBase": "ns/qualitystandard",
-	"ThingBase": "resource",
+	"UrlBase": "https://nice.org.uk/",
+	"QSBase": "qualitystandard",
+	"ThingBase": "http://ld.nice.org.uk/things",
 	"IndexName": "kb",
 	"TypeName": "qualitystatement",
 	"SchemaDetails":
