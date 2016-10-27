@@ -1,5 +1,5 @@
 compiler:
-  image: nice/ld-compiler
+  image: nice/ld-compiler:dev
   links:
     - stardog
     - elastic:elastic
