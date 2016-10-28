@@ -9,9 +9,8 @@ open compiler.Test.TestUtilities
 let private sampleConfig = """
 {
 	"SchemaBase": "http://schema/ns/",
-	"UrlBase": "http://ld.nice.org.uk/",
-	"QSBase": "ns/qualitystandard",
-	"ThingBase": "resource",
+	"QSBase": "https://nice.org.uk/ontologies/qualitystandard",
+	"ThingBase": "http://ld.nice.org.uk/things",
 	"IndexName": "kb",
 	"TypeName": "qualitystatement",
 	"SchemaDetails":
@@ -213,19 +212,19 @@ let ``ConfigUtilsTests: Should extract schema ttls from config`` () =
 let ``ConfigUtilsTests: Should extract property paths from config`` () =
   
   let expected_PropPaths = [ 
-    "<http://ld.nice.org.uk/ns/qualitystandard#appliesToSetting>/^rdfs:subClassOf*" 
-    "<http://ld.nice.org.uk/ns/qualitystandard#appliesToAgeGroup>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#appliesToAgeGroup>/rdfs:subClassOf*" 
-    "<http://ld.nice.org.uk/ns/qualitystandard#appliesToConditionOrDisease>/^rdfs:subClassOf*|<http://ld.nice.org.uk/ns/qualitystandard#appliesToConditionOrDisease>/rdfs:subClassOf*" 
-    "<http://ld.nice.org.uk/ns/qualitystandard#appliesToServiceArea>/^rdfs:subClassOf*" 
-    "<http://ld.nice.org.uk/ns/qualitystandard#appliesToFactorsAffectingHealthOrWellbeing>/^rdfs:subClassOf*" 
-    "<http://ld.nice.org.uk/ns/qualitystandard#title>" 
-    "<http://ld.nice.org.uk/ns/qualitystandard#abstract>" 
-    "<http://ld.nice.org.uk/ns/qualitystandard#qsidentifier>" 
-    "<http://ld.nice.org.uk/ns/qualitystandard#stidentifier>"
-    "<http://ld.nice.org.uk/ns/qualitystandard#hasPositionalId>"
-    "<http://ld.nice.org.uk/ns/qualitystandard#isNationalPriority>"
-    "<http://ld.nice.org.uk/ns/qualitystandard#changedPriorityOn>"
-    "<http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn>"
+    "<https://nice.org.uk/ontologies/qualitystandard#appliesToSetting>/^rdfs:subClassOf*" 
+    "<https://nice.org.uk/ontologies/qualitystandard#appliesToAgeGroup>/^rdfs:subClassOf*|<https://nice.org.uk/ontologies/qualitystandard#appliesToAgeGroup>/rdfs:subClassOf*" 
+    "<https://nice.org.uk/ontologies/qualitystandard#appliesToConditionOrDisease>/^rdfs:subClassOf*|<https://nice.org.uk/ontologies/qualitystandard#appliesToConditionOrDisease>/rdfs:subClassOf*" 
+    "<https://nice.org.uk/ontologies/qualitystandard#appliesToServiceArea>/^rdfs:subClassOf*" 
+    "<https://nice.org.uk/ontologies/qualitystandard#appliesToFactorsAffectingHealthOrWellbeing>/^rdfs:subClassOf*" 
+    "<https://nice.org.uk/ontologies/qualitystandard#title>" 
+    "<https://nice.org.uk/ontologies/qualitystandard#abstract>" 
+    "<https://nice.org.uk/ontologies/qualitystandard#qsidentifier>" 
+    "<https://nice.org.uk/ontologies/qualitystandard#stidentifier>"
+    "<https://nice.org.uk/ontologies/qualitystandard#hasPositionalId>"
+    "<https://nice.org.uk/ontologies/qualitystandard#isNationalPriority>"
+    "<https://nice.org.uk/ontologies/qualitystandard#changedPriorityOn>"
+    "<https://nice.org.uk/ontologies/qualitystandard#wasFirstIssuedOn>"
   ]
 
   let config = createConfig sampleConfig
@@ -296,7 +295,7 @@ let ``ConfigUtilsTests: Should extract Rdf Term Map details from config`` () =
 
 [<Test>]
 let ``ConfigUtilsTests: Should extract the expected BaseUrl from config`` () =
-  let expected_BaseUrl = "http://ld.nice.org.uk/resource"
+  let expected_BaseUrl = "http://ld.nice.org.uk/things"
   let config = createConfig sampleConfig
 
   config.BaseUrl |> should equal expected_BaseUrl

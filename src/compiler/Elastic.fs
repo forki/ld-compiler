@@ -47,19 +47,19 @@ let private postMappings esUrl =
             "type" : "string",
             "index" : "not_analyzed"
           },
-          "http://ld.nice.org.uk/ns/qualitystandard#title" : {
+          "https://nice.org.uk/ontologies/qualitystandard#title" : {
             "type" : "string",
             "index" : "not_analyzed"
           },
-          "http://ld.nice.org.uk/ns/qualitystandard#abstract" : {
+          "https://nice.org.uk/ontologies/qualitystandard#abstract" : {
             "type" : "string",
             "index" : "not_analyzed"
           },
-          "http://ld.nice.org.uk/ns/qualitystandard#qsidentifier" : {
+          "https://nice.org.uk/ontologies/qualitystandard#qsidentifier" : {
             "type" : "integer",
             "index" : "not_analyzed"
           },
-          "http://ld.nice.org.uk/ns/qualitystandard#stidentifier" : {
+          "https://nice.org.uk/ontologies/qualitystandard#stidentifier" : {
             "type" : "integer",
             "index" : "not_analyzed"
           },

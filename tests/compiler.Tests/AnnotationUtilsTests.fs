@@ -50,7 +50,7 @@ let private configItem = {
 let private config = {
   t_configDetails with
     AnnotationConfig = annotationValidations
-    PropertyBaseUrl = "http://ld.nice.org.uk/ns/qualitystandard"
+    PropertyBaseUrl = "https://nice.org.uk/ontologies/qualitystandard"
 }
 
 let a_positionalid = { annotation with Property = "hasPositionalId"; Vocab = "PositionalId"; Terms = ["qs1-st1"] }
@@ -74,4 +74,4 @@ let ``AnnotationUtilsTests: When the uri is appended with the annotations that i
   let result = [ va_positionalid; va_nationalpriority; va_firstissued ]
                |> List.map (addUriToAnnotation config.PropertyBaseUrl)
   
-  areListsTheSame [ { va_positionalid with Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasPositionalId" }; { va_nationalpriority with Uri = "http://ld.nice.org.uk/ns/qualitystandard#isNationalPriority" }; { va_firstissued with Uri = "http://ld.nice.org.uk/ns/qualitystandard#wasFirstIssuedOn" } ] result
+  areListsTheSame [ { va_positionalid with Uri = "https://nice.org.uk/ontologies/qualitystandard#hasPositionalId" }; { va_nationalpriority with Uri = "https://nice.org.uk/ontologies/qualitystandard#isNationalPriority" }; { va_firstissued with Uri = "https://nice.org.uk/ontologies/qualitystandard#wasFirstIssuedOn" } ] result

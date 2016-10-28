@@ -7,7 +7,7 @@ let transformToTurtle resource =
   let s = ""
   let sb = new System.Text.StringBuilder(s)
   
-  let graph = Graph.empty (!!"http://ld.nice.org.uk/") [("base",!!"http://ld.nice.org.uk/")]
+  let graph = Graph.empty (!!"https://nice.org.uk/") [("base",!!"https://nice.org.uk/")]
   
   [resource]
   |> Assert.graph graph

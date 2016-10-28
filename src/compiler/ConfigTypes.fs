@@ -33,7 +33,6 @@ type ConfigItem = {
 
 type ConfigFile = {
     SchemaBase: string
-    UrlBase: string
     QSBase: string
     ThingBase: string
     IndexName: string
@@ -81,7 +80,6 @@ let t_configItem = {
 
 let t_configFile = {
   SchemaBase = null
-  UrlBase = null
   QSBase = null
   ThingBase = null
   IndexName = null
