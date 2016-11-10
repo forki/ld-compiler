@@ -16,8 +16,8 @@ let private sampleConfig = """
 	"SchemaDetails":
 	[
 		{
-			"Schema": "qualitystandard/setting.ttl",
-			"JsonLD": "qualitystandard/setting.jsonld ",
+			"Schema": "setting.ttl",
+			"JsonLD": "setting.jsonld ",
 			"Map": true,
 			"Publish":
 			[
@@ -32,8 +32,8 @@ let private sampleConfig = """
 			]
 		},
 		{
-			"Schema": "qualitystandard/agegroup.ttl",
-			"JsonLD": "qualitystandard/agegroup.jsonld ",
+			"Schema": "agegroup.ttl",
+			"JsonLD": "agegroup.jsonld ",
 			"Map": true,
 			"Publish":
 			[
@@ -50,8 +50,8 @@ let private sampleConfig = """
 			
 		},
 		{
-			"Schema": "qualitystandard/conditionordisease.ttl",
-			"JsonLD": "qualitystandard/conditionordisease.jsonld ",
+			"Schema": "conditionordisease.ttl",
+			"JsonLD": "conditionordisease.jsonld ",
 			"Map": true,
 			"Publish":
 			[
@@ -68,8 +68,8 @@ let private sampleConfig = """
 			
 		},
 		{
-			"Schema": "qualitystandard/servicearea.ttl",
-			"JsonLD": "qualitystandard/servicearea.jsonld ",
+			"Schema": "servicearea.ttl",
+			"JsonLD": "servicearea.jsonld ",
 			"Map": true,
 			"Publish":
 			[
@@ -85,8 +85,8 @@ let private sampleConfig = """
 			
 		},
 		{
-			"Schema": "qualitystandard/factorsaffectinghealthorwellbeing.ttl",
-			"JsonLD": "qualitystandard/factorsaffectinghealthorwellbeing.jsonld ",
+			"Schema": "factorsaffectinghealthorwellbeing.ttl",
+			"JsonLD": "factorsaffectinghealthorwellbeing.jsonld ",
 			"Map": true,
 			"Publish":
 			[
@@ -180,11 +180,11 @@ let ``ConfigUtilsTests: should extract schema base from config`` () =
 let ``ConfigUtilsTests: Should extract jsonld contexts from config`` () =
 
   let expectedContexts = [
-      "http://schema/ns/qualitystandard/setting.jsonld "
-      "http://schema/ns/qualitystandard/agegroup.jsonld "
-      "http://schema/ns/qualitystandard/conditionordisease.jsonld "
-      "http://schema/ns/qualitystandard/servicearea.jsonld "
-      "http://schema/ns/qualitystandard/factorsaffectinghealthorwellbeing.jsonld "
+      "http://schema/ns/setting.jsonld "
+      "http://schema/ns/agegroup.jsonld "
+      "http://schema/ns/conditionordisease.jsonld "
+      "http://schema/ns/servicearea.jsonld "
+      "http://schema/ns/factorsaffectinghealthorwellbeing.jsonld "
       "http://schema/ns/qualitystandard.jsonld "
   ]
 
@@ -196,11 +196,11 @@ let ``ConfigUtilsTests: Should extract jsonld contexts from config`` () =
 let ``ConfigUtilsTests: Should extract schema ttls from config`` () =
  
   let expectedTtls = [
-    "http://schema/ns/qualitystandard/setting.ttl"
-    "http://schema/ns/qualitystandard/agegroup.ttl"
-    "http://schema/ns/qualitystandard/conditionordisease.ttl"
-    "http://schema/ns/qualitystandard/servicearea.ttl"
-    "http://schema/ns/qualitystandard/factorsaffectinghealthorwellbeing.ttl"
+    "http://schema/ns/setting.ttl"
+    "http://schema/ns/agegroup.ttl"
+    "http://schema/ns/conditionordisease.ttl"
+    "http://schema/ns/servicearea.ttl"
+    "http://schema/ns/factorsaffectinghealthorwellbeing.ttl"
     "http://schema/ns/qualitystandard.ttl"
   ]
   let config = createConfig sampleConfig
@@ -282,11 +282,11 @@ let ``ConfigUtilsTests: Should extract annotation vaidations from config`` () =
 let ``ConfigUtilsTests: Should extract Rdf Term Map details from config`` () =
 
   let expected_RdfTerms = [
-    "setting",  "http://schema/ns/qualitystandard/setting.ttl"
-    "agegroup", "http://schema/ns/qualitystandard/agegroup.ttl"
-    "conditionordisease", "http://schema/ns/qualitystandard/conditionordisease.ttl"
-    "servicearea", "http://schema/ns/qualitystandard/servicearea.ttl"
-    "factorsaffectinghealthorwellbeing", "http://schema/ns/qualitystandard/factorsaffectinghealthorwellbeing.ttl"
+    "setting",  "http://schema/ns/setting.ttl"
+    "agegroup", "http://schema/ns/agegroup.ttl"
+    "conditionordisease", "http://schema/ns/conditionordisease.ttl"
+    "servicearea", "http://schema/ns/servicearea.ttl"
+    "factorsaffectinghealthorwellbeing", "http://schema/ns/factorsaffectinghealthorwellbeing.ttl"
   ]
 
   let config = createConfig sampleConfig

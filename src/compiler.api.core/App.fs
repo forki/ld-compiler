@@ -10,10 +10,6 @@ open System.Threading
 open compiler.Pandoc
 open compiler.ContentHandle
 // high level exception handler
-let tryExecute f =
-  try
-    f ()
-  with ex -> printf "[ERROR] %A" ex
 
 let r = ref false
 
@@ -27,7 +23,7 @@ let private asyncCompile compileFn =
     async {
       setRunning true
       Log.Information "Started compiling..."
-      tryExecute compileFn 
+      try compileFn () with ex -> Log.Error (ex.ToString())
       setRunning false
       Log.Information "Finished compiling!"
   })

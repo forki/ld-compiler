@@ -19,8 +19,8 @@ let configString = """
 	"SchemaDetails":
 	[
 		{
-			"Schema": "qualitystandard/setting.ttl",
-			"JsonLD": "qualitystandard/setting.jsonld ",
+			"Schema": "setting.ttl",
+			"JsonLD": "setting.jsonld ",
 			"Map": true,
 			"Publish":
 			[
@@ -34,8 +34,8 @@ let configString = """
 			]
 		},
 		{
-			"Schema": "qualitystandard/agegroup.ttl",
-			"JsonLD": "qualitystandard/agegroup.jsonld ",
+			"Schema": "agegroup.ttl",
+			"JsonLD": "agegroup.jsonld ",
 			"Map": true,
 			"Publish":
 			[
@@ -52,8 +52,8 @@ let configString = """
 			
 		},
 		{
-			"Schema": "qualitystandard/conditionordisease.ttl",
-			"JsonLD": "qualitystandard/conditionordisease.jsonld ",
+			"Schema": "conditionordisease.ttl",
+			"JsonLD": "conditionordisease.jsonld ",
 			"Map": true,
 			"Publish":
 			[
@@ -70,8 +70,8 @@ let configString = """
 			
 		},
 		{
-			"Schema": "qualitystandard/servicearea.ttl",
-			"JsonLD": "qualitystandard/servicearea.jsonld ",
+			"Schema": "servicearea.ttl",
+			"JsonLD": "servicearea.jsonld ",
 			"Map": true,
 			"Publish":
 			[
@@ -86,8 +86,8 @@ let configString = """
 			
 		},
 		{
-			"Schema": "qualitystandard/lifestylecondition.ttl",
-			"JsonLD": "qualitystandard/lifestylecondition.jsonld ",
+			"Schema": "lifestylecondition.ttl",
+			"JsonLD": "lifestylecondition.jsonld ",
 			"Map": true,
 			"Publish":
 			[
