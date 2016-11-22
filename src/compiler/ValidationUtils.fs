@@ -45,7 +45,7 @@ let verifyRequiredAnnotationsExist theseValidations theseAnnotations =
            | _ -> thisValidation, false
 
   let isRequiresAnnotationInList thisValidation =
-    let foundAnnotations = theseAnnotations |> List.filter (fun a -> a.Vocab = thisValidation.Label)
+    let foundAnnotations = theseAnnotations |> List.filter (fun a -> a.Vocab = thisValidation.Uri)
     match foundAnnotations.Length with
     | 0 -> raiseError thisValidation.Label "Missing"
     | _ -> match foundAnnotations.Head.Terms.Length with
