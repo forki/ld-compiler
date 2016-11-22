@@ -96,10 +96,46 @@ let private config = {
     PropertyBaseUrl = "http://ld.nice.org.uk/ns/qualitystandard"
 }
 
-let a_positionalId = { annotation with Property = "positionalid"; Vocab = "PositionalId"; Terms = ["qs1-st1"]; Format = "PositionalId:Required"; Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasPositionalId"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }
-let a_required = { annotation with Property = "required";Vocab = "Required"; Terms = ["A value"]; Format = "String:Required"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasRequired"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
-let a_datenotrequired = { annotation with Property = "datenotrequired"; Vocab = "Date Not Required"; Terms = ["01-10-2010"]; Format = "Date"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasNotRequireddate"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
-let a_yesnonotrequired = { annotation with Property = "yesnonotrequired"; Vocab = "YesNo Not Required"; Terms = ["yes"]; Format = "YesNo"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasNotRequiredYesNo"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true  }
+let a_positionalId = { annotation with 
+                        Property = "positionalid"; 
+                        Vocab = "PositionalId"; 
+                        Terms = ["qs1-st1"]; 
+                        Format = "PositionalId:Required"; 
+                        Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasPositionalId"; 
+                        IsValidated = true; 
+                        IsDisplayed = false; 
+                        IsDataAnnotation = true }
+
+let a_required = { annotation with 
+                        Property = "required";
+                        Vocab = "Required"; 
+                        Terms = ["A value"]; 
+                        Format = "String:Required"; 
+                        Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasRequired"; 
+                        IsValidated= true; 
+                        IsDisplayed = false; 
+                        IsDataAnnotation = true }
+
+let a_datenotrequired = { annotation with 
+                            Property = "datenotrequired"; 
+                            Vocab = "Date Not Required"; 
+                            Terms = ["01-10-2010"]; 
+                            Format = "Date"; 
+                            Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasNotRequireddate"; 
+                            IsValidated= true; 
+                            IsDisplayed = false; 
+                            IsDataAnnotation = true }
+
+let a_yesnonotrequired = { annotation with 
+                            Property = "yesnonotrequired"; 
+                            Vocab = "YesNo Not Required"; 
+                            Terms = ["yes"]; 
+                            Format = "YesNo"; 
+                            Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasNotRequiredYesNo"; 
+                            IsValidated= true; 
+                            IsDisplayed = false; 
+                            IsDataAnnotation = true  }
+
 let a_dateconditional = { annotation with
                             Property = "dateconditional"
                             Vocab = "Date Conditional"
@@ -112,7 +148,16 @@ let a_dateconditional = { annotation with
                             DisplayLabel = "Priority"
                             DisplayTemplate = "In {{value |  date: \"MMMM yyyy\" }} the priority of this statement changed. It is no longer considered a national priority for improvement but may still be useful at a local level."
                           }
-let a_statementReference = { annotation with Property = "statementref"; Vocab = "Reference to A Statement"; Terms = ["8422158b-302e-4be2-9a19-9085fc09dfe7"]; Format = "Statement"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#statementref"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
+
+let a_statementReference = { annotation with 
+                              Property = "statementref"; 
+                              Vocab = "Reference to A Statement"; 
+                              Terms = ["8422158b-302e-4be2-9a19-9085fc09dfe7"]; 
+                              Format = "Statement"; 
+                              Uri = "http://ld.nice.org.uk/ns/qualitystandard#statementref"; 
+                              IsValidated= true; 
+                              IsDisplayed = false; 
+                              IsDataAnnotation = true }
 
 let defaultStatement = {
   statement with
@@ -209,7 +254,7 @@ let ``ValidationUtilsTests: When a statement has a conditionally required annota
   res |> should equal "Missing the 'Date Conditional' annotation"
 
 [<Test>]
-let ``ValidationUtilsTests: where the Annotation is a Statement: invalid GUIDs will throw an exception`` () =
+let ``ValidationUtilsTests: Given an annotation has an invalid GUID should throw an exception`` () =
   let data = { defaultStatement with Annotations = [ a_positionalId; a_required; { a_statementReference with Terms = ["Clearly an invalid Guid"]} ] }
 
   let res = try
@@ -219,9 +264,35 @@ let ``ValidationUtilsTests: where the Annotation is a Statement: invalid GUIDs w
             | Failure msg -> msg
   res |> should equal "Invalid value for the 'Reference to A Statement' annotation"
 
-let a_conditionaldiscoverable = { annotation with Property = "affectsdiscoverability"; Vocab = "Affects If Discoverable"; Terms = ["yes"]; Format = "YesNo"; Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasThingThatAffectsDiscoverability"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }
+
+
+
+
+
+
+
+
+let a_conditionaldiscoverable = { annotation with 
+                                    Property = "affectsdiscoverability"; 
+                                    Vocab = "Affects If Discoverable"; 
+                                    Terms = ["yes"]; 
+                                    Format = "YesNo"; 
+                                    Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasThingThatAffectsDiscoverability"; 
+                                    IsValidated = true; 
+                                    IsDisplayed = false; 
+                                    IsDataAnnotation = true }
+
 let a_conditionalundiscoverable = { a_conditionaldiscoverable with Terms = ["no"]; }
-let a_undiscoverablewhenpopulated_notpopulated = { annotation with Property = "affectsdiscoverabilityifpopulated"; Vocab = "Being Populated Affects If Discoverable"; Terms = []; Uri= "http://ld.nice.org.uk/ns/qualitystandard#affectsdiscoverabilityifpopulated"; IsValidated = true; IsDisplayed = true; IsDataAnnotation = true }
+
+let a_undiscoverablewhenpopulated_notpopulated = { annotation with 
+                                                    Property = "affectsdiscoverabilityifpopulated"; 
+                                                    Vocab = "Being Populated Affects If Discoverable"; 
+                                                    Terms = []; 
+                                                    Uri= "http://ld.nice.org.uk/ns/qualitystandard#affectsdiscoverabilityifpopulated"; 
+                                                    IsValidated = true; 
+                                                    IsDisplayed = true; 
+                                                    IsDataAnnotation = true }
+
 let a_undiscoverablewhenpopulated_populated = { a_undiscoverablewhenpopulated_notpopulated with Terms = ["A Value"] }
 
 [<Test>]
