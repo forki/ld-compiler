@@ -103,6 +103,7 @@ let bulkUpload indexName typeName jsonldResources =
 
   Log.Information "building bulk data for upload to elastic"
   let bulkData = buildBulkData indexName typeName jsonldResources
+  printf "bulk data: %A" bulkData
 
   deleteIndex esUrl
   postMappings esUrl

@@ -20,7 +20,7 @@ let private getPropertySet (config:ConfigFile) getPropFn  =
 
 let private getPathWithSubclass qsBase (p:PublishItem) =
   let delimiter = "|"
-  let buildPropertyPathUri pp = sprintf "<%s#%s>/%s" qsBase p.Uri pp 
+  let buildPropertyPathUri pp = sprintf "<%s%s>/%s" qsBase p.Uri pp 
   let concatPropertyPaths acc prop = match acc with
                                      | "" -> prop
                                      | _ -> sprintf "%s%s%s" acc delimiter prop
@@ -36,7 +36,7 @@ let private getPropPaths config =
     
   let buildSchemaDetails p =
     match isEmptyPropertyPathSet p with
-    | true ->  sprintf "<%s#%s>" config.QSBase p.Uri
+    | true ->  sprintf "<%s%s>" config.QSBase p.Uri
     | _ -> getPathWithSubclass config.QSBase p
 
   config.SchemaDetails
@@ -69,7 +69,7 @@ let private getRdfTerms (config:ConfigFile) =
   config.SchemaDetails
   |> List.filter (fun sd -> sd.Map )
   |> List.map (fun sd -> sd.Publish
-                         |> List.map (fun p -> getPropertyForLabel p.Uri p.Label, sprintf "%s%s" config.SchemaBase sd.Schema))
+                         |> List.map (fun p -> p.Uri, sprintf "%s%s" config.SchemaBase sd.Schema))
   |> List.concat
 
 let private getRdfTermMap termList =
@@ -81,7 +81,7 @@ let private rdf_getVocabMap config =
   let getMmkVocabList p =
     p
     |> List.filter (fun p -> obj.ReferenceEquals(p.PropertyPath, null)=false)
-    |> List.map (fun p -> (getPropertyForLabel p.Uri p.Label, sprintf "%s#%s" config.QSBase p.Uri))
+    |> List.map (fun p -> (p.Uri, sprintf "%s%s" config.QSBase p.Uri))
 
   let getVocabList config =
     config.SchemaDetails

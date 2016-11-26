@@ -41,6 +41,7 @@ let compile config extractor items outputDir dbName =
     >> convertMarkdownToHtml 
     >> extractStatement
     >> validateStatement config
+    >> addIsUndiscoverable 
     >> bindDataToHtml
     >> writeHtml outputDir
 
@@ -59,4 +60,3 @@ let compile config extractor items outputDir dbName =
   |> Seq.iter (fun item -> try (item |> compileItem |> processIfDiscoverable) with ex -> Log.Error(sprintf "Problem processing item %s with: %s\n" item.Thing ( ex.ToString() )))
 
   addGraphs outputDir dbName
-

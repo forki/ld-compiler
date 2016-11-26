@@ -86,7 +86,7 @@ let ``RDFTests: Should create title dataproperty for resource``() =
 
   let title = statement
               |> transformToRDF defaultArgs
-              |> FindDataProperty "https://nice.org.uk/ontologies/qualitystandard#title" 
+              |> FindDataProperty "https://nice.org.uk/ontologies/qualitystandard/bc8e0db0_5d8a_4100_98f6_774ac0eb1758" 
 
   title |> should equal ["This is the title"]
 

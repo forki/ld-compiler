@@ -69,7 +69,7 @@ let extractStatement (contentHandle, html) =
                     |> extractAnnotations 
                     |> parseYaml
                     |> List.map convertToAnnotation
-  
+  printf "Annotations %A" annotations
   let id = annotations
             |> List.tryFind (fun x -> x.Vocab.Equals("84efb231_0424_461e_9598_1ef5272a597a"))
             |> extractQSandSTNumbers

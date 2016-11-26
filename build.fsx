@@ -94,9 +94,12 @@ Target "RebuildRelease" (fun _ ->
 Target "RunTests" (fun _ ->
 
   let assemblies = !! unitTestAssemblies |> Seq.fold (fun acc a -> acc + " " + a) ""
-  let result = 
+  (* let result =*)
+  (*   ExecProcess (fun info -> info.FileName <- "mono"*)
+  (*                            info.Arguments <- "packages/NUnit.ConsoleRunner/tools/nunit3-console.exe --labels=All --workers=1 --where=\"cat=RunOnly\" " + assemblies) (TimeSpan.FromMinutes 3.0)*)
+  let result =
     ExecProcess (fun info -> info.FileName <- "mono"
-                             info.Arguments <- "packages/NUnit.ConsoleRunner/tools/nunit3-console.exe --labels=All --workers=1" + assemblies) (TimeSpan.FromMinutes 2.0)
+                             info.Arguments <- "packages/NUnit.ConsoleRunner/tools/nunit3-console.exe --labels=All --workers=1 " + assemblies) (TimeSpan.FromMinutes 3.0)
   if result <> 0 then failwithf "NUnit failed"
     
 )

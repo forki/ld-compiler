@@ -23,8 +23,9 @@ let private constructAnnotationWithConfig thisAnnotation thisAnnotationConfig =
   }
 
 let addConfigToAnnotation annotationConfig thisAnnotation =
+  (* printf "this annotation config %A %A" annotationConfig thisAnnotation.Vocab*)
   let thisAnnotationConfig = annotationConfig
-                             |> List.filter (fun c -> c.Label = thisAnnotation.Vocab)
+                             |> List.filter (fun c -> c.Uri = thisAnnotation.Vocab)
                              |> List.tryHead
   match thisAnnotationConfig.IsSome with
   | false -> thisAnnotation
@@ -32,5 +33,5 @@ let addConfigToAnnotation annotationConfig thisAnnotation =
 
 let addUriToAnnotation propertyBaseUrl thisAnnotation =
   match thisAnnotation.IsValidated with
-  | true -> { thisAnnotation with Uri = sprintf "%s#%s" propertyBaseUrl thisAnnotation.Uri }
+  | true -> { thisAnnotation with Uri = sprintf "%s%s" propertyBaseUrl thisAnnotation.Uri }
   | _ -> thisAnnotation

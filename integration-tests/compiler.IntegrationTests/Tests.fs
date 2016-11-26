@@ -46,14 +46,14 @@ type ElasticResponse = JsonProvider<"""
 
 let query = """{
 "sort": [
-  { "https://nice.org.uk/ontologies/qualitystandard#qsidentifier" : { "order": "desc" }},
-  { "https://nice.org.uk/ontologies/qualitystandard#stidentifier" : { "order": "asc" }}
+  { "https://nice.org.uk/ontologies/qualitystandard/3ff270e4_655a_4884_b186_e033f58759de" : { "order": "desc" }},
+  { "https://nice.org.uk/ontologies/qualitystandard/9fcb3758_a4d3_49d7_ab10_6591243caa67" : { "order": "asc" }}
 ]
 }"""
 
 let private queryElastic indexName typeName =
   let url = sprintf "http://elastic:9200/%s/%s/_search" indexName typeName
-//  let json = Http.RequestString(url, httpMethod="GET")
+  printf "url => %A" url
 
   let json = Http.RequestString(url,
                        body = TextRequest query,
@@ -63,7 +63,6 @@ let private queryElastic indexName typeName =
 
 let private queryElasticViaJsonParser indexName typeName =
   let url = sprintf "http://elastic:9200/%s/%s/_search" indexName typeName
-//  let json = Http.RequestString(url, httpMethod="GET")
   let json = Http.RequestString(url,
                        body = TextRequest query,
                        headers = [ "Content-Type", "application/json;charset=utf-8" ])
@@ -116,8 +115,6 @@ let ``When publishing a discoverable statement it should have added a statement 
 [<Test>]
 let ``When publishing a discoverable statement it should apply structured data annotations that exist in metadata`` () =
 
-  (* runCompileAndWaitTillFinished ()*)
-
   let indexName = "kb"
   let typeName = "qualitystatement"
   let response = queryElastic indexName typeName
@@ -132,8 +129,6 @@ let ``When publishing a discoverable statement it should apply structured data a
 
 [<Test>]
 let ``When publishing a discoverable statement it should apply annotations that exist in metadata`` () =
-
-  (* runCompileAndWaitTillFinished ()*)
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -173,16 +168,15 @@ let ``When publishing a discoverable statement it should apply annotations that 
     | Success a -> a |> should equal true
     | Failed x -> sprintf "Test failed with error message: %A" x |> failwith
 
-  checkPropertyExistsAndIsValid "qualitystandard:appliesToAgeGroup"
-  checkPropertyExistsAndIsValid "qualitystandard:appliesToConditionOrDisease"
-  checkPropertyExistsAndIsValid "qualitystandard:appliesToServiceArea"
-  checkPropertyExistsAndIsValid "qualitystandard:appliesToSetting"
-  checkPropertyExistsAndIsValid "qualitystandard:appliesToFactorsAffectingHealthOrWellbeing"
+  checkPropertyExistsAndIsValid "qualitystandard:4e7a368e_eae6_411a_8167_97127b490f99"
+  checkPropertyExistsAndIsValid "qualitystandard:28745bc0_6538_46ee_8b71_f0cf107563d9"
+  checkPropertyExistsAndIsValid "qualitystandard:7ae8413a_2811_4a09_a655_eff8d276ec87"
+  checkPropertyExistsAndIsValid "qualitystandard:62496684_7027_4f37_bd0e_264c9ff727fd"
+  checkPropertyExistsAndIsValid "qualitystandard:18aa6468_de94_4f9f_bd7a_0075fba942a5"
 
 
 [<Test>]
 let ``When publishing a discoverable statement it should apply supertype and subtype inferred annotations`` () =
-  (* runCompileAndWaitTillFinished ()*)
 
   let indexName = "kb"
   let typeName = "qualitystatement"
