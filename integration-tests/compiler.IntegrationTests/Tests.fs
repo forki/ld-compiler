@@ -25,18 +25,18 @@ type ElasticResponse = JsonProvider<"""
       {
         "_id":"",
         "_source":{
-          "https://nice.org.uk/ontologies/qualitystandard#title":"",
-          "https://nice.org.uk/ontologies/qualitystandard#abstract":"",
-          "https://nice.org.uk/ontologies/qualitystandard#qsidentifier":"",
-          "https://nice.org.uk/ontologies/qualitystandard#stidentifier":"",
-          "https://nice.org.uk/ontologies/qualitystandard#wasFirstIssuedOn":"",
+          "https://nice.org.uk/ontologies/qualitystandard/bc8e0db0_5d8a_4100_98f6_774ac0eb1758":"",
+          "https://nice.org.uk/ontologies/qualitystandard/1efaaa6a_c81a_4bd6_b598_c626b21c71fd":"",
+          "https://nice.org.uk/ontologies/qualitystandard/3ff270e4_655a_4884_b186_e033f58759de":"",
+          "https://nice.org.uk/ontologies/qualitystandard/9fcb3758_a4d3_49d7_ab10_6591243caa67":"",
+          "https://nice.org.uk/ontologies/qualitystandard/0886da59_2c5f_4124_9f46_6be4537a4099":"",
           "@id":"",
           "@type":"",
-          "qualitystandard:appliesToAgeGroup":[],
-          "qualitystandard:appliesToSetting":[],
-          "qualitystandard:appliesToServiceArea":[],
-          "qualitystandard:appliesToFactorsAffectingHealthOrWellbeing":[],
-          "qualitystandard:appliesToConditionOrDisease":[]
+          "qualitystandard:4e7a368e_eae6_411a_8167_97127b490f99":[],
+          "qualitystandard:62496684_7027_4f37_bd0e_264c9ff727fd":[],
+          "qualitystandard:7ae8413a_2811_4a09_a655_eff8d276ec87":[],
+          "qualitystandard:18aa6468_de94_4f9f_bd7a_0075fba942a5":[],
+          "qualitystandard:28745bc0_6538_46ee_8b71_f0cf107563d9":[]
         }
       }
     ],
@@ -123,7 +123,7 @@ let ``When publishing a discoverable statement it should apply structured data a
 
   let doc = (Seq.head response.Hits.Hits).Source
 
-  let firstIssued = doc.HttpsNiceOrgUkOntologiesQualitystandardWasFirstIssuedOn
+  let firstIssued = doc.HttpsNiceOrgUkOntologiesQualitystandard0886da592c5f41249f466be4537a4099
   firstIssued.JsonValue.AsString() |> should equal "2010-06-01"
 
 
@@ -185,7 +185,7 @@ let ``When publishing a discoverable statement it should apply supertype and sub
   response.Hits.Total |> should equal 2
 
   let doc = (Seq.head response.Hits.Hits).Source
-  let agegroups = doc.QualitystandardAppliesToAgeGroup |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
+  let agegroups = doc.QualityStandard4e7a368eEae6411a816797127b490f99 |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
 
   agegroups |> should equal 
             ( ["\"https://nice.org.uk/ontologies/agegroup/d3326f46_c734_4ab7_9e41_923256bd7d0b\""
