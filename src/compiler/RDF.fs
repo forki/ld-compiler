@@ -31,7 +31,7 @@ let private lookupAnnotations vocabMap termMap annotations =
     let vocabKey = getProperty vocab
     let termId = getProperty term
 
-    printf "vocabMap => %A vocabKey => %A" vocabMap vocabKey
+    (* printf "vocabMap => %A vocabKey => %A" vocabMap vocabKey*)
 
     match Map.tryFind vocabKey vocabMap with
     | Some vocabUri ->
