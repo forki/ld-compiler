@@ -185,7 +185,7 @@ let ``When publishing a discoverable statement it should apply supertype and sub
   response.Hits.Total |> should equal 2
 
   let doc = (Seq.head response.Hits.Hits).Source
-  let agegroups = doc.QualityStandard4e7a368eEae6411a816797127b490f99 |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
+  let agegroups = doc.Qualitystandard4e7a368eEae6411a816797127b490f99 |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
 
   agegroups |> should equal 
             ( ["\"https://nice.org.uk/ontologies/agegroup/d3326f46_c734_4ab7_9e41_923256bd7d0b\""
@@ -200,8 +200,6 @@ let ``When publishing a discoverable statement it should apply supertype and sub
 [<Test>]
 let ``When publishing a discoverable statement it should generate static html and post to resource api`` () =
 
-  (* runCompileAndWaitTillFinished ()*)
-
   let response = Http.Request("http://resourceapi:8082/resource/8422158b-302e-4be2-9a19-9085fc09dfe7",
                           headers = [ "Content-Type", "text/plain;charset=utf-8" ])
 
@@ -209,8 +207,6 @@ let ``When publishing a discoverable statement it should generate static html an
 
 [<Test>]
 let ``When publishing an undiscoverable statement it should generate static html and post to resource api`` () =
-
-  (* runCompileAndWaitTillFinished ()*)
 
   let response = Http.Request("http://resourceapi:8082/resource/54c3178f-f004-4caf-b1a8-582133bea26d",
                           headers = [ "Content-Type", "text/plain;charset=utf-8" ])
