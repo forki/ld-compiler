@@ -98,7 +98,6 @@ let ``Should extract the statement number from file path`` () =
 [<Test>]
 let ``Should extract the annotations from code block`` () =
   let statement = extractStatement (sampleMarkdownContent, "")
-  printfn "%A" (statement.Annotations |> List.filter (fun a -> a.IsDataAnnotation))
   let resultAnnotations = [ { annotation with Property = "84efb231_0424_461e_9598_1ef5272a597a"; Vocab = "84efb231_0424_461e_9598_1ef5272a597a"; Terms = ["qs1-st2"] }
                             { annotation with Property = "vocab"; Vocab = "Vocab"; Terms = ["Term"] } ]
       

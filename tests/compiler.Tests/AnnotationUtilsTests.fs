@@ -76,6 +76,5 @@ let ``AnnotationUtilsTests: When the uri is appended with the annotations that i
                |> List.map (addUriToAnnotation config.PropertyBaseUrl)
   let expected = [ { va_positionalid with Uri = "https://nice.org.uk/ontologies/qualitystandard/hasPositionalIdGUID" }; { va_nationalpriority with Uri = "https://nice.org.uk/ontologies/qualitystandard/isNationalPriorityGUID" }; { va_firstissued with Uri = "https://nice.org.uk/ontologies/qualitystandard/0886da59_2c5f_4124_9f46_6be4537a4099" } ]
 
-  printf "expected %A, \n\n result %A" expected result
 
   areListsTheSame expected result

@@ -309,7 +309,6 @@ let ``ValidationUtilsTests: An conditionally discoverable statement should be un
   let result = { defaultStatement with Annotations = [ a_positionalId; a_required; a_conditionalundiscoverable ] }
                |> validateStatement config
 
-  printf "result %A \n\n config %A" result config
   result.IsUndiscoverable |> should equal true
 
 [<Test>]

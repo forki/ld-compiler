@@ -23,7 +23,6 @@ let private constructAnnotationWithConfig thisAnnotation thisAnnotationConfig =
   }
 
 let addConfigToAnnotation annotationConfig thisAnnotation =
-  (* printf "this annotation config %A %A" annotationConfig thisAnnotation.Vocab*)
   let thisAnnotationConfig = annotationConfig
                              |> List.filter (fun c -> c.Uri = thisAnnotation.Vocab)
                              |> List.tryHead
