@@ -57,6 +57,9 @@ let compile config extractor items outputDir dbName =
     | _ -> processRdfTtl thisStatement
 
   items
-  |> Seq.iter (fun item -> try (item |> compileItem |> processIfDiscoverable) with ex -> Log.Error(sprintf "Problem processing item %s with: %s\n" item.Thing ( ex.ToString() )))
+  |> Seq.iter (fun item -> try (item 
+                                |> compileItem 
+                                |> processIfDiscoverable) 
+                           with ex -> Log.Error(sprintf "Problem processing item %s with: %s\n" item.Thing ( ex.ToString() )))
 
   addGraphs outputDir dbName
