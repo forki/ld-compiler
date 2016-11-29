@@ -1,5 +1,5 @@
 compiler:
-  image: nice/ld-compiler:test
+  image: nice/ld-compiler:dev
   links:
     - stardog
     - elastic:elastic
@@ -16,17 +16,17 @@ schema:
   ports:
     - "20002:80"
 stardog:
-  image: nice/ld-docker-stardog
+  image: nice/ld-docker-stardog:test
   ports:
     - "5820:5820"
   volumes:
     - /dev/urandom:/dev/random
 elastic:
-  image: nice/ld-docker-elasticsearch
+  image: nice/ld-docker-elasticsearch:test
   ports:
     - "9200:9200"
 resourceapi:
-  image: nice/ld-resource-api
+  image: nice/ld-resource-api:test
   ports:
     - "8082:8082"
   volumes_from:
