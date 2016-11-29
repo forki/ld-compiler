@@ -16,7 +16,7 @@ schema:
   ports:
     - "20002:80"
 stardog:
-  image: nice/ld-docker-stardog:test
+  image: nice/ld-docker-stardog
   ports:
     - "5820:5820"
   volumes:

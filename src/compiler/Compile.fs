@@ -34,7 +34,6 @@ let writeHtml outputDir statement =
 
 let compile config extractor items outputDir dbName = 
   let rdfArgs = config.LoadRdfArgs ()
-//  let baseUrl = config |> getBaseUrl
 
   let compileItem =
     extractor.readContentForItem
