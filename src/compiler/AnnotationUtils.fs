@@ -12,6 +12,7 @@ let private constructAnnotationWithConfig thisAnnotation thisAnnotationConfig =
   let isDisplayed, label, template = getAnnotationDisplayDetails thisAnnotationConfig
 
   { thisAnnotation with
+      Property = thisAnnotationConfig.Label
       Format = thisAnnotationConfig.Format
       Uri = thisAnnotationConfig.Uri
       IsDataAnnotation = thisAnnotationConfig.DataAnnotation
@@ -22,7 +23,7 @@ let private constructAnnotationWithConfig thisAnnotation thisAnnotationConfig =
       DisplayTemplate = template
   }
 
-let addConfigToAnnotation annotationConfig thisAnnotation =
+let addConfigToAnnotation annotationConfig (thisAnnotation:Annotation) =
   let thisAnnotationConfig = annotationConfig
                              |> List.filter (fun c -> c.Uri = thisAnnotation.Vocab)
                              |> List.tryHead

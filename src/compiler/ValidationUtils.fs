@@ -14,9 +14,9 @@ let private raiseError annotation state =
   |> failwith
 
 
-let private doesAnnotationWithTermExist vocab term theseAnnotations =
+let private doesAnnotationWithTermExist vocab term (theseAnnotations:Annotation list) =
   theseAnnotations
-  |> List.filter (fun a -> a.Vocab = vocab)
+  |> List.filter (fun a -> a.Property = vocab)
   |> List.map (fun a -> a.Terms |> List.filter (fun t -> t = term))
   |> List.concat
   |> fun al -> match al.Length with
@@ -66,7 +66,7 @@ let private processDates thisAnnotation =
   let tryparseDate date = 
     match System.DateTime.TryParseExact(date, "dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture,System.Globalization.DateTimeStyles.None) with
     | true, x -> x.ToString("yyyy-MM-dd")
-    | _ ->  raiseError thisAnnotation.Vocab "Invalid"
+    | _ ->  raiseError thisAnnotation.Property "Invalid"
     
   let processedTerms = thisAnnotation.Terms
                          |> List.map (fun t -> tryparseDate t)
@@ -102,7 +102,7 @@ let private processYesNo thisAnnotation =
     match term with
     | "yes"
     | "no" -> ()
-    | _ -> raiseError thisAnnotation.Vocab "Invalid"
+    | _ -> raiseError thisAnnotation.Property "Invalid"
 
   thisAnnotation.Terms
   |> List.map (fun t -> assessTerm t)
@@ -115,7 +115,7 @@ let private processStatementReference thisAnnotation =
                  |> List.map (fun t -> System.Guid.TryParse(t) |> fst)
                  |> List.contains false
   match isInvaid with
-  | true -> raiseError thisAnnotation.Vocab "Invalid"
+  | true -> raiseError thisAnnotation.Property "Invalid"
   | _ -> thisAnnotation
   
 let private validateDataAnnotationFormat (thisAnnotation:Annotation) =
