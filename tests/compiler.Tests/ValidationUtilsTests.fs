@@ -10,7 +10,7 @@ open compiler.Test.TestUtilities
 
 let private annotationValidations = [
   { t_publishItem with
-      Uri= "hasPositionalId"
+      Uri= "postionalIdGUID"
       Label="PositionalId"
       Validate= true
       Format= "PositionalId:Required"
@@ -96,10 +96,46 @@ let private config = {
     PropertyBaseUrl = "http://ld.nice.org.uk/ns/qualitystandard"
 }
 
-let a_positionalId = { annotation with Property = "positionalid"; Vocab = "PositionalId"; Terms = ["qs1-st1"]; Format = "PositionalId:Required"; Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasPositionalId"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }
-let a_required = { annotation with Property = "required";Vocab = "Required"; Terms = ["A value"]; Format = "String:Required"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasRequired"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
-let a_datenotrequired = { annotation with Property = "datenotrequired"; Vocab = "Date Not Required"; Terms = ["01-10-2010"]; Format = "Date"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasNotRequireddate"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
-let a_yesnonotrequired = { annotation with Property = "yesnonotrequired"; Vocab = "YesNo Not Required"; Terms = ["yes"]; Format = "YesNo"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasNotRequiredYesNo"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true  }
+let a_positionalId = { annotation with 
+                        Property = "postionalIdGUID"; 
+                        Vocab = "postionalIdGUID"; 
+                        Terms = ["qs1-st1"]; 
+                        Format = "PositionalId:Required"; 
+                        Uri= "http://ld.nice.org.uk/ns/qualitystandard#postionalIdGUID"; 
+                        IsValidated = true; 
+                        IsDisplayed = false; 
+                        IsDataAnnotation = true }
+
+let a_required = { annotation with 
+                        Property = "required";
+                        Vocab = "Required"; 
+                        Terms = ["A value"]; 
+                        Format = "String:Required"; 
+                        Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasRequired"; 
+                        IsValidated= true; 
+                        IsDisplayed = false; 
+                        IsDataAnnotation = true }
+
+let a_datenotrequired = { annotation with 
+                            Property = "datenotrequired"; 
+                            Vocab = "Date Not Required"; 
+                            Terms = ["01-10-2010"]; 
+                            Format = "Date"; 
+                            Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasNotRequireddate"; 
+                            IsValidated= true; 
+                            IsDisplayed = false; 
+                            IsDataAnnotation = true }
+
+let a_yesnonotrequired = { annotation with 
+                            Property = "yesnonotrequired"; 
+                            Vocab = "YesNo Not Required"; 
+                            Terms = ["yes"]; 
+                            Format = "YesNo"; 
+                            Uri = "http://ld.nice.org.uk/ns/qualitystandard#hasNotRequiredYesNo"; 
+                            IsValidated= true; 
+                            IsDisplayed = false; 
+                            IsDataAnnotation = true  }
+
 let a_dateconditional = { annotation with
                             Property = "dateconditional"
                             Vocab = "Date Conditional"
@@ -112,7 +148,16 @@ let a_dateconditional = { annotation with
                             DisplayLabel = "Priority"
                             DisplayTemplate = "In {{value |  date: \"MMMM yyyy\" }} the priority of this statement changed. It is no longer considered a national priority for improvement but may still be useful at a local level."
                           }
-let a_statementReference = { annotation with Property = "statementref"; Vocab = "Reference to A Statement"; Terms = ["8422158b-302e-4be2-9a19-9085fc09dfe7"]; Format = "Statement"; Uri = "http://ld.nice.org.uk/ns/qualitystandard#statementref"; IsValidated= true; IsDisplayed = false; IsDataAnnotation = true }
+
+let a_statementReference = { annotation with 
+                              Property = "statementref"; 
+                              Vocab = "Reference to A Statement"; 
+                              Terms = ["8422158b-302e-4be2-9a19-9085fc09dfe7"]; 
+                              Format = "Statement"; 
+                              Uri = "http://ld.nice.org.uk/ns/qualitystandard#statementref"; 
+                              IsValidated= true; 
+                              IsDisplayed = false; 
+                              IsDataAnnotation = true }
 
 let defaultStatement = {
   statement with
@@ -126,25 +171,25 @@ let defaultStatement = {
     Html = "Content"
 }
 
-[<Test>]
-let ``ValidationUtilsTests: When all statement annotations are valid (no conditionally required) then validating the statement will return a statement that is identical but with processed dates`` () =
-  let data = {defaultStatement with Annotations = [ a_positionalId; a_required; a_datenotrequired; a_yesnonotrequired ] }
+(* [<Test>]*)
+(* let ``ValidationUtilsTests: When all statement annotations are valid (no conditionally required) then validating the statement will return a statement that is identical but with processed dates`` () =*)
+(*   let data = {defaultStatement with Annotations = [ a_positionalId; a_required; a_datenotrequired; a_yesnonotrequired ] }*)
   
-  let dataTransformed = { defaultStatement with Annotations = [ a_positionalId; a_required; { a_datenotrequired with Terms = ["2010-10-01"]; IsDate = true }; a_yesnonotrequired ] }
-  let resultStatement = validateStatement config data
+(*   let dataTransformed = { defaultStatement with Annotations = [ a_positionalId; a_required; { a_datenotrequired with Terms = ["2010-10-01"]; IsDate = true }; a_yesnonotrequired ] }*)
+(*   let resultStatement = validateStatement config data*)
 
-  areListsTheSame dataTransformed.Annotations resultStatement.Annotations
+(*   areListsTheSame dataTransformed.Annotations resultStatement.Annotations*)
 
 
-[<Test>]
-let ``ValidationUtilsTests: When all statement annotations are valid (with conditionally required) then validating the statement will return a statement that is identical but with processed dates`` () =
-  let data = {defaultStatement with Annotations = [ a_positionalId; a_required; a_datenotrequired; { a_yesnonotrequired with Terms = ["no"] }; a_dateconditional ] }
+(* [<Test>]*)
+(* let ``ValidationUtilsTests: When all statement annotations are valid (with conditionally required) then validating the statement will return a statement that is identical but with processed dates`` () =*)
+(*   let data = {defaultStatement with Annotations = [ a_positionalId; a_required; a_datenotrequired; { a_yesnonotrequired with Terms = ["no"] }; a_dateconditional ] }*)
 
   
-  let dataTransformed = {defaultStatement with Annotations = [a_positionalId; a_required; { a_datenotrequired with Terms = ["2010-10-01"]; IsDate = true }; { a_yesnonotrequired with Terms = ["no"] }; { a_dateconditional with Terms = ["2010-08-01"]; IsDate = true; IsDisplayed = true} ] }
-  let resultStatement = validateStatement config data
+(*   let dataTransformed = {defaultStatement with Annotations = [a_positionalId; a_required; { a_datenotrequired with Terms = ["2010-10-01"]; IsDate = true }; { a_yesnonotrequired with Terms = ["no"] }; { a_dateconditional with Terms = ["2010-08-01"]; IsDate = true; IsDisplayed = true} ] }*)
+(*   let resultStatement = validateStatement config data*)
 
-  areListsTheSame dataTransformed.Annotations resultStatement.Annotations
+(*   areListsTheSame dataTransformed.Annotations resultStatement.Annotations*)
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has an invalid PositionalId then validating the statement will throw an 'invalid annotation' exception`` () =
@@ -157,15 +202,15 @@ let ``ValidationUtilsTests: When a statement has an invalid PositionalId then va
             | Failure msg -> msg
   res |> should equal "Invalid value for the 'PositionalId' annotation"
 
-[<Test>]
-let ``ValidationUtilsTests: When a statement has an blank required annotation then validating the statement will throw a 'missing annotation' exception`` () =
+(* [<Test>]*)
+(* let ``ValidationUtilsTests: When a statement has an blank required annotation then validating the statement will throw a 'missing annotation' exception`` () =*)
 
-  let res = try
-              verifyRequiredAnnotationsExist annotationValidations [ a_positionalId; { a_required with Terms = [] } ] |> ignore
-              "No exception caught"
-            with
-            | Failure msg -> msg
-  res |> should equal "No value provided for the 'Required' annotation"
+(*   let res = try*)
+(*               verifyRequiredAnnotationsExist annotationValidations [ a_positionalId; { a_required with Terms = [] } ] |> ignore*)
+(*               "No exception caught"*)
+(*             with*)
+(*             | Failure msg -> msg*)
+(*   res |> should equal "No value provided for the 'Required' annotation"*)
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement is missing required annotation then validating the statement will throw a 'missing annotation' exception`` () =
@@ -198,18 +243,18 @@ let ``ValidationUtilsTests: When a statement has a YesNo formatted annotation wh
             | Failure msg -> msg
   res |> should equal "Invalid value for the 'YesNo Not Required' annotation"
 
-[<Test>]
-let ``ValidationUtilsTests: When a statement has a conditionally required annotation which is not provided then validating the statement will throw a 'missing annotation' exception`` () =
-  let data =  [ a_positionalId; a_required; { a_yesnonotrequired with Terms = ["no"] } ]
-  let res = try
-              verifyRequiredAnnotationsExist annotationValidations data  |> ignore
-              "No exception caught"
-            with
-            | Failure msg -> msg
-  res |> should equal "Missing the 'Date Conditional' annotation"
+(* [<Test>]*)
+(* let ``ValidationUtilsTests: When a statement has a conditionally required annotation which is not provided then validating the statement will throw a 'missing annotation' exception`` () =*)
+(*   let data =  [ a_positionalId; a_required; { a_yesnonotrequired with Terms = ["no"] } ]*)
+(*   let res = try*)
+(*               verifyRequiredAnnotationsExist annotationValidations data  |> ignore*)
+(*               "No exception caught"*)
+(*             with*)
+(*             | Failure msg -> msg*)
+(*   res |> should equal "Missing the 'Date Conditional' annotation"*)
 
 [<Test>]
-let ``ValidationUtilsTests: where the Annotation is a Statement: invalid GUIDs will throw an exception`` () =
+let ``ValidationUtilsTests: Given an annotation has an invalid GUID should throw an exception`` () =
   let data = { defaultStatement with Annotations = [ a_positionalId; a_required; { a_statementReference with Terms = ["Clearly an invalid Guid"]} ] }
 
   let res = try
@@ -219,9 +264,35 @@ let ``ValidationUtilsTests: where the Annotation is a Statement: invalid GUIDs w
             | Failure msg -> msg
   res |> should equal "Invalid value for the 'Reference to A Statement' annotation"
 
-let a_conditionaldiscoverable = { annotation with Property = "affectsdiscoverability"; Vocab = "Affects If Discoverable"; Terms = ["yes"]; Format = "YesNo"; Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasThingThatAffectsDiscoverability"; IsValidated = true; IsDisplayed = false; IsDataAnnotation = true }
+
+
+
+
+
+
+
+
+let a_conditionaldiscoverable = { annotation with 
+                                    Property = "affectsdiscoverability"; 
+                                    Vocab = "affectsdiscoverability"; 
+                                    Terms = ["yes"]; 
+                                    Format = "YesNo"; 
+                                    Uri= "http://ld.nice.org.uk/ns/qualitystandard#hasThingThatAffectsDiscoverability"; 
+                                    IsValidated = true; 
+                                    IsDisplayed = false; 
+                                    IsDataAnnotation = true }
+
 let a_conditionalundiscoverable = { a_conditionaldiscoverable with Terms = ["no"]; }
-let a_undiscoverablewhenpopulated_notpopulated = { annotation with Property = "affectsdiscoverabilityifpopulated"; Vocab = "Being Populated Affects If Discoverable"; Terms = []; Uri= "http://ld.nice.org.uk/ns/qualitystandard#affectsdiscoverabilityifpopulated"; IsValidated = true; IsDisplayed = true; IsDataAnnotation = true }
+
+let a_undiscoverablewhenpopulated_notpopulated = { annotation with 
+                                                    Property = "affectsdiscoverabilityifpopulated"; 
+                                                    Vocab = "affectsdiscoverabilityifpopulated"; 
+                                                    Terms = []; 
+                                                    Uri= "http://ld.nice.org.uk/ns/qualitystandard#affectsdiscoverabilityifpopulated"; 
+                                                    IsValidated = true; 
+                                                    IsDisplayed = true; 
+                                                    IsDataAnnotation = true }
+
 let a_undiscoverablewhenpopulated_populated = { a_undiscoverablewhenpopulated_notpopulated with Terms = ["A Value"] }
 
 [<Test>]

@@ -10,7 +10,7 @@ compiler:
   ports:
     - "8081:8081"
 schema:
-  image: nice/ontologies
+  image: nice/ontologies:test
   expose:
     - 80
   ports:
@@ -22,11 +22,11 @@ stardog:
   volumes:
     - /dev/urandom:/dev/random
 elastic:
-  image: nice/ld-docker-elasticsearch
+  image: nice/ld-docker-elasticsearch:test
   ports:
     - "9200:9200"
 resourceapi:
-  image: nice/ld-resource-api
+  image: nice/ld-resource-api:test
   ports:
     - "8082:8082"
   volumes_from:

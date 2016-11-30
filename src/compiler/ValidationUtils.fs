@@ -45,7 +45,7 @@ let verifyRequiredAnnotationsExist theseValidations theseAnnotations =
            | _ -> thisValidation, false
 
   let isRequiresAnnotationInList thisValidation =
-    let foundAnnotations = theseAnnotations |> List.filter (fun a -> a.Vocab = thisValidation.Label)
+    let foundAnnotations = theseAnnotations |> List.filter (fun a -> a.Vocab = thisValidation.Uri)
     match foundAnnotations.Length with
     | 0 -> raiseError thisValidation.Label "Missing"
     | _ -> match foundAnnotations.Head.Terms.Length with
@@ -148,8 +148,8 @@ let private isAnnotationUndiscoverable (thisAnnotation:Annotation) =
   | _ -> match thisAnnotation.UndiscoverableWhen with
          | "" -> false
          | "*Populated*" -> match thisAnnotation.Terms.Length with
-                          | 0 -> false
-                          | _ -> true
+                            | 0 -> false
+                            | _ -> true
          | _ -> hasUndiscoverableTerms thisAnnotation
 
 let private hasUndiscoverableAnnotations theseAnnotations =
@@ -157,8 +157,9 @@ let private hasUndiscoverableAnnotations theseAnnotations =
   |> List.map isAnnotationUndiscoverable
   |> List.contains true
 
-let private addIsUndiscoverable thisStatement =
+let addIsUndiscoverable thisStatement =
   let isUndiscoverable = thisStatement.Annotations |> hasUndiscoverableAnnotations
+
   { thisStatement with IsUndiscoverable = isUndiscoverable}
 
 
@@ -196,9 +197,9 @@ let validateStatement config (thisStatement:Statement) =
   let annotationConfig = config.AnnotationConfig
                          |> addConditionalDisplayFlag thisStatement
 
-  thisStatement.Annotations
-  |> verifyRequiredAnnotationsExist annotationConfig
-  |> ignore
+  (* thisStatement.Annotations*)
+  (* |> verifyRequiredAnnotationsExist annotationConfig*)
+  (* |> ignore*)
 
   let processAnnotations =
     addConfigToAnnotation annotationConfig

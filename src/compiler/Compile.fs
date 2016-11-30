@@ -34,13 +34,13 @@ let writeHtml outputDir statement =
 
 let compile config extractor items outputDir dbName = 
   let rdfArgs = config.LoadRdfArgs ()
-//  let baseUrl = config |> getBaseUrl
 
   let compileItem =
     extractor.readContentForItem
     >> convertMarkdownToHtml 
     >> extractStatement
     >> validateStatement config
+    >> addIsUndiscoverable 
     >> bindDataToHtml
     >> writeHtml outputDir
 
@@ -56,7 +56,9 @@ let compile config extractor items outputDir dbName =
     | _ -> processRdfTtl thisStatement
 
   items
-  |> Seq.iter (fun item -> try (item |> compileItem |> processIfDiscoverable) with ex -> Log.Error(sprintf "Problem processing item %s with: %s\n" item.Thing ( ex.ToString() )))
+  |> Seq.iter (fun item -> try (item 
+                                |> compileItem 
+                                |> processIfDiscoverable) 
+                           with ex -> Log.Error(sprintf "Problem processing item %s with: %s\n" item.Thing ( ex.ToString() )))
 
   addGraphs outputDir dbName
-

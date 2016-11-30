@@ -25,18 +25,18 @@ type ElasticResponse = JsonProvider<"""
       {
         "_id":"",
         "_source":{
-          "https://nice.org.uk/ontologies/qualitystandard#title":"",
-          "https://nice.org.uk/ontologies/qualitystandard#abstract":"",
-          "https://nice.org.uk/ontologies/qualitystandard#qsidentifier":"",
-          "https://nice.org.uk/ontologies/qualitystandard#stidentifier":"",
-          "https://nice.org.uk/ontologies/qualitystandard#wasFirstIssuedOn":"",
+          "https://nice.org.uk/ontologies/qualitystandard/bc8e0db0_5d8a_4100_98f6_774ac0eb1758":"",
+          "https://nice.org.uk/ontologies/qualitystandard/1efaaa6a_c81a_4bd6_b598_c626b21c71fd":"",
+          "https://nice.org.uk/ontologies/qualitystandard/3ff270e4_655a_4884_b186_e033f58759de":"",
+          "https://nice.org.uk/ontologies/qualitystandard/9fcb3758_a4d3_49d7_ab10_6591243caa67":"",
+          "https://nice.org.uk/ontologies/qualitystandard/0886da59_2c5f_4124_9f46_6be4537a4099":"",
           "@id":"",
           "@type":"",
-          "qualitystandard:appliesToAgeGroup":[],
-          "qualitystandard:appliesToSetting":[],
-          "qualitystandard:appliesToServiceArea":[],
-          "qualitystandard:appliesToFactorsAffectingHealthOrWellbeing":[],
-          "qualitystandard:appliesToConditionOrDisease":[]
+          "qualitystandard:4e7a368e_eae6_411a_8167_97127b490f99":[],
+          "qualitystandard:62496684_7027_4f37_bd0e_264c9ff727fd":[],
+          "qualitystandard:7ae8413a_2811_4a09_a655_eff8d276ec87":[],
+          "qualitystandard:18aa6468_de94_4f9f_bd7a_0075fba942a5":[],
+          "qualitystandard:28745bc0_6538_46ee_8b71_f0cf107563d9":[]
         }
       }
     ],
@@ -46,14 +46,14 @@ type ElasticResponse = JsonProvider<"""
 
 let query = """{
 "sort": [
-  { "https://nice.org.uk/ontologies/qualitystandard#qsidentifier" : { "order": "desc" }},
-  { "https://nice.org.uk/ontologies/qualitystandard#stidentifier" : { "order": "asc" }}
+  { "https://nice.org.uk/ontologies/qualitystandard/3ff270e4_655a_4884_b186_e033f58759de" : { "order": "desc" }},
+  { "https://nice.org.uk/ontologies/qualitystandard/9fcb3758_a4d3_49d7_ab10_6591243caa67" : { "order": "asc" }}
 ]
 }"""
 
 let private queryElastic indexName typeName =
   let url = sprintf "http://elastic:9200/%s/%s/_search" indexName typeName
-//  let json = Http.RequestString(url, httpMethod="GET")
+  printf "url => %A" url
 
   let json = Http.RequestString(url,
                        body = TextRequest query,
@@ -63,7 +63,6 @@ let private queryElastic indexName typeName =
 
 let private queryElasticViaJsonParser indexName typeName =
   let url = sprintf "http://elastic:9200/%s/%s/_search" indexName typeName
-//  let json = Http.RequestString(url, httpMethod="GET")
   let json = Http.RequestString(url,
                        body = TextRequest query,
                        headers = [ "Content-Type", "application/json;charset=utf-8" ])
@@ -116,8 +115,6 @@ let ``When publishing a discoverable statement it should have added a statement 
 [<Test>]
 let ``When publishing a discoverable statement it should apply structured data annotations that exist in metadata`` () =
 
-  (* runCompileAndWaitTillFinished ()*)
-
   let indexName = "kb"
   let typeName = "qualitystatement"
   let response = queryElastic indexName typeName
@@ -126,14 +123,12 @@ let ``When publishing a discoverable statement it should apply structured data a
 
   let doc = (Seq.head response.Hits.Hits).Source
 
-  let firstIssued = doc.HttpsNiceOrgUkOntologiesQualitystandardWasFirstIssuedOn
+  let firstIssued = doc.HttpsNiceOrgUkOntologiesQualitystandard0886da592c5f41249f466be4537a4099
   firstIssued.JsonValue.AsString() |> should equal "2010-06-01"
 
 
 [<Test>]
 let ``When publishing a discoverable statement it should apply annotations that exist in metadata`` () =
-
-  (* runCompileAndWaitTillFinished ()*)
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -173,16 +168,15 @@ let ``When publishing a discoverable statement it should apply annotations that 
     | Success a -> a |> should equal true
     | Failed x -> sprintf "Test failed with error message: %A" x |> failwith
 
-  checkPropertyExistsAndIsValid "qualitystandard:appliesToAgeGroup"
-  checkPropertyExistsAndIsValid "qualitystandard:appliesToConditionOrDisease"
-  checkPropertyExistsAndIsValid "qualitystandard:appliesToServiceArea"
-  checkPropertyExistsAndIsValid "qualitystandard:appliesToSetting"
-  checkPropertyExistsAndIsValid "qualitystandard:appliesToFactorsAffectingHealthOrWellbeing"
+  checkPropertyExistsAndIsValid "qualitystandard:4e7a368e_eae6_411a_8167_97127b490f99"
+  checkPropertyExistsAndIsValid "qualitystandard:28745bc0_6538_46ee_8b71_f0cf107563d9"
+  checkPropertyExistsAndIsValid "qualitystandard:7ae8413a_2811_4a09_a655_eff8d276ec87"
+  checkPropertyExistsAndIsValid "qualitystandard:62496684_7027_4f37_bd0e_264c9ff727fd"
+  checkPropertyExistsAndIsValid "qualitystandard:18aa6468_de94_4f9f_bd7a_0075fba942a5"
 
 
 [<Test>]
 let ``When publishing a discoverable statement it should apply supertype and subtype inferred annotations`` () =
-  (* runCompileAndWaitTillFinished ()*)
 
   let indexName = "kb"
   let typeName = "qualitystatement"
@@ -191,7 +185,7 @@ let ``When publishing a discoverable statement it should apply supertype and sub
   response.Hits.Total |> should equal 2
 
   let doc = (Seq.head response.Hits.Hits).Source
-  let agegroups = doc.QualitystandardAppliesToAgeGroup |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
+  let agegroups = doc.Qualitystandard4e7a368eEae6411a816797127b490f99 |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
 
   agegroups |> should equal 
             ( ["\"https://nice.org.uk/ontologies/agegroup/d3326f46_c734_4ab7_9e41_923256bd7d0b\""
@@ -206,8 +200,6 @@ let ``When publishing a discoverable statement it should apply supertype and sub
 [<Test>]
 let ``When publishing a discoverable statement it should generate static html and post to resource api`` () =
 
-  (* runCompileAndWaitTillFinished ()*)
-
   let response = Http.Request("http://resourceapi:8082/resource/8422158b-302e-4be2-9a19-9085fc09dfe7",
                           headers = [ "Content-Type", "text/plain;charset=utf-8" ])
 
@@ -215,8 +207,6 @@ let ``When publishing a discoverable statement it should generate static html an
 
 [<Test>]
 let ``When publishing an undiscoverable statement it should generate static html and post to resource api`` () =
-
-  (* runCompileAndWaitTillFinished ()*)
 
   let response = Http.Request("http://resourceapi:8082/resource/54c3178f-f004-4caf-b1a8-582133bea26d",
                           headers = [ "Content-Type", "text/plain;charset=utf-8" ])

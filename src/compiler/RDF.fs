@@ -30,6 +30,9 @@ let private lookupAnnotations vocabMap termMap annotations =
     let termMap = termMap
     let vocabKey = getProperty vocab
     let termId = getProperty term
+
+    (* printf "vocabMap => %A vocabKey => %A" vocabMap vocabKey*)
+
     match Map.tryFind vocabKey vocabMap with
     | Some vocabUri ->
       match Map.tryFind vocabKey termMap with
@@ -38,9 +41,9 @@ let private lookupAnnotations vocabMap termMap annotations =
         | Some resource -> getTermUriFor resource vocabUri termId
         | None -> Log.Warning (sprintf "Cannot find '%s' in '%s'" term vocab)
                   None
-      | None -> Log.Warning (sprintf "Cannot find vocabulary '%s'" vocab)
+      | None -> Log.Warning (sprintf "Cannot find vocabulary from termMap '%s'" vocab)
                 None
-    | None -> Log.Warning (sprintf "Cannot find vocabulary '%s'" vocab)
+    | None -> Log.Warning (sprintf "Cannot find vocabulary from vocabMap '%s'" vocab)
               None
 
   annotations
@@ -74,11 +77,11 @@ let transformToRDF args statement =
  
   let r = resource !! uri
             ( [a !! "https://nice.org.uk/ontologies/qualitystandard#QualityStatement"
-               dataProperty !!"https://nice.org.uk/ontologies/qualitystandard#title" (statement.Title^^xsd.string)
-               dataProperty !!"https://nice.org.uk/ontologies/qualitystandard#abstract" (statement.Abstract^^xsd.string)
+               dataProperty !!"https://nice.org.uk/ontologies/qualitystandard/bc8e0db0_5d8a_4100_98f6_774ac0eb1758" (statement.Title^^xsd.string)
+               dataProperty !!"https://nice.org.uk/ontologies/qualitystandard/1efaaa6a_c81a_4bd6_b598_c626b21c71fd" (statement.Abstract^^xsd.string)
                dataProperty !!"http://www.w3.org/2011/content#chars" (statement.Content^^xsd.string)
-               dataProperty !!"https://nice.org.uk/ontologies/qualitystandard#stidentifier" (statement.StatementId^^xsd.integer)
-               dataProperty !!"https://nice.org.uk/ontologies/qualitystandard#qsidentifier" (statement.StandardId^^xsd.integer)
+               dataProperty !!"https://nice.org.uk/ontologies/qualitystandard/9fcb3758_a4d3_49d7_ab10_6591243caa67" (statement.StatementId^^xsd.integer)
+               dataProperty !!"https://nice.org.uk/ontologies/qualitystandard/3ff270e4_655a_4884_b186_e033f58759de" (statement.StandardId^^xsd.integer)
                ] @ objectAnnotations @ dataAnnotations) 
   
   r

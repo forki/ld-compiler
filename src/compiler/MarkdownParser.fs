@@ -69,9 +69,8 @@ let extractStatement (contentHandle, html) =
                     |> extractAnnotations 
                     |> parseYaml
                     |> List.map convertToAnnotation
-  
   let id = annotations
-            |> List.tryFind (fun x -> x.Vocab.Equals("PositionalId"))
+            |> List.tryFind (fun x -> x.Vocab.Equals("84efb231_0424_461e_9598_1ef5272a597a")) //PositionalId
             |> extractQSandSTNumbers
 
   let standardId = (standardAndStatementNumbers id).[0] |> System.Int32.Parse
