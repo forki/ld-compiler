@@ -40,7 +40,6 @@ let compile config extractor items outputDir dbName =
     >> convertMarkdownToHtml 
     >> extractStatement
     >> validateStatement config
-    >> addIsUndiscoverable 
     >> bindDataToHtml
     >> writeHtml outputDir
 

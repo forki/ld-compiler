@@ -157,7 +157,7 @@ let private hasUndiscoverableAnnotations theseAnnotations =
   |> List.map isAnnotationUndiscoverable
   |> List.contains true
 
-let addIsUndiscoverable thisStatement =
+let private addIsUndiscoverable thisStatement =
   let isUndiscoverable = thisStatement.Annotations |> hasUndiscoverableAnnotations
 
   { thisStatement with IsUndiscoverable = isUndiscoverable}
@@ -197,9 +197,9 @@ let validateStatement config (thisStatement:Statement) =
   let annotationConfig = config.AnnotationConfig
                          |> addConditionalDisplayFlag thisStatement
 
-  (* thisStatement.Annotations*)
-  (* |> verifyRequiredAnnotationsExist annotationConfig*)
-  (* |> ignore*)
+  thisStatement.Annotations
+  |> verifyRequiredAnnotationsExist annotationConfig
+  |> ignore
 
   let processAnnotations =
     addConfigToAnnotation annotationConfig
