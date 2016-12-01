@@ -25,7 +25,7 @@ let configString = """
 			"Publish":
 			[
 				{
-					"Uri": "setting",
+					"Uri": "GUID_setting",
 					"PropertyPath":
 					[
 						"^rdfs:subClassOf*"
@@ -40,7 +40,7 @@ let configString = """
 			"Publish":
 			[
 				{
-					"Uri": "age",
+					"Uri": "GUID_agegroup",
 					"Label": "Age Group",
 					"PropertyPath":
 					[
@@ -58,7 +58,7 @@ let configString = """
 			"Publish":
 			[
 				{
-					"Uri": "condition",
+					"Uri": "GUID_condition",
 					"Label": "Condition Or Disease",
 					"PropertyPath": 
 					[
@@ -76,7 +76,7 @@ let configString = """
 			"Publish":
 			[
 				{
-					"Uri": "servicearea",
+					"Uri": "GUID_servicearea",
 					"PropertyPath": 
 					[
 						"^rdfs:subClassOf*"
@@ -92,7 +92,7 @@ let configString = """
 			"Publish":
 			[
 				{
-					"Uri": "lifestylecondition",
+					"Uri": "GUID_lifestylecondition",
 					"PropertyPath":
 					[
 						"^rdfs:subClassOf*"
@@ -120,7 +120,7 @@ let configString = """
 					"Uri": "stidentifier"
 				},
 				{
-					"Uri": "hasPositionalId",
+					"Uri": "GUID_PositionalId",
 					"Label": "PositionalId",
 					"Validate": true,
 					"Format": "PositionalId:Required",
@@ -129,7 +129,7 @@ let configString = """
                     "PropertyPath": []
 				},
 				{
-					"Uri": "isNationalPriority",
+					"Uri": "GUID_NationalPriority",
 					"Label": "National priority",
 					"Validate": true,
 					"Format": "YesNo:Required",
@@ -138,7 +138,7 @@ let configString = """
 					"PropertyPath": []
 				},
 				{
-					"Uri": "changedPriorityOn",
+					"Uri": "GUID_ChangedPriorityOn",
 					"Label": "Changed Priority On",
 					"Validate": true,
 					"Format": "Date:Conditional:National priority:no",
@@ -147,7 +147,7 @@ let configString = """
 					"PropertyPath": []
 				},
 				{
-					"Uri": "wasFirstIssuedOn",
+					"Uri": "GUID_FirstIssued",
 					"Label": "First issued",
 					"Validate": true,
 					"Format": "Date:Required",
@@ -165,19 +165,19 @@ let configString = """
 """
 let content = """
 ```
-PositionalId:
+GUID_PositionalId:
   - "qs1-st1"
-National priority:
+GUID_NationalPriority:
   - "yes"
-First issued:
+GUID_FirstIssued:
   - "01-06-2010"
-Age group:
+GUID_AgeGroup:
   - "Adults"
-Setting:
+GUID_Setting:
   - "Care home"
-Service area:
+GUID_Service area:
   - "Community health care"
-Condition or disease:
+GUID_Condition or disease:
   - "Mental health and behavioural conditions"
 ```
 This is the title 
