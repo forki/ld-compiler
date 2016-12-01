@@ -6,6 +6,7 @@ open System.Text
 open compiler.ContentHandle
 open compiler.Utils
 open compiler.ConfigUtils
+open compiler.ConfigTypes
 
 let private contentDir = "/git"
 
@@ -35,7 +36,6 @@ let readConfig () =
   |> getConfigFromFile
 //  |> deserializeConfig
   |> createConfig
-  
+
 let prepare () =
   tryClean contentDir
-  

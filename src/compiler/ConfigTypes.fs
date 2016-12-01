@@ -1,18 +1,21 @@
 ﻿module compiler.ConfigTypes
 
+open FSharp.Data
 open FSharp.RDF
 open Assertion
 open rdf
 open compiler.Domain
 
-type DisplayItem = {
+type DisplayItem =
+  {
     Always: bool
     Condition: string
     Label: string
     Template: string
-}
+  }
 
-type PublishItem = {
+type PublishItem =
+  {
     Uri: string
     Label: string
     Validate: bool
@@ -21,38 +24,50 @@ type PublishItem = {
     Format: string
     PropertyPath: string list
     UndiscoverableWhen : string
-}
+  }
 
-type ConfigItem = {
+type ConfigItem =
+  {
     Schema: string
     JsonLD: string
     Map: bool
     Publish: PublishItem list
-}
+  }
 
-
-type ConfigFile = {
+type ConfigFile =
+  {
     SchemaBase: string
     QSBase: string
     ThingBase: string
     IndexName: string
     TypeName: string
     SchemaDetails: ConfigItem list
-}
+  }
 
-type ConfigDetails = {
-  BaseUrl: string
-  PropertyBaseUrl: string
-  SchemaBase: string
-  JsonLdContexts : string list
-  Ttls : string list
-  PropPaths : string list
-  AnnotationConfig : PublishItem List
-  RdfTerms : (string * string) List
-  LoadRdfArgs : unit -> RDFArgs
-  TypeName : string
-  IndexName : string
-}
+type Ttl =
+  | Uri of string
+  | Content of string
+
+type ConfigDetails =
+  {
+    BaseUrl: string
+    PropertyBaseUrl: string
+    SchemaBase: string
+    JsonLdContexts : string list
+    Ttls : string list
+    CoreTtl : Ttl
+    PropPaths : string list
+    AnnotationConfig : PublishItem List
+    RdfTerms : (string * string) List
+    LoadRdfArgs : unit -> RDFArgs
+    TypeName : string
+    IndexName : string
+  }
+  static member pullCoreTtl (x:ConfigDetails) =
+    match x.CoreTtl with
+    | Uri u -> {x with CoreTtl = Content (Http.RequestString u) }
+    | _ -> x
+
 let t_displayItem = {
     Always = false
     Condition = null
@@ -100,6 +115,7 @@ let t_configDetails = {
   PropertyBaseUrl = null
   SchemaBase = null
   JsonLdContexts = []
+  CoreTtl = Uri ""
   Ttls = []
   PropPaths = []
   AnnotationConfig = []

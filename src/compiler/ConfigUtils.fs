@@ -100,6 +100,11 @@ let private getRdfArgs (config:ConfigFile) () =
     BaseUrl = config.ThingBase
   }
 
+let getCoreTtlUri config =
+  config.SchemaDetails
+  |> List.find (fun x -> x.Map = false)
+  |> fun x -> Uri (sprintf "%s%s" config.SchemaBase x.Schema)
+
 let createConfig jsonString = 
   let deserialisedConfig = JsonConvert.DeserializeObject<ConfigFile>(jsonString)
 
@@ -109,6 +114,7 @@ let createConfig jsonString =
     PropertyBaseUrl = deserialisedConfig.QSBase
     SchemaBase = deserialisedConfig.SchemaBase
     JsonLdContexts = getPropertySetFromConfig getJsonLd
+    CoreTtl = getCoreTtlUri deserialisedConfig
     Ttls = getPropertySetFromConfig getTtl
     PropPaths = getPropPaths deserialisedConfig
     AnnotationConfig = getAnnotationConfig deserialisedConfig
@@ -118,3 +124,30 @@ let createConfig jsonString =
     IndexName = deserialisedConfig.IndexName
   }
 
+let updateLabelsFromTtl (config:ConfigDetails) =
+  let configWithTtl = config |> ConfigDetails.pullCoreTtl
+  let ttlContent = match configWithTtl.CoreTtl with
+                   | Content c -> c
+                   | _ -> ""
+  let graph = Graph.loadTtl (fromString ttlContent)
+
+  let getResource (publishItem:PublishItem) =
+    let uri = sprintf "%s%s" config.PropertyBaseUrl publishItem.Uri
+    let ret =Resource.fromSubject (Uri.from uri) graph
+    publishItem, ret |> List.tryHead
+  
+  let label x d =
+    match x with
+    | None -> d
+    | Some x -> match (|FunctionalDataProperty|_|)
+                       (Uri.from "http://www.w3.org/2000/01/rdf-schema#label")
+                       (xsd.string) x with
+                | Some x -> x
+                | _ -> d
+
+  let updatePublishItem (publishItem, resource) =
+    { publishItem with Label = (label resource publishItem.Label) }
+
+  let processItem = getResource >> updatePublishItem  
+
+  { config with AnnotationConfig = config.AnnotationConfig |> List.map processItem }
