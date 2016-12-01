@@ -1,16 +1,17 @@
 ﻿module compiler.ValidationUtils
 
+open System.Text.RegularExpressions
 open compiler.Domain
 open compiler.Utils
 open compiler.ConfigTypes
 open compiler.AnnotationUtils
 
-let private raiseError annotation state =
+let private raiseError label guid state =
   match state with
-  | "Invalid" -> sprintf "Invalid value for the '%s' annotation" annotation
-  | "Blank" -> sprintf "No value provided for the '%s' annotation" annotation
-  | "Missing" -> sprintf "Missing the '%s' annotation" annotation
-  | _ -> sprintf "Error (%s) encountered while processing the '%s' annotation" state annotation
+  | "Invalid" -> sprintf "Invalid value for the '%s (%s)' annotation" label guid
+  | "Blank" -> sprintf "No value provided for the '%s (%s)' annotation" label guid
+  | "Missing" -> sprintf "Missing the '%s (%s)' annotation" label guid
+  | _ -> sprintf "Error (%s) encountered while processing the '%s (%s)' annotation" state label guid
   |> failwith
 
 
@@ -47,9 +48,9 @@ let verifyRequiredAnnotationsExist theseValidations theseAnnotations =
   let isRequiresAnnotationInList thisValidation =
     let foundAnnotations = theseAnnotations |> List.filter (fun a -> a.Vocab = thisValidation.Uri)
     match foundAnnotations.Length with
-    | 0 -> raiseError thisValidation.Label "Missing"
+    | 0 -> raiseError thisValidation.Label thisValidation.Uri "Missing"
     | _ -> match foundAnnotations.Head.Terms.Length with
-           | 0 -> raiseError thisValidation.Label "Blank"
+           | 0 -> raiseError thisValidation.Label thisValidation.Uri "Blank"
            | _ -> ()
 
   theseValidations
@@ -66,34 +67,24 @@ let private processDates thisAnnotation =
   let tryparseDate date = 
     match System.DateTime.TryParseExact(date, "dd-MM-yyyy", System.Globalization.CultureInfo.InvariantCulture,System.Globalization.DateTimeStyles.None) with
     | true, x -> x.ToString("yyyy-MM-dd")
-    | _ ->  raiseError thisAnnotation.Property "Invalid"
+    | _ ->  raiseError thisAnnotation.Property thisAnnotation.Vocab "Invalid"
     
   let processedTerms = thisAnnotation.Terms
                          |> List.map (fun t -> tryparseDate t)
   { thisAnnotation with Terms = processedTerms; IsDate = true}
  
 let private processPositionalId thisAnnotation =
-  let posnIdError = raiseError "PositionalId"
+  let posnIdError = raiseError thisAnnotation.Property thisAnnotation.Vocab
 
-  let valid prefix (part:string) =
-    let compare = sprintf "%s%s" prefix (part.Replace(prefix,""))
-    System.String.Equals(compare, part)
-
-  let validateParts qs st =
-    match (valid "qs" qs) && (valid "st" st) with
-    | true -> ()
-    | _ -> posnIdError "Invalid"
-
-  let splitAndProcessPositionalId (positionalId:string) =
-    let idParts = positionalId.Split [|'-'|] |> Array.toList
-
-    match idParts.Length with
-    | 2 -> validateParts (idParts |> List.head) (idParts |> List.tail |> List.head)
-    | _ -> posnIdError "Invalid"
+  let regexPositionalId pid =
+    Regex.Match(pid,"^qs[1-9]\\d*-st[1-9]\\d*$")
+    |> fun x -> match x.Success with
+                | true -> ()
+                | _ -> posnIdError "Invalid"
          
   match thisAnnotation.Terms.Length with
-  | 1 -> thisAnnotation.Terms.Head |> splitAndProcessPositionalId
-  | _ -> posnIdError "Invalid"
+  | 1 -> thisAnnotation.Terms.Head |> regexPositionalId
+  | _ -> posnIdError "Missing"
     
   thisAnnotation
 
@@ -102,7 +93,7 @@ let private processYesNo thisAnnotation =
     match term with
     | "yes"
     | "no" -> ()
-    | _ -> raiseError thisAnnotation.Property "Invalid"
+    | _ -> raiseError thisAnnotation.Property thisAnnotation.Vocab "Invalid"
 
   thisAnnotation.Terms
   |> List.map (fun t -> assessTerm t)
@@ -115,7 +106,7 @@ let private processStatementReference thisAnnotation =
                  |> List.map (fun t -> System.Guid.TryParse(t) |> fst)
                  |> List.contains false
   match isInvaid with
-  | true -> raiseError thisAnnotation.Property "Invalid"
+  | true -> raiseError thisAnnotation.Property thisAnnotation.Vocab "Invalid"
   | _ -> thisAnnotation
   
 let private validateDataAnnotationFormat (thisAnnotation:Annotation) =

@@ -34,7 +34,6 @@ let readOne item =
 let readConfig () = 
   sprintf "%s/OntologyConfig.json" contentDir
   |> getConfigFromFile
-//  |> deserializeConfig
   |> createConfig
   |> updateLabelsFromTtl
 
