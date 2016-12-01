@@ -36,6 +36,7 @@ let readConfig () =
   |> getConfigFromFile
 //  |> deserializeConfig
   |> createConfig
+  |> updateLabelsFromTtl
 
 let prepare () =
   tryClean contentDir
