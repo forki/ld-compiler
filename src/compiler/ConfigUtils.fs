@@ -136,17 +136,17 @@ let updateLabelsFromTtl (config:ConfigDetails) =
     let ret =Resource.fromSubject (Uri.from uri) graph
     publishItem, ret |> List.tryHead
   
-  let label x d =
-    match x with
-    | None -> d
+  let getLabel resource defaultValue =
+    match resource with
+    | None -> defaultValue 
     | Some x -> match (|FunctionalDataProperty|_|)
                        (Uri.from "http://www.w3.org/2000/01/rdf-schema#label")
                        (xsd.string) x with
                 | Some x -> x
-                | _ -> d
+                | _ -> defaultValue 
 
-  let updatePublishItem (publishItem, resource) =
-    { publishItem with Label = (label resource publishItem.Label) }
+  let updatePublishItem (publishItem:PublishItem, resource) =
+    { publishItem with Label = (getLabel resource publishItem.Label) }
 
   let processItem = getResource >> updatePublishItem  
 
