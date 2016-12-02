@@ -7,6 +7,7 @@ open FSharp.Data.JsonExtensions
 open System.IO
 open System.Web
 open System.Net
+open compiler.IntegrationTests.Utils
 
 let runCompileAndWaitTillFinished () =
   let myGitRepoUrl = "https://github.com/nhsevidence/ld-dummy-content"
@@ -99,16 +100,12 @@ let ``run after all tests``() =
 [<Test>]
 let ``When publishing a discoverable statement it should have added a statement to elastic search index`` () =
 
-  (* runCompileAndWaitTillFinished ()*)
-
   let indexName = "kb"
   let typeName = "qualitystatement"
   let response = queryElastic indexName typeName
 
   response.Hits.Total |> should equal 2
 
-//  let doc = (Seq.head response.Hits.Hits).Source
-//  doc.Id.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/resource/8422158b-302e-4be2-9a19-9085fc09dfe7" 
   let docId = (Seq.head response.Hits.Hits).Id
   docId.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/things/8422158b-302e-4be2-9a19-9085fc09dfe7" 
 
@@ -206,12 +203,20 @@ let ``When publishing a discoverable statement it should generate static html an
   response.StatusCode |> should equal 200
 
 [<Test>]
-let ``When publishing an undiscoverable statement it should generate static html and post to resource api`` () =
+let ``When publishing a discoverable statement it should generate static html with the correct title in the metadata table`` () =
 
-  let response = Http.Request("http://resourceapi:8082/resource/54c3178f-f004-4caf-b1a8-582133bea26d",
+  let response = Http.Request("http://resourceapi:8082/resource/8422158b-302e-4be2-9a19-9085fc09dfe7",
                           headers = [ "Content-Type", "text/plain;charset=utf-8" ])
 
-  response.StatusCode |> should equal 200
+  match response.Body with
+  | Text text ->
+      text
+      |> parseHtml
+      |> CQ.select "#metadata tr:first-child td:first-child"
+      |> CQ.text
+      |> cleanString 
+      |> should equal "First issued"
+  | Binary bytes -> bytes |> should equal 0
 
 [<Test>]
 let ``When I post a markdown file to the convert end point it should generate html via pandoc`` () =

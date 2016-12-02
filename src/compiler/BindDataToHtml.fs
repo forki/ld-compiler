@@ -30,7 +30,7 @@ let private getTemplate (thisAnnotation:Annotation) =
 
 let private getLabel (thisAnnotation:Annotation) =
   match thisAnnotation.DisplayLabel |> isNullOrWhitespace with
-  | true -> thisAnnotation.Vocab
+  | true -> thisAnnotation.Property
   | _ -> thisAnnotation.DisplayLabel
 
 let generateTailHtml thisMetadataItem =

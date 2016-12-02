@@ -10,7 +10,7 @@ open compiler.Test.TestUtilities
 
 let private annotationValidations = [
   { t_publishItem with
-      Uri= "GUID_postionalId"
+      Uri= "GUID_positionalId"
       Label="PositionalId"
       Validate= true
       Format= "PositionalId:Required"
@@ -100,8 +100,8 @@ let private config = {
 // these are the annotations before munging with the 
 
 let a_positionalId = { annotation with 
-                        Property = "GUID_postionalId"
-                        Vocab = "GUID_postionalId"
+                        Property = "GUID_positionalId"
+                        Vocab = "GUID_positionalId"
                         Terms = ["qs1-st1"]
                         }
 
@@ -164,7 +164,7 @@ let prepend (annotation:Annotation) =
 let ``ValidationUtilsTests: When all statement annotations are valid (no conditionally required) then validating the statement will return a statement that is identical but with processed dates`` () =
   let data = {defaultStatement with Annotations = [ a_positionalId; a_required; a_datenotrequired; a_yesnonotrequired ] }
   
-  let dataTransformed = { defaultStatement with Annotations = [ { a_positionalId with Uri= "http://ld.nice.org.uk/ns/qualitystandard/GUID_postionalId"
+  let dataTransformed = { defaultStatement with Annotations = [ { a_positionalId with Uri= "http://ld.nice.org.uk/ns/qualitystandard/GUID_positionalId"
                                                                                       Property="PositionalId"
                                                                                       IsValidated= true
                                                                                       Format = "PositionalId:Required"
@@ -195,7 +195,7 @@ let ``ValidationUtilsTests: When all statement annotations are valid (no conditi
 let ``ValidationUtilsTests: When all statement annotations are valid (with conditionally required) then validating the statement will return a statement that is identical but with processed dates`` () =
   let data = {defaultStatement with Annotations = [ a_positionalId; a_required; a_datenotrequired; { a_yesnonotrequired with Terms = ["no"] }; a_dateconditional ] }
 
-  let dataTransformed = { defaultStatement with Annotations = [ { a_positionalId with Uri= "http://ld.nice.org.uk/ns/qualitystandard/GUID_postionalId"
+  let dataTransformed = { defaultStatement with Annotations = [ { a_positionalId with Uri= "http://ld.nice.org.uk/ns/qualitystandard/GUID_positionalId"
                                                                                       Property="PositionalId"
                                                                                       IsValidated= true
                                                                                       Format = "PositionalId:Required"
@@ -244,7 +244,7 @@ let ``ValidationUtilsTests: When a statement has an invalid PositionalId then va
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "Invalid value for the 'PositionalId' annotation"
+  res |> should equal "Invalid value for the 'PositionalId (GUID_positionalId)' annotation"
 
 [<Test>]
 
@@ -255,7 +255,7 @@ let ``ValidationUtilsTests: When a statement has an blank required annotation th
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "No value provided for the 'Required' annotation"
+  res |> should equal "No value provided for the 'Required (GUID_hasRequired)' annotation"
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement is missing required annotation then validating the statement will throw a 'missing annotation' exception`` () =
@@ -264,7 +264,7 @@ let ``ValidationUtilsTests: When a statement is missing required annotation then
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "Missing the 'Required' annotation"
+  res |> should equal "Missing the 'Required (GUID_hasRequired)' annotation"
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has a date formatted annotation which is not valid (dd-MM-yyyy) then validating the statement will throw a 'invalid annotation' exception`` () =
@@ -275,7 +275,7 @@ let ``ValidationUtilsTests: When a statement has a date formatted annotation whi
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "Invalid value for the 'Date Not Required' annotation"
+  res |> should equal "Invalid value for the 'Date Not Required (GUID_datenotrequired)' annotation"
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has a YesNo formatted annotation which is not yes or no then validating the statement will throw a 'missing annotation' exception`` () =
@@ -286,7 +286,7 @@ let ``ValidationUtilsTests: When a statement has a YesNo formatted annotation wh
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "Invalid value for the 'YesNo Not Required' annotation"
+  res |> should equal "Invalid value for the 'YesNo Not Required (GUID_yesnonotrequired)' annotation"
 
 [<Test>]
 let ``ValidationUtilsTests: When a statement has a conditionally required annotation which is not provided then validating the statement will throw a 'missing annotation' exception`` () =
@@ -296,7 +296,7 @@ let ``ValidationUtilsTests: When a statement has a conditionally required annota
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "Missing the 'Date Conditional' annotation"
+  res |> should equal "Missing the 'Date Conditional (GUID_conditionallyrequireddate)' annotation"
 
 [<Test>]
 let ``ValidationUtilsTests: Given an annotation has an invalid GUID should throw an exception`` () =
@@ -307,7 +307,7 @@ let ``ValidationUtilsTests: Given an annotation has an invalid GUID should throw
               "No exception caught"
             with
             | Failure msg -> msg
-  res |> should equal "Invalid value for the 'Reference to A Statement' annotation"
+  res |> should equal "Invalid value for the 'Reference to A Statement (GUID_statementref)' annotation"
 
 let a_conditionaldiscoverable = { annotation with 
                                     Property = "GUID_affectsdiscoverability"
