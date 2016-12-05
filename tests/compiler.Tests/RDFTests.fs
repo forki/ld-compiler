@@ -27,7 +27,7 @@ let dataAnnotations = [
 
 let defaultStatement = { statement with Id = "id_goes_here" }
 
-let private baseUrl = "https://nice.org.uk/ontologies/qualitystandard"
+let private baseUrl = "https://nice.org.uk/things"
 
 let defaultArgs = {
   VocabMap = Map.ofList []
@@ -78,7 +78,7 @@ let ``RDFTests: Should create resource with subject uri as id``() =
            |> transformToRDF defaultArgs
            |> Resource.id 
    
-  id.ToString() |> should equal "https://nice.org.uk/ontologies/qualitystandard/id_goes_here"
+  id.ToString() |> should equal "https://nice.org.uk/things/id_goes_here"
 
 [<Test>]
 let ``RDFTests: Should create title dataproperty for resource``() =
