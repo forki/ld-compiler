@@ -57,7 +57,7 @@ let ``RDFTests: Should create resource with type of qualitystatement``() =
   |> FindObjectProperty "rdf:type" 
   |> Seq.map (fun p -> p.ToString())
   |> Seq.head
-  |> should equal "https://nice.org.uk/ontologies/qualitystandard#QualityStatement"
+  |> should equal "https://nice.org.uk/ontologies/qualitystandard/e29accb1_afde_4130_bb06_2d2c7bf990db"
   
 
 [<Test>]

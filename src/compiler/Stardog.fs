@@ -75,7 +75,7 @@ let extractResources propertyPaths =
       select distinct ?s
       from <https://nice.org.uk/>
       where {
-       ?s a <https://nice.org.uk/ontologies/qualitystandard#QualityStatement>
+       ?s a <https://nice.org.uk/ontologies/qualitystandard/e29accb1_afde_4130_bb06_2d2c7bf990db>
       }""" [] |> ResultSet.singles |> asUri
 
   let querySubGraph entity =
@@ -84,13 +84,13 @@ let extractResources propertyPaths =
     let query = (sprintf """
                        prefix nice: <https://nice.org.uk/>
                        construct {
-                         @entity a <https://nice.org.uk/ontologies/qualitystandard#QualityStatement> .
+                         @entity a <https://nice.org.uk/ontologies/qualitystandard/e29accb1_afde_4130_bb06_2d2c7bf990db> .
                          %s
                        }
                        from <https://nice.org.uk/ontologies>
                        from <https://nice.org.uk/>
                        where {
-                         { @entity a <https://nice.org.uk/ontologies/qualitystandard#QualityStatement> . }
+                         { @entity a <https://nice.org.uk/ontologies/qualitystandard/e29accb1_afde_4130_bb06_2d2c7bf990db> . }
                          %s
                        }
                """ construct clause) 
@@ -104,7 +104,7 @@ let extractResources propertyPaths =
     |> Seq.map ( querySubGraph |> retry) 
     |> Seq.map
          (Resource.fromType
-            (Uri.from "https://nice.org.uk/ontologies/qualitystandard#QualityStatement"))
+            (Uri.from "https://nice.org.uk/ontologies/qualitystandard/e29accb1_afde_4130_bb06_2d2c7bf990db"))
     |> Seq.filter (List.isEmpty >> not)
   Log.Information (sprintf "extracted %d subgraphs" (Seq.length xr))
   xr
