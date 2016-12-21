@@ -182,7 +182,10 @@ let ``When publishing a discoverable statement it should apply supertype and sub
   response.Hits.Total |> should equal 2
 
   let doc = (Seq.head response.Hits.Hits).Source
-  let agegroups = doc.Qualitystandard4e7a368eEae6411a816797127b490f99 |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
+  let agegroups = 
+    doc.Qualitystandard4e7a368eEae6411a816797127b490f99 
+    |> Array.map (fun s -> s.JsonValue.ToString() ) 
+    |> Set.ofArray
 
   agegroups |> should equal 
             ( ["\"https://nice.org.uk/ontologies/agegroup/d3326f46_c734_4ab7_9e41_923256bd7d0b\""
@@ -230,4 +233,20 @@ let ``When I post a markdown file to the convert end point it should generate ht
   let expectedHtml = """<h3 id="abstract">Abstract</h3>""" + System.Environment.NewLine
 
   html |> should equal expectedHtml
+
+[<Test>]
+let ``When publishing a undiscoverable statement it should generate static html without the content`` () =
+
+  let response = Http.Request("http://resourceapi:8082/resource/8422158b-302e-4be2-9a19-9085fc09dfe7",
+                          headers = [ "Content-Type", "text/plain;charset=utf-8" ])
+
+  match response.Body with
+  | Text text ->
+      text
+      |> parseHtml
+      |> CQ.select "#withdrawn-heading"
+      |> CQ.text
+      |> cleanString 
+      |> should equal ""
+  | Binary bytes -> bytes |> should equal 0
 

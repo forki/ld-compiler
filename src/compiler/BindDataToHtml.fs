@@ -63,6 +63,9 @@ let transformAnnotations (theseAnnotations:Annotation List) =
                         } )
   |> List.map generateDataHtml
 
+let retrieveContent thisStatement =
+   if thisStatement.IsUndiscoverable then "" else thisStatement.Html
+
 let bindDataToHtml thisStatement =
   let metadata = { Metadata_items = transformAnnotations thisStatement.Annotations }
 
@@ -83,8 +86,10 @@ let bindDataToHtml thisStatement =
     """
 
   let metadataTable = parseTemplate<MetadataViewModel> outlineTemplate
-  let newHtml = metadataTable "metadata" metadata
-  { thisStatement with Html = newHtml + thisStatement.Html }
+  let metadataTableHtml = metadataTable "metadata" metadata
+  { thisStatement with 
+      Html = metadataTableHtml + (retrieveContent thisStatement)
+  }
 
 
 
