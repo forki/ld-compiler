@@ -235,10 +235,36 @@ let ``When I post a markdown file to the convert end point it should generate ht
   html |> should equal expectedHtml
 
 [<Test>]
-let ``When publishing a undiscoverable statement it should generate static html without the content`` () =
+let ``When publishing an undiscoverable statement it should generate static html with the content`` () =
 
-  let response = Http.Request("http://resourceapi:8082/resource/8422158b-302e-4be2-9a19-9085fc09dfe7",
+  let response = Http.Request("http://resourceapi:8082/resource/54c3178f-f004-4caf-b1a8-582133bea26d",
                           headers = [ "Content-Type", "text/plain;charset=utf-8" ])
+
+  match response.Body with
+  | Text text ->
+      text
+      |> parseHtml
+      |> CQ.select "#this-is-the-undiscoverable-title"
+      |> CQ.text
+      |> cleanString 
+      |> should equal "This is the undiscoverable title"
+  | Binary bytes -> bytes |> should equal 0
+
+[<Test>]
+let ``When publishing a statement flagged with suppress content it should generate html without the content`` () =
+
+  let response = Http.Request("http://resourceapi:8082/resource/2a1937dc-9249-4888-929a-4abcbb76a1ec",
+                          headers = [ "Content-Type", "text/plain;charset=utf-8" ])
+
+  match response.Body with
+  | Text text ->
+      text
+      |> parseHtml
+      |> CQ.select "h1"
+      |> CQ.text
+      |> cleanString 
+      |> should equal "This quality statement is no longer available"
+  | Binary bytes -> bytes |> should equal 0
 
   match response.Body with
   | Text text ->

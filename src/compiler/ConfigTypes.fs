@@ -24,6 +24,7 @@ type PublishItem =
     Format: string
     PropertyPath: string list
     UndiscoverableWhen : string
+    SuppressContent : bool
   }
 
 type ConfigItem =
@@ -84,6 +85,7 @@ let t_publishItem = {
   Format = null
   PropertyPath = []
   UndiscoverableWhen = null
+  SuppressContent = false
 }
 
 let t_configItem = {

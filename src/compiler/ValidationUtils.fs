@@ -153,6 +153,19 @@ let private addIsUndiscoverable thisStatement =
 
   { thisStatement with IsUndiscoverable = isUndiscoverable}
 
+let private isContentSuppressed (thisAnnotation:Annotation) =
+  match obj.ReferenceEquals(thisAnnotation.SuppressContent, null) with
+  | true -> false
+  | _ -> thisAnnotation.SuppressContent 
+
+let private hasSuppressContent theseAnnotations =
+  theseAnnotations
+  |> List.map isContentSuppressed
+  |> List.contains true
+
+let private configureSuppressContent thisStatement =
+  let isSuppressContent= thisStatement.Annotations |> hasSuppressContent
+  { thisStatement with IsSuppressContent = isSuppressContent  }
 
 let getDisplayFlagFromAnnotations (theseAnnotations:Annotation List) (thisPublishItem:PublishItem) =
   let doesConditionalExist conditionParts = 
@@ -208,5 +221,5 @@ let validateStatement config (thisStatement:Statement) =
                       |> List.filter (fun x -> x.Terms.Length > 0)
       Content = thisStatement.Content
       Html = thisStatement.Html
-  } |> addIsUndiscoverable
+  } |> addIsUndiscoverable |> configureSuppressContent
 

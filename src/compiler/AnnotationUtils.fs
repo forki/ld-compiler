@@ -21,6 +21,7 @@ let private constructAnnotationWithConfig thisAnnotation thisAnnotationConfig =
       IsDisplayed = isDisplayed
       DisplayLabel = label
       DisplayTemplate = template
+      SuppressContent = thisAnnotationConfig.SuppressContent
   }
 
 let addConfigToAnnotation annotationConfig (thisAnnotation:Annotation) =

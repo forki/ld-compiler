@@ -64,7 +64,10 @@ let transformAnnotations (theseAnnotations:Annotation List) =
   |> List.map generateDataHtml
 
 let retrieveContent thisStatement =
-   if thisStatement.IsUndiscoverable then "" else thisStatement.Html
+   if thisStatement.IsSuppressContent then "" else thisStatement.Html
+
+let retrieveTitle thisStatement = 
+   if thisStatement.IsSuppressContent then "<h1>This quality statement is no longer available</h1>" else "" 
 
 let bindDataToHtml thisStatement =
   let metadata = { Metadata_items = transformAnnotations thisStatement.Annotations }
@@ -88,9 +91,5 @@ let bindDataToHtml thisStatement =
   let metadataTable = parseTemplate<MetadataViewModel> outlineTemplate
   let metadataTableHtml = metadataTable "metadata" metadata
   { thisStatement with 
-      Html = metadataTableHtml + (retrieveContent thisStatement)
-  }
-
-
-
-
+      Html = (retrieveTitle thisStatement) + metadataTableHtml + (retrieveContent thisStatement)
+  } 
