@@ -182,7 +182,10 @@ let ``When publishing a discoverable statement it should apply supertype and sub
   response.Hits.Total |> should equal 2
 
   let doc = (Seq.head response.Hits.Hits).Source
-  let agegroups = doc.Qualitystandard4e7a368eEae6411a816797127b490f99 |> Array.map (fun s -> s.JsonValue.ToString() ) |> Set.ofArray
+  let agegroups = 
+    doc.Qualitystandard4e7a368eEae6411a816797127b490f99 
+    |> Array.map (fun s -> s.JsonValue.ToString() ) 
+    |> Set.ofArray
 
   agegroups |> should equal 
             ( ["\"https://nice.org.uk/ontologies/agegroup/d3326f46_c734_4ab7_9e41_923256bd7d0b\""
@@ -230,4 +233,46 @@ let ``When I post a markdown file to the convert end point it should generate ht
   let expectedHtml = """<h3 id="abstract">Abstract</h3>""" + System.Environment.NewLine
 
   html |> should equal expectedHtml
+
+[<Test>]
+let ``When publishing an undiscoverable statement it should generate static html with the content`` () =
+
+  let response = Http.Request("http://resourceapi:8082/resource/54c3178f-f004-4caf-b1a8-582133bea26d",
+                          headers = [ "Content-Type", "text/plain;charset=utf-8" ])
+
+  match response.Body with
+  | Text text ->
+      text
+      |> parseHtml
+      |> CQ.select "#this-is-the-undiscoverable-title"
+      |> CQ.text
+      |> cleanString 
+      |> should equal "This is the undiscoverable title"
+  | Binary bytes -> bytes |> should equal 0
+
+[<Test>]
+let ``When publishing a statement flagged with suppress content it should generate html without the content`` () =
+
+  let response = Http.Request("http://resourceapi:8082/resource/2a1937dc-9249-4888-929a-4abcbb76a1ec",
+                          headers = [ "Content-Type", "text/plain;charset=utf-8" ])
+
+  match response.Body with
+  | Text text ->
+      text
+      |> parseHtml
+      |> CQ.select "h1"
+      |> CQ.text
+      |> cleanString 
+      |> should equal "This quality statement is no longer available"
+  | Binary bytes -> bytes |> should equal 0
+
+  match response.Body with
+  | Text text ->
+      text
+      |> parseHtml
+      |> CQ.select "#withdrawn-heading"
+      |> CQ.text
+      |> cleanString 
+      |> should equal ""
+  | Binary bytes -> bytes |> should equal 0
 

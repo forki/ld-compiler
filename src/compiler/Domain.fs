@@ -15,6 +15,7 @@ type Annotation = {
   UndiscoverableWhen : string
   DisplayLabel: string
   DisplayTemplate: string
+  SuppressContent : bool
 }
 
 type Statement = {
@@ -27,6 +28,7 @@ type Statement = {
   Content : string
   Html : string
   IsUndiscoverable : bool
+  IsSuppressContent : bool
 }
 
 type RDFArgs = {
@@ -48,6 +50,7 @@ let annotation = {
   UndiscoverableWhen = null
   DisplayLabel = null
   DisplayTemplate = null
+  SuppressContent = false
 }
 
 let statement = {
@@ -60,4 +63,5 @@ let statement = {
   Content = ""
   Html = ""
   IsUndiscoverable = false
+  IsSuppressContent = false
 }
