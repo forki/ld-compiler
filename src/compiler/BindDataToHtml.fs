@@ -37,7 +37,6 @@ let generateTailHtml thisMetadataItem =
   let repeatedTermsTemplate =
     """
     {% for value in values %}
-    <hr>
     """ + thisMetadataItem.value_template + """
     {% endfor %}
     """
