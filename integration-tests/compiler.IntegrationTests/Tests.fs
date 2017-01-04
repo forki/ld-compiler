@@ -31,6 +31,7 @@ type ElasticResponse = JsonProvider<"""
           "https://nice.org.uk/ontologies/qualitystandard/3ff270e4_655a_4884_b186_e033f58759de":"",
           "https://nice.org.uk/ontologies/qualitystandard/9fcb3758_a4d3_49d7_ab10_6591243caa67":"",
           "https://nice.org.uk/ontologies/qualitystandard/0886da59_2c5f_4124_9f46_6be4537a4099":"",
+          "https://nice.org.uk/ontologies/qualitystandard/84efb231_0424_461e_9598_1ef5272a597a":"",
           "@id":"",
           "@type":"",
           "qualitystandard:4e7a368e_eae6_411a_8167_97127b490f99":[],
@@ -45,27 +46,26 @@ type ElasticResponse = JsonProvider<"""
   }
 } """>
 
-let query = """{
-"sort": [
-  { "https://nice.org.uk/ontologies/qualitystandard/3ff270e4_655a_4884_b186_e033f58759de" : { "order": "desc" }},
-  { "https://nice.org.uk/ontologies/qualitystandard/9fcb3758_a4d3_49d7_ab10_6591243caa67" : { "order": "asc" }}
-]
-}"""
 
-let private queryElastic indexName typeName =
+let private queryElastic indexName typeName filters =
   let url = sprintf "http://elastic:9200/%s/%s/_search" indexName typeName
   printf "url => %A" url
 
+  let thisQuery = getQueryString filters
+
   let json = Http.RequestString(url,
-                       body = TextRequest query,
+                       body = TextRequest thisQuery,
                        headers = [ "Content-Type", "application/json;charset=utf-8" ])
 
   ElasticResponse.Parse(json)
 
-let private queryElasticViaJsonParser indexName typeName =
+let private queryElasticViaJsonParser indexName typeName filters =
   let url = sprintf "http://elastic:9200/%s/%s/_search" indexName typeName
+
+  let thisQuery = getQueryString filters
+
   let json = Http.RequestString(url,
-                       body = TextRequest query,
+                       body = TextRequest thisQuery,
                        headers = [ "Content-Type", "application/json;charset=utf-8" ])
   JsonValue.Parse(json)
 
@@ -102,9 +102,10 @@ let ``When publishing a discoverable statement it should have added a statement 
 
   let indexName = "kb"
   let typeName = "qualitystatement"
-  let response = queryElastic indexName typeName
+  let filters = [{Vocab="https://nice.org.uk/ontologies/qualitystandard/84efb231_0424_461e_9598_1ef5272a597a"; Terms = [ "qs1-st1" ]}]
+  let response = queryElastic indexName typeName filters
 
-  response.Hits.Total |> should equal 2
+  response.Hits.Total |> should equal 1
 
   let docId = (Seq.head response.Hits.Hits).Id
   docId.JsonValue.AsString() |> should equal "http://ld.nice.org.uk/things/8422158b-302e-4be2-9a19-9085fc09dfe7" 
@@ -114,7 +115,8 @@ let ``When publishing a discoverable statement it should apply structured data a
 
   let indexName = "kb"
   let typeName = "qualitystatement"
-  let response = queryElastic indexName typeName
+  let filters = [{Vocab="https://nice.org.uk/ontologies/qualitystandard/3ff270e4_655a_4884_b186_e033f58759de"; Terms = [ "1" ]}]
+  let response = queryElastic indexName typeName filters
 
   response.Hits.Total |> should equal 2
 
@@ -129,7 +131,8 @@ let ``When publishing a discoverable statement it should apply annotations that 
 
   let indexName = "kb"
   let typeName = "qualitystatement"
-  let response = queryElasticViaJsonParser indexName typeName
+  let filters = [{Vocab="https://nice.org.uk/ontologies/qualitystandard/84efb231_0424_461e_9598_1ef5272a597a"; Terms = [ "qs1-st1" ]}]
+  let response = queryElasticViaJsonParser indexName typeName filters
   
   let getProperty (propertyName:string) (root:JsonValue) =
     let a = root.TryGetProperty(propertyName)
@@ -177,9 +180,10 @@ let ``When publishing a discoverable statement it should apply supertype and sub
 
   let indexName = "kb"
   let typeName = "qualitystatement"
-  let response = queryElastic indexName typeName
+  let filters = [{Vocab="https://nice.org.uk/ontologies/qualitystandard/84efb231_0424_461e_9598_1ef5272a597a"; Terms = [ "qs1-st1" ]}]
+  let response = queryElastic indexName typeName filters
 
-  response.Hits.Total |> should equal 2
+  response.Hits.Total |> should equal 1
 
   let doc = (Seq.head response.Hits.Hits).Source
   let agegroups = 
@@ -276,3 +280,17 @@ let ``When publishing a statement flagged with suppress content it should genera
       |> should equal ""
   | Binary bytes -> bytes |> should equal 0
 
+[<Test>]
+let ``When querying elastic where several statements are returned those statements are returned in the correct order`` () =
+  let indexName = "kb"
+  let typeName = "qualitystatement"
+  let filters = [{Vocab="qualitystandard:28745bc0_6538_46ee_8b71_f0cf107563d9"; Terms = [ "https://nice.org.uk/ontologies/conditionordisease/acb63872_2066_431b_b70a_6c718006f572" ]}]
+  let response = queryElastic indexName typeName filters
+
+  response.Hits.Total |> should equal 3
+
+  let statementPositionalIds = response.Hits.Hits
+                               |> Seq.map (fun x -> x.Source.HttpsNiceOrgUkOntologiesQualitystandard84efb2310424461e95981ef5272a597a.JsonValue.AsString())
+                               |> Seq.toList
+
+  statementPositionalIds |> should equal ["qs21-st4";"qs21-st21";"qs4-st4"] 
