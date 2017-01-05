@@ -28,19 +28,44 @@ let private postDynamicMappings esUrl =
 {
   "mappings": {
     "qualitystatement": {
-        "dynamic_templates": [
-            { "notanalyzed": {
-                  "match":              "*", 
-                  "match_mapping_type": "string",
-                  "mapping": {
-                      "type":        "string",
-                      "index":       "not_analyzed"
-                  }
-               }
+      "dynamic_templates": [
+        { "notanalyzed": {
+            "match": "*3ff270e4_655a_4884_b186_e033f58759de",
+            "match_mapping_type": "string",
+            "mapping": {
+               "type": "integer"
             }
-          ]
-       }
-   }
+          }
+        },
+        { "notanalyzed": {
+            "match": "*9fcb3758_a4d3_49d7_ab10_6591243caa67",
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "integer"
+            }
+          }
+        },
+        { "notanalyzed": {
+            "match": "*0886da59_2c5f_4124_9f46_6be4537a4099",
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "date",
+              "format": "dateOptionalTime"
+            }
+          }
+        },
+        { "notanalyzed": {
+            "match": "*",
+            "match_mapping_type": "string",
+            "mapping": {
+              "type": "string",
+              "index": "not_analyzed"
+            }
+          }
+        }
+      ]
+    }
+  }
 }
 """) |> ignore
 
