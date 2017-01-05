@@ -281,15 +281,16 @@ let ``When publishing a statement flagged with suppress content it should genera
   | Binary bytes -> bytes |> should equal 0
 
 [<Test>]
-let ``When querying elastic where several statements are returned those statements are returned in the correct order`` () =
+let ``When querying elastic for 'Skin conditions' (where several statements are returned) those statements are returned in the correct order`` () =
   let indexName = "kb"
   let typeName = "qualitystatement"
+  // Quality Statement applies to condition or disease = Skin conditions
   let filters = [{Vocab="qualitystandard:28745bc0_6538_46ee_8b71_f0cf107563d9"; Terms = [ "https://nice.org.uk/ontologies/conditionordisease/acb63872_2066_431b_b70a_6c718006f572" ]}]
   let response = queryElastic indexName typeName filters
 
   response.Hits.Total |> should equal 3
-
-  let statementPositionalIds = response.Hits.Hits
+  // Positional Id from elastic response
+  let statementPositionalIds = response.Hits.Hits 
                                |> Seq.map (fun x -> x.Source.HttpsNiceOrgUkOntologiesQualitystandard84efb2310424461e95981ef5272a597a.JsonValue.AsString())
                                |> Seq.toList
 
