@@ -8,10 +8,6 @@ compiler:
     io.rancher.sidekicks: stardog
   environment:
     - LOGGING_ENVIRONMENT
-  external_links:
-    - knowledgebase/schema:schema
-    - knowledgebase/resourceapi:resourceapi
-    - knowledgebase/elastic:elastic
 stardog:
   image: nice/ld-docker-stardog
   ports:
