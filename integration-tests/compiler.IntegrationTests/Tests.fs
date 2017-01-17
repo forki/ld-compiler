@@ -35,6 +35,7 @@ type ElasticResponse = JsonProvider<"""
           "@id":"",
           "@type":"",
           "qualitystandard:4e7a368e_eae6_411a_8167_97127b490f99":[],
+          "qualitystandard:4e7a368e_eae6_411a_8167_97127b490f99:explicit":[],
           "qualitystandard:62496684_7027_4f37_bd0e_264c9ff727fd":[],
           "qualitystandard:7ae8413a_2811_4a09_a655_eff8d276ec87":[],
           "qualitystandard:18aa6468_de94_4f9f_bd7a_0075fba942a5":[],
@@ -45,7 +46,6 @@ type ElasticResponse = JsonProvider<"""
       "total": 3
   }
 } """>
-
 
 let private queryElastic indexName typeName filters =
   let url = sprintf "http://elastic:9200/%s/%s/_search" indexName typeName
@@ -68,6 +68,24 @@ let private queryElasticViaJsonParser indexName typeName filters =
                        body = TextRequest thisQuery,
                        headers = [ "Content-Type", "application/json;charset=utf-8" ])
   JsonValue.Parse(json)
+
+let private getStatementsFromElastic vocab terms = 
+    let indexName = "kb"
+    let typeName = "qualitystatement"
+    let filters = [{Vocab=vocab; Terms = terms}]
+    queryElastic indexName typeName filters
+
+let private ageGroupsAnnotations (doc:ElasticResponse.Source) = 
+    doc.Qualitystandard4e7a368eEae6411a816797127b490f99
+
+let private ageGroupAnnotationsExplicit (doc:ElasticResponse.Source) =
+    doc.Qualitystandard4e7a368eEae6411a816797127b490f99Explicit
+
+let private getProperty propertyFn (res:ElasticResponse.Root) =
+    let doc = (Seq.head res.Hits.Hits).Source
+    propertyFn doc
+    |> Array.map (fun (s:Runtime.BaseTypes.IJsonDocument) -> s.JsonValue.ToString() ) 
+    |> Set.ofArray
 
 type Result<'TSuccess,'TFailure> = 
 | Success of 'TSuccess
@@ -200,6 +218,19 @@ let ``When publishing a discoverable statement it should apply supertype and sub
                "\"https://nice.org.uk/ontologies/agegroup/011cdd3d_2911_4676_93b4_5af484c359c0\""
                ] |> Set.ofList )
        
+[<Test>]
+let ``When publishing a discoverable statement it should have explicitly annotations in a separate field`` () =
+
+    let positionalIdUri = "https://nice.org.uk/ontologies/qualitystandard/84efb231_0424_461e_9598_1ef5272a597a"
+    let positionalIdValue = [ "qs1-st1" ]
+    let expectedAgeGroupsAnnotations = ["\"https://nice.org.uk/ontologies/agegroup/d3326f46_c734_4ab7_9e41_923256bd7d0b\""] |> Set.ofList
+ 
+    let response = getStatementsFromElastic positionalIdUri positionalIdValue
+    response.Hits.Total |> should equal 1
+
+    response
+    |> getProperty ageGroupAnnotationsExplicit
+    |> should equal expectedAgeGroupsAnnotations
 
 [<Test>]
 let ``When publishing a discoverable statement it should generate static html and post to resource api`` () =
