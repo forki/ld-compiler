@@ -371,6 +371,40 @@ let ``ConfigUtilsTests: Should extract property paths from config`` () =
 
   areListsTheSame expected_PropPaths config.PropPaths
 
+
+[<Test>]
+let ``ConfigUtilsTests: Should extract data property paths from config`` () =
+  
+  let expectedDataPropPaths = [ 
+    "<https://nice.org.uk/ontologies/qualitystandard/GUID_title>" 
+    "<https://nice.org.uk/ontologies/qualitystandard/GUID_abstract>" 
+    "<https://nice.org.uk/ontologies/qualitystandard/GUID_qsidentifier>" 
+    "<https://nice.org.uk/ontologies/qualitystandard/GUID_stidentifier>"
+    "<https://nice.org.uk/ontologies/qualitystandard/GUID_hasPositionalId>"
+    "<https://nice.org.uk/ontologies/qualitystandard/GUID_isNationalPriority>"
+    "<https://nice.org.uk/ontologies/qualitystandard/GUID_changedPriorityOn>"
+    "<https://nice.org.uk/ontologies/qualitystandard/GUID_wasFirstIssuedOn>"
+  ]
+
+  let config = createConfig sampleConfig
+
+  areListsTheSame expectedDataPropPaths config.DataPropertyPaths
+
+[<Test>]
+let ``ConfigUtilsTests: Should extract object property paths from config`` () =
+  
+  let expectedObjectPropPaths = [ 
+    "<https://nice.org.uk/ontologies/qualitystandard/GUID_appliesToSetting>"
+    "<https://nice.org.uk/ontologies/qualitystandard/GUID_appliesToAgeGroup>" 
+    "<https://nice.org.uk/ontologies/qualitystandard/GUID_appliesToConditionOrDisease>" 
+    "<https://nice.org.uk/ontologies/qualitystandard/GUID_appliesToServiceArea>" 
+    "<https://nice.org.uk/ontologies/qualitystandard/GUID_appliesToFactorsAffectingHealthOrWellbeing>" 
+  ]
+
+  let config = createConfig sampleConfig
+
+  areListsTheSame expectedObjectPropPaths config.ObjectPropertyPaths
+
 [<Test>]
 let ``ConfigUtilsTests: Should get the Core TTL URI from config`` () =
   let config = createConfig sampleConfig

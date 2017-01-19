@@ -93,8 +93,7 @@ let extractResources propertyPaths =
                          { @entity a <https://nice.org.uk/ontologies/qualitystandard/e29accb1_afde_4130_bb06_2d2c7bf990db> . }
                          %s
                        }
-               """ construct clause) 
-
+               """ construct clause)
     Graph.defaultPrefixes (Uri.from "https://nice.org.uk/") [] (stardog.queryGraph [] query [ ("entity", Param.Uri entity) ])
 
   let resources = queryResources ()
@@ -108,4 +107,3 @@ let extractResources propertyPaths =
     |> Seq.filter (List.isEmpty >> not)
   Log.Information (sprintf "extracted %d subgraphs" (Seq.length xr))
   xr
-

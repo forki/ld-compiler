@@ -228,6 +228,8 @@ let ``When publishing a discoverable statement it should have explicitly annotat
     let response = getStatementsFromElastic positionalIdUri positionalIdValue
     response.Hits.Total |> should equal 1
 
+    printfn "response: %A" response
+
     response
     |> getProperty ageGroupAnnotationsExplicit
     |> should equal expectedAgeGroupsAnnotations

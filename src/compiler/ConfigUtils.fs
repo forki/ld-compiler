@@ -45,6 +45,18 @@ let private getPropPaths config =
   |> List.concat
   |> List.filter (fun f -> f <> "")
 
+let private isDataProperty p = obj.ReferenceEquals(p.PropertyPath, null) || p.PropertyPath.IsEmpty
+let private isObjectProperty p = p |> isDataProperty |> not
+
+let private getPropertyPaths filterFn config = 
+    let addBaseUrl p = sprintf "<%s%s>" config.QSBase p.Uri
+    
+    config.SchemaDetails
+    |> Seq.collect (fun f -> f.Publish)
+    |> Seq.filter filterFn
+    |> Seq.map addBaseUrl
+    |> Seq.toList
+
 let private getAnnotationConfig (config:ConfigFile) =
   config.SchemaDetails
   |> List.map (fun f -> f.Publish |> List.filter(fun p -> p.Validate))
@@ -117,6 +129,8 @@ let createConfig jsonString =
     CoreTtl = getCoreTtlUri deserialisedConfig
     Ttls = getPropertySetFromConfig getTtl
     PropPaths = getPropPaths deserialisedConfig
+    DataPropertyPaths = getPropertyPaths isDataProperty deserialisedConfig
+    ObjectPropertyPaths = getPropertyPaths isObjectProperty deserialisedConfig
     AnnotationConfig = getAnnotationConfig deserialisedConfig
     RdfTerms = getRdfTerms deserialisedConfig
     LoadRdfArgs = getRdfArgs deserialisedConfig

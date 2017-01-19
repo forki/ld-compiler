@@ -58,6 +58,8 @@ type ConfigDetails =
     Ttls : string list
     CoreTtl : Ttl
     PropPaths : string list
+    DataPropertyPaths : string list
+    ObjectPropertyPaths : string list
     AnnotationConfig : PublishItem List
     RdfTerms : (string * string) List
     LoadRdfArgs : unit -> RDFArgs
@@ -120,6 +122,8 @@ let t_configDetails = {
   CoreTtl = Uri ""
   Ttls = []
   PropPaths = []
+  DataPropertyPaths = []
+  ObjectPropertyPaths = []
   AnnotationConfig = []
   RdfTerms = []
   LoadRdfArgs = t_loadRdfArgs
