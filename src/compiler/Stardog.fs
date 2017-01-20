@@ -1,5 +1,6 @@
 module compiler.Stardog
 
+open compiler.ConfigTypes
 open Serilog
 open NICE.Logging
 open System.Diagnostics
@@ -12,8 +13,10 @@ open FSharp.Data.HttpRequestHeaders
 open FSharp.RDF
 open FSharp.RDF.Store
 open FSharp.Text.RegexProvider
+
 type PathRegex = Regex< ".*<(?<firstPartOfPropertyPath>.*)>.*">
 open System.Threading
+
 
 let createDb dbName =
   // TODO: rewrite this script as a http request!
@@ -35,7 +38,7 @@ let addGraph dbName files =
 
   proc.WaitForExit(timeout) |> ignore
 
-let extractResources propertyPaths =
+let extractResources (config:ConfigDetails) =
   Log.Information "extracting resources from stardog..."
   let stardog =
     Store.Store.stardog "http://stardog:5820" "nice" "admin" "admin" false
@@ -79,8 +82,8 @@ let extractResources propertyPaths =
       }""" [] |> ResultSet.singles |> asUri
 
   let querySubGraph entity =
-    let clause = clause propertyPaths
-    let construct = construct propertyPaths
+    let clause = clause config.PropPaths
+    let construct = construct config.PropPaths
     let query = (sprintf """
                        prefix nice: <https://nice.org.uk/>
                        construct {
@@ -94,10 +97,32 @@ let extractResources propertyPaths =
                          %s
                        }
                """ construct clause)
+    
+    Graph.defaultPrefixes (Uri.from "https://nice.org.uk/") [] (stardog.queryGraph [] query [ ("entity", Param.Uri entity) ])
+  
+  let queryExplicitResources entity =
+    let clause = clause config.ObjectPropertyPaths
+    let construct = construct config.ObjectPropertyPaths
+    let query = (sprintf """
+                       prefix nice: <https://nice.org.uk/>
+                       construct {
+                         @entity a <https://nice.org.uk/ontologies/qualitystandard/e29accb1_afde_4130_bb06_2d2c7bf990db> .
+                         %s
+                       }
+                       from <https://nice.org.uk/ontologies>
+                       from <https://nice.org.uk/>
+                       where {
+                         { @entity a <https://nice.org.uk/ontologies/qualitystandard/e29accb1_afde_4130_bb06_2d2c7bf990db> . }
+                         %s
+                       }
+               """ construct clause)
+
     Graph.defaultPrefixes (Uri.from "https://nice.org.uk/") [] (stardog.queryGraph [] query [ ("entity", Param.Uri entity) ])
 
   let resources = queryResources ()
+  
   Log.Information (sprintf "extracted %d resources from stardog" ( Seq.length resources ))
+  
   let xr =
     resources
     |> Seq.map ( querySubGraph |> retry) 
@@ -105,5 +130,25 @@ let extractResources propertyPaths =
          (Resource.fromType
             (Uri.from "https://nice.org.uk/ontologies/qualitystandard/e29accb1_afde_4130_bb06_2d2c7bf990db"))
     |> Seq.filter (List.isEmpty >> not)
+  
   Log.Information (sprintf "extracted %d subgraphs" (Seq.length xr))
+
+  let explicitResources = queryResources ()
+  
+  let explicitResourcesList =
+    explicitResources
+    |> Seq.map ( queryExplicitResources |> retry) 
+    |> Seq.map
+         (Resource.fromType
+            (Uri.from "https://nice.org.uk/ontologies/qualitystandard/e29accb1_afde_4130_bb06_2d2c7bf990db"))
+    |> Seq.filter (List.isEmpty >> not)
+
+  let resourcesMap =
+    Map.empty.
+        Add("allResources", xr).
+        Add("explicitResources", explicitResourcesList)
+
+  explicitResourcesList
+  |> Seq.iter(fun f -> printfn "explicitResourcesList %A " f)
+
   xr

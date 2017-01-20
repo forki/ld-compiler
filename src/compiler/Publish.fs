@@ -22,7 +22,8 @@ let publish outputDir (config:ConfigDetails) =
 
   let publishJsonLdResources =
     Log.Information "Publishing jsonld resources"
-    config.PropPaths
+
+    config
     |> Stardog.extractResources
     |> transformToJsonLD config.JsonLdContexts
     |> bulkUpload config.IndexName config.TypeName
