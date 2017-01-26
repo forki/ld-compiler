@@ -46,28 +46,38 @@ let private jsonLdContext contexts =
      ]
    } """ (String.concat ",\n" contexts)))
 
-let transformToJsonLD contexts resources =
-
-  let parseSingle json = 
-    let res = JsonProvider<"""{"@id":""}""">.Parse(json)
-    (res.Id.JsonValue.AsString(), json.Replace(System.Environment.NewLine, ""))
-
-  let parseMultiple json =
-    let graph = JsonProvider<""" {"@graph":[] }""">.Parse(json)
-    graph.Graph 
-    |> Seq.map (fun graph -> parseSingle ( graph.ToString() ))
-    |> Seq.toList
+let transformToJsonLD contexts (resources:Map<string,seq<Resource list>>) =
 
   let opts = jsonLdOptions () 
   let context = Context(jsonLdContext contexts, opts)
 
   let json =
-    resources
+    resources.["allResources"]
     |> Seq.map Seq.head
     |> Resource.compatctedJsonLD opts context
     |> elasiticerise
     |> toJson
     |> snd
+  
+//  let jsonExplicitResources =
+//    resources.["explicitResources"]
+//    |> Seq.map Seq.head
+//    |> Resource.compatctedJsonLD opts context
+//    |> elasiticerise
+//    |> toJson
+//    |> snd
+
+
+  let parseSingle json= 
+    let res = JsonProvider<"""{"@id":""}""">.Parse(json)
+    (res.Id.JsonValue.AsString(), json.Replace(System.Environment.NewLine, ""))
+
+  let parseMultiple json =
+    let graph = JsonProvider<""" {"@graph":[] }""">.Parse(json)
+
+    graph.Graph 
+    |> Seq.map (fun graph -> parseSingle ( graph.ToString() ))
+    |> Seq.toList
 
   match json.Contains("@graph") with
   | false ->

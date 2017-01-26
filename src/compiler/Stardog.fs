@@ -132,23 +132,20 @@ let extractResources (config:ConfigDetails) =
     |> Seq.filter (List.isEmpty >> not)
   
   Log.Information (sprintf "extracted %d subgraphs" (Seq.length xr))
-
-  let explicitResources = queryResources ()
   
-  let explicitResourcesList =
-    explicitResources
-    |> Seq.map ( queryExplicitResources |> retry) 
+  let explicitResources =
+    resources
+    |> Seq.map ( queryExplicitResources |> retry)
     |> Seq.map
          (Resource.fromType
             (Uri.from "https://nice.org.uk/ontologies/qualitystandard/e29accb1_afde_4130_bb06_2d2c7bf990db"))
     |> Seq.filter (List.isEmpty >> not)
 
-  let resourcesMap =
+  Log.Information (sprintf "extracted explicit %d subgraphs" (Seq.length explicitResources))
+  
+  let allResources =
     Map.empty.
         Add("allResources", xr).
-        Add("explicitResources", explicitResourcesList)
+        Add("explicitResources", explicitResources)
 
-  explicitResourcesList
-  |> Seq.iter(fun f -> printfn "explicitResourcesList %A " f)
-
-  xr
+  allResources
